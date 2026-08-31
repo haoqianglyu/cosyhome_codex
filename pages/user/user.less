@@ -1,0 +1,101 @@
+/* pages/user/user.wxss */
+.main_container{
+    height: 100%;
+    margin-bottom: 15vh;
+}
+.user_info_wrap{
+    height: 30vh;
+    margin: 30rpx 30rpx 15rpx 30rpx;
+    border-radius: 20rpx;
+    overflow: hidden;
+    .user_img_wrap{
+        position: relative;
+        image{
+            
+        }
+        .user_bg{ 
+            width: 100%;
+            // height: 80%;
+            object-fit:cover;
+            filter: blur(4rpx); 
+            height: 30vh;
+            // filter: blur(10rpx);
+        }
+    
+        .user_info{
+            
+            position: absolute;
+            left: 45vw;
+            transform: translateX(-50%);
+            top: 12%;
+            text-align: center;
+            .user_icon{
+                z-index: 100;
+                overflow:hidden;  
+                display: block;  
+                width: 12.5vh;  
+                height: 12.5vh;  
+                // margin: 20rpx;  
+                margin-top: 4vh;
+                margin-left: 4vh;  
+                border-radius: 50%;  
+                border: 2px solid #fff;  
+                box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);  
+
+            }
+            .user_nickname{
+                // margin-right: 50rpx;
+                margin-top: 3vh;
+                margin-left:5vw;
+                color:#fff;
+            }
+        }
+    }
+    .user_btn{
+        padding: 1.5vh;
+        button{
+            width: 60%;
+        }
+    }
+}
+
+.padding.flex.text-center.text-grey.bg-white.shadow{
+    margin-top: 2.8vh;
+    margin-left: 2.5vh;
+    margin-right: 2.5vh;
+    border-radius: 1.5vh;
+    text{
+        font-size: 70rpx;
+    }
+}
+.cu-list.menu>.cu-item{
+    min-height:100rpx
+}
+
+/* 适应页面的全局边距 */
+.transfer {
+    margin-left: 15rpx; /* 假设值，需要根据你的实际布局来调整 */
+    margin-right: 15rpx;
+}
+
+/* 保持按钮之间的间距 */
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    padding: 0; /* 确保没有内边距干扰对齐 */
+}
+
+  
+  .button-left {
+    margin-right: 10px; /* 可以根据需要调整间距大小 */
+  }
+  
+  .button-right {
+    margin-left: 10px; /* 保持与 button-left 相同的间距以对称 */
+  }
+  
+
+page{
+    background-image: url("https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/bg.png");
+    background-size: 100% 130%;
+}

@@ -1,0 +1,165 @@
+.roompage .realtime .room_name {
+  font-size: 50rpx;
+  position: relative;
+}
+.roompage .realtime .room_name .roomName {
+  position: relative;
+  text-align: center;
+  width: fit-content;
+  margin: 0 auto;
+}
+.roompage .realtime .room_name .roomName .modifybutton {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 10rpx;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+.roompage .realtime .room_name .switch_container {
+  top: 0.1vh;
+  position: absolute;
+  right: 6vw;
+}
+.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg {
+  border-radius: 20rpx;
+  padding: 30rpx 50rpx;
+}
+.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content {
+  font-size: 35rpx;
+}
+.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .realdew,
+.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .realenergy,
+.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .lock,
+.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .windcontrol {
+  display: flex;
+  margin-bottom: 15rpx;
+}
+.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .key {
+  flex: 1%;
+}
+.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .value {
+  flex: 50%;
+}
+.roompage .wrapper {
+  height: 100%;
+  display: flex;
+}
+.roompage .wrapper .left {
+  flex: 3;
+  display: flex;
+  flex-flow: column;
+  padding: 5rpx 0;
+  border-right: 1rpx solid #74CEAE;
+}
+.roompage .wrapper .left .cl1 {
+  margin: 15rpx 0 0 0;
+  text-align: center;
+  flex: 1;
+  font-size: 35rpx;
+}
+.roompage .wrapper .left .cl2 {
+  flex: 1;
+}
+.roompage .wrapper .left .cl3 {
+  flex: 1;
+}
+.roompage .wrapper .right {
+  flex: 2;
+  display: flex;
+  flex-flow: column;
+  padding: 5rpx 0;
+  margin-left: 20rpx;
+  text-align: center;
+}
+.roompage .wrapper .right .cl {
+  margin: 15rpx 0;
+  flex: 1;
+  font-size: 35rpx;
+}
+.roompage .wrapper .right .num {
+  margin: 15rpx 0;
+  flex: 1;
+  font-size: 50rpx;
+}
+.roompage .wrapper .right .iconfont.icon-plus {
+  margin: 15rpx 0;
+  border-radius: 5rpx;
+  flex: 1;
+}
+.roompage .wrapper .right .iconfont.icon-minus {
+  margin: 15rpx 0;
+  border-radius: 5rpx;
+  flex: 1;
+}
+ec-canvas {
+  margin-top: 5px;
+  width: 100%;
+  height: 50%;
+  background-color: white;
+}
+#mychart1 {
+  width: 87%;
+  height: 500rpx;
+  margin: 50rpx;
+  border-radius: 20rpx;
+  display: block;
+}
+.btn-group {
+  display: flex;
+}
+.btn-group button {
+  width: 190rpx;
+  padding: 6rpx 4rpx;
+  background-color: #ddd;
+  border-radius: 5px;
+  margin-left: 0;
+  margin-right: 10px;
+  font-size: 28rpx;
+}
+.btn-group button:first-child {
+  margin-left: 0px;
+}
+.btn-group button.selected {
+  background-color: #74CEAE;
+  color: #fff;
+}
+wx-slider .wx-slider-handle-wrapper {
+  height: 20rpx;
+}
+.windcontrol {
+  display: flex;
+  align-items: center;
+  /* 确保垂直居中 */
+}
+.button-bar {
+  display: flex;
+  border-radius: 10px;
+  /* 设置圆角 */
+  margin-left: 8rpx;
+  /* 减小左边距，根据实际需要调整 */
+  background-color: #f2f2f2;
+  /* 整个按钮组的灰色背景 */
+}
+.button {
+  flex-grow: 1;
+  text-align: center;
+  padding: 8rpx 0;
+  border-left: 1px solid #ddd;
+  /* 按钮之间的分隔线 */
+  background-color: #ddd;
+  /* 未选中按钮的灰色背景 */
+  color: black;
+  /* 未选中按钮的黑色文字 */
+}
+.button:first-child {
+  border-left: none;
+  /* 第一个按钮没有左边界 */
+}
+.button-active {
+  background-color: #74CEAE;
+  /* 选中按钮的背景色 */
+  color: white;
+  /* 选中按钮的白色文字 */
+}

@@ -1,0 +1,65 @@
+<view class="page-container">
+  <view class="summary-card">
+    <view class="title-row">
+      <text class="page-title">项目状态检查</text>
+      <text class="status-text {{loading ? 'status-loading' : ''}}">{{requestStatus}}</text>
+    </view>
+    <text class="check-time">检查时间：{{checkTime}}</text>
+  </view>
+
+  <view class="info-card">
+    <view class="info-row">
+      <text class="info-label">项目名称</text>
+      <text class="info-value">{{projectName}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">项目ID号</text>
+      <text class="info-value">{{projectId}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">业主名字</text>
+      <text class="info-value">{{customerName || '无'}}</text>
+    </view>
+    <view class="info-row info-row-last">
+      <text class="info-label">联系方式</text>
+      <text class="info-value">{{customerPhone || '无'}}</text>
+    </view>
+  </view>
+
+  <view class="warning-card">
+    <view class="section-header">
+      <text class="section-title">故障预警</text>
+      <text class="warning-count">{{warningItems.length}} 条</text>
+    </view>
+
+    <view wx:if="{{loading}}" class="empty-state">正在获取项目状态...</view>
+    <view wx:elif="{{warningItems.length === 0}}" class="empty-state">
+      {{errorMessage || '近10天暂无未解决故障'}}
+    </view>
+    <view wx:else class="warning-list">
+      <view
+        class="warning-item"
+        wx:for="{{warningItems}}"
+        wx:key="key"
+      >
+        <view class="warning-device">{{item.deviceLabel}}</view>
+        <view class="warning-content">{{item.detail}}</view>
+        <view class="warning-meta {{item.hasAlarmValue ? 'warning-meta-stacked' : ''}}">
+          <text wx:if="{{item.hasAlarmValue}}" class="alarm-value">报警值：{{item.alarmValue}}</text>
+          <text class="warning-time">故障时间：{{item.warningTime}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="bottom-action">
+    <button
+      class="refresh-button"
+      loading="{{loading}}"
+      disabled="{{loading}}"
+      bindtap="requestProjectStatus"
+    >
+      {{loading ? '正在检查...' : '重新检查'}}
+    </button>
+  </view>
+</view>

@@ -1,0 +1,32 @@
+<view class='margin-xl bg-white padding-xl radius shadow-lg'>
+  <view class='text-center margin-bottom text-lg  text-grey'>用户信息</view>
+  <view class='text-content'>
+    
+    
+    <view class="project_number">
+      <view class="key">项目ID号:</view>
+      <view class="value">{{customer_info.project_code}}</view>
+    </view>
+    <view class="customer_name">
+      <view class="key">用户名称:</view>
+      <view class="value">{{customer_info.customer_name}}</view>
+    </view>
+    <view class="customer_phone">
+      <view class="key">用户电话:</view>
+      <view class="value">{{customer_info.customer_phone}}</view>
+    </view>
+    <view class="distributor_name">
+      <view class="key">经销商:</view>
+      <view class="value">{{customer_info.distributor_name}}</view>
+    </view>
+    <view class="distributor_phone">
+      <view class="key">服务电话:</view>
+      <view class="value">{{phone}}</view>
+    </view>
+    <view class="warranty_rem">
+      <view class="key">剩余保修时间(天):</view>
+      <view class="value">{{customer_info.warranty_rem}}</view>
+    </view>
+
+  </view>
+</view>

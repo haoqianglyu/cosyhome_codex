@@ -1,0 +1,102 @@
+<view class="bind-page">
+  <view class="ambient ambient-left"></view>
+  <view class="ambient ambient-right"></view>
+
+  <view class="hero-section">
+    <view class="brand-mark">
+      <canvas id="c1" type="2d" class="brand-animation"></canvas>
+    </view>
+    <view class="hero-kicker">HC COSY HOME</view>
+    <view class="hero-title">欢迎使用健康舒适家</view>
+    <view class="hero-subtitle">绑定预留手机号，连接您的舒适生活</view>
+  </view>
+
+  <view class="bind-card">
+    <view class="section-label">手机号码</view>
+    <view class="phone-field {{inputError ? 'field-error' : (inputFocused ? 'field-active' : '')}}">
+      <view class="phone-prefix">
+        <text class="cuIcon-mobilefill phone-icon"></text>
+        <text class="country-code">+86</text>
+      </view>
+      <input
+        type="number"
+        maxlength="11"
+        class="phone-input"
+        value="{{inputValue}}"
+        placeholder="请输入预留手机号"
+        placeholder-class="phone-placeholder"
+        bindinput="onInput"
+        bindfocus="onFocus"
+        bindblur="onBlur"
+      />
+    </view>
+    <view wx:if="{{inputError}}" class="field-message error-message">{{errorMessage}}</view>
+    <view wx:else class="field-message">验证码将由“斯马科思”发送至该手机号</view>
+
+    <checkbox-group class="guest-group" bindchange="onGuestModeChange">
+      <label class="guest-option">
+        <view class="guest-copy">
+          <view class="guest-title">访客模式登录</view>
+          <view class="guest-description">使用经销商手机号体验已授权项目</view>
+        </view>
+        <checkbox
+          value="guestMode"
+          checked="{{isGuestModeEnabled}}"
+          class="guest-checkbox"
+          color="#20B979"
+        />
+      </label>
+    </checkbox-group>
+
+    <view class="next-button" hover-class="next-button-pressed" bindtap="validateAndNavigate">
+      <text>下一步</text>
+      <view class="button-arrow">›</view>
+    </view>
+
+    <view class="security-note">
+      <text class="cuIcon-lock security-icon"></text>
+      <text>您的手机号仅用于身份验证与项目绑定</text>
+    </view>
+  </view>
+
+  <view
+    class="drawer-mask {{showDrawer ? 'drawer-mask-visible' : ''}}"
+    bindtap="closeDrawer"
+  ></view>
+  <view class="drawer-container {{showDrawer ? 'drawer-visible' : ''}}">
+    <view class="drawer-handle"></view>
+    <view class="drawer-content">
+      <view class="drawer-badge">使用前确认</view>
+      <view class="welcome-text">用户服务与隐私保护</view>
+      <view class="user-notice">
+        为保障您的合法权益，请阅读并理解相关条款。我们将按照协议约定保护您的个人信息。
+      </view>
+
+      <view class="agreement-row">
+        <checkbox-group class="agreement-group" bindchange="onCheckboxChange">
+          <label class="agreement-label">
+            <checkbox
+              value="true"
+              checked="{{isCheckboxChecked}}"
+              class="agreement-checkbox"
+              color="#20B979"
+            />
+            <text>我已阅读并接受</text>
+          </label>
+        </checkbox-group>
+        <navigator class="privacy-link" url="/pages/privacy/privacy" hover-class="privacy-link-pressed">
+          《用户功能及隐私协议》
+        </navigator>
+      </view>
+
+      <view class="drawer-buttons">
+        <view class="drawer-button cancel-btn" hover-class="drawer-button-pressed" bindtap="closeDrawer">暂不使用</view>
+        <view
+          class="drawer-button confirm-btn {{isCheckboxChecked ? '' : 'confirm-disabled'}}"
+          hover-class="drawer-button-pressed"
+          bindtap="confirmDrawer"
+        >同意并继续</view>
+      </view>
+    </view>
+  </view>
+</view>

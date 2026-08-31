@@ -1,0 +1,27 @@
+<view class="cu-form-group">
+    <view class="title">日期选择</view>
+    <picker mode="date" fields="month" value="{{date}}" start="{{start_date}}" end="{{end_date}}" bindchange="bindDateChange">
+        <view class="picker">
+          当前选择的时间: {{date}}
+        </view>
+      </picker>
+</view>
+
+<view class='nav-list margin-top padding text-center text-xl'>
+    <navigator open-type="navigate" hover-class='none' url="/subpackages/mode/mode" class="nav-li bg-grey">
+        <view class="padding-xl radius shadow-warp bg-grey margin-top">运行模式占比</view>
+    </navigator>
+
+    <navigator open-type="navigate" hover-class='none' url="/subpackages/roomstats/roomstats" class="nav-li bg-grey">
+        <view class="padding-xl radius shadow-warp bg-grey margin-top">房间环境量统计</view>
+    </navigator>
+
+    <navigator open-type="navigate" hover-class='none' url="/subpackages/electricity/electricity" class="nav-li bg-grey">
+        <view class="padding-xl radius shadow-warp bg-grey margin-top">计量数据</view>
+    </navigator>
+
+    <navigator open-type="navigate" hover-class='none' url="/subpackages/building/building" class="nav-li bg-grey">
+        <view class="padding-xl radius shadow-warp bg-grey margin-top">建筑能耗</view>
+    </navigator>
+</view>
+

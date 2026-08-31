@@ -1,0 +1,141 @@
+<wxs module="numberUtil" src="../../utils/numberUtil.wxs"></wxs>
+  
+<view class="report-container">
+  <!-- 标题 & 日期 -->
+  <view class="first_title">{{ report.name }}</view>
+  <view class="period">日期间隔：{{ metrics.period }}</view>
+
+  <!-- 基本信息 -->
+  <view wx:for="{{ rows }}" wx:key="i" class="row">
+    <text class="{{ item[1] ? 'item' : 'item-wide' }}">
+      {{ item[0].label }}：{{ item[0].value }}
+    </text>
+
+    <text wx:if="{{ item[1] }}" class="item">
+      {{ item[1].label }}：{{ item[1].value }}
+    </text>
+  </view>
+
+  <!-- 饼图 -->
+  <view class="chart-wrapper">
+    <ec-canvas id="pieChart" canvas-id="pieChart" ec="{{ ecPie }}" />
+  </view>
+
+  <!-- 运行情况表格 -->
+  <view
+    wx:for="{{ tables }}"
+    wx:key="title"
+    class="table-section"
+    wx:for-item="tb"
+  >
+    <view class="table-title">{{ tb.title }}</view>
+
+    <!-- 表头 -->
+    <view class="table-row header">
+      <text wx:for="{{ tb.headers }}" wx:key="h" class="cell">{{ item }}</text>
+    </view>
+
+    <!-- 数据行 -->
+    <view
+      wx:for="{{ tb.rows }}"
+      wx:key="ri"
+      class="table-row {{ ri % 2 === 1 ? 'row-even' : '' }}"
+    >
+      <text wx:for="{{ item }}" wx:key="ci" class="cell">{{ item }}</text>
+    </view>
+  </view>
+
+  <view class="spc">
+    <view class="room-summary">
+      <view class="rs-title">房间热湿舒适数据</view>
+      <view class="rs-score">总评分：{{ roomTotalScore }}</view>
+    </view>
+
+    <!-- 图例 -->
+    <view class="legend">
+      <view wx:for="{{ colorPieces }}" wx:key="c" class="legend-item">
+        <view class="legend-color" style="background: {{ item.color }}"></view>
+        <text class="legend-label">{{ item.label }}</text>
+      </view>
+    </view>
+
+    <!-- wx:for 循环渲染每个房间 -->
+    <block
+      wx:for="{{ roomCalendars }}"
+      wx:key="id"
+      wx:for-item="room"
+      wx:for-index="idx"
+    >
+      <view class="title">
+        {{ room.name }}（{{ room.time_period }}）评分：{{
+          numberUtil.toFix(room.score)
+        }}
+      </view>
+      <ec-canvas
+        id="cal_{{ idx }}"
+        canvas-id="cal_{{ idx }}"
+        class="calendar"
+        ec="{{ room.ec }}"
+        style="width:100%;height:{{ room.canvasH }}rpx"
+      />
+    </block>
+  </view>
+
+  <view class="air-quality-container">
+    <!-- 标题 -->
+    <view class="first_title">空气质量数据</view>
+
+    <!-- 饼图 -->
+    <view class="chart-wrapper2">
+      <ec-canvas
+        id="airQualityPieChart"
+        canvas-id="airQualityPieChart"
+        ec="{{ ecPie }}"
+      />
+    </view>
+
+    <view class="chart-wrapper3">
+      <ec-canvas id="co2Chart" canvas-id="co2Chart" ec="{{ ecPie }}" />
+    </view>
+
+    <view class="chart-wrapper3">
+      <ec-canvas id="pm25Chart" canvas-id="pm25Chart" ec="{{ ecPie }}" />
+    </view>
+  </view>
+
+  <view class="build-energy">
+    <!-- 标题 -->
+    <view class="first_title">系统能耗</view>
+
+    <!-- 曲线图 -->
+    <view class="chart-wrapper4">
+      <ec-canvas id="energyChart" canvas-id="energyChart" ec="{{ ecPie }}" />
+    </view>
+  </view>
+
+  <view class="final-area">
+    <view class="rowline">
+      <text class="lastlabel">运行结论与建议：</text>
+      <text class="lastvalue">{{ endarea.evaluate }}</text>
+    </view>
+
+    <!-- 报告人姓名 -->
+    <view class="rowline">
+      <text class="lastlabel">报告人姓名：</text>
+      <text class="lastvalue">{{ endarea.reporter }}</text>
+    </view>
+
+    <!-- 完成日期 -->
+    <view class="rowline" wx:if="{{ endarea.report_time }}">
+      <text class="lastlabel">完成日期：</text>
+      <text class="lastvalue">{{ endarea.report_time }}</text>
+    </view>
+  </view>
+
+  <view class="notice">
+    
+      <text class="lastvalue" style="color: #B0B0B0;">*本报告数据来自建筑设备和能效监控管理云平台，报告人将以合规方式进行数据处理并为用户提供报告。要实现数据隔离与隐私安全防护，防止越权访问。温馨提示：本报告中可能包含用户隐私，应注意做好信息保护。非经用户同意，不得对外传播。</text>
+    
+  </view>
+    
+</view>

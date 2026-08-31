@@ -1,0 +1,111 @@
+.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg {
+  border-radius: 20rpx;
+  padding: 30rpx 50rpx;
+}
+.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content {
+  font-size: 35rpx;
+}
+.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .mode,
+.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .dewPoint,
+.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .wind {
+  display: flex;
+  margin-bottom: 15rpx;
+}
+.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .key {
+  flex: 33%;
+}
+.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .value {
+  flex: 66%;
+}
+.roompage .wrapper {
+  height: 100%;
+  display: flex;
+}
+.roompage .wrapper .left {
+  flex: 3;
+  display: flex;
+  flex-flow: column;
+  padding: 5rpx 0;
+  border-right: 1rpx solid #74CEAE;
+}
+.roompage .wrapper .left .cl1 {
+  margin: 20rpx 0 10rpx 0;
+  text-align: center;
+  flex: 1;
+  font-size: 35rpx;
+}
+.roompage .wrapper .left .cl2 {
+  margin: 0 0 45rpx 25%;
+  flex: 1;
+}
+.roompage .wrapper .left .cl3 {
+  margin: 0 0 45rpx 25%;
+  flex: 1;
+}
+.roompage .wrapper .left .cl4 {
+  margin: 0 0 0 25%;
+  flex: 1;
+}
+.roompage .wrapper .right {
+  flex: 2;
+  display: flex;
+  flex-flow: column;
+  padding: 5rpx 0;
+  margin-left: 20rpx;
+  text-align: center;
+}
+.roompage .wrapper .right .cl {
+  margin: 20rpx 0;
+  flex: 1;
+  text-align: center;
+  font-size: 35rpx;
+}
+.roompage .wrapper .right .num {
+  margin: 15rpx 0;
+  flex: 1;
+  font-size: 50rpx;
+}
+.roompage .wrapper .right .iconfont.icon-plus {
+  margin: 15rpx 0;
+  border-radius: 5rpx;
+  flex: 1;
+}
+.roompage .wrapper .right .iconfont.icon-minus {
+  margin: 15rpx 0;
+  border-radius: 5rpx;
+  flex: 1;
+}
+ec-canvas {
+  margin-top: 5px;
+  width: 100%;
+  height: 50%;
+  background-color: white;
+}
+#mychart1 {
+  width: 87%;
+  height: 500rpx;
+  margin: 50rpx;
+  border-radius: 20rpx;
+  display: block;
+}
+.btn-group {
+  display: flex;
+}
+.btn-group button {
+  width: 190rpx;
+  padding: 10px 20px;
+  background-color: #ddd;
+  border-radius: 5px;
+  margin-left: 0;
+  margin-right: 10px;
+}
+.btn-group button:first-child {
+  margin-left: 0px;
+}
+.btn-group button.selected {
+  background-color: #74CEAE;
+  color: #fff;
+}
+wx-slider .wx-slider-handle-wrapper {
+  height: 20rpx;
+}

@@ -1,0 +1,40 @@
+<view class="page-container">
+  
+  <view class="member-count-section">
+    <view class="member-count">{{memberList.length}}人</view>
+    <view class="member-count-label">成员数量</view>
+  </view>
+  
+  <scroll-view class="member-list-container" scroll-y="{{true}}" bindtap="onCloseSwipeCell">
+    <view class="member-list">
+      <van-swipe-cell 
+        wx:for="{{memberList}}" 
+        wx:key="id"
+        right-width="{{ 80 }}"
+        class="member-swipe-cell"
+        id="swipe-cell-{{index}}"
+        bind:open="onSwipeCellOpen"
+        bind:close="onSwipeCellClose"
+        data-index="{{index}}"
+      >
+        <view class="member-item" catchtap="onMemberItemTap">
+          <view class="member-info">
+            <view class="member-name">{{item.name}}</view>
+            <view class="member-phone">手机号：{{item.phone}}</view>
+          </view>
+        </view>
+        <view slot="right" class="delete-button" bindtap="onDeleteMember" data-index="{{index}}" data-id="{{item.id}}" data-name="{{item.name}}">
+          删除
+        </view>
+      </van-swipe-cell>
+    </view>
+  </scroll-view>
+  
+  <view class="add-member-section">
+    <button class="add-member-btn" bindtap="onAddMember">
+      添加成员
+    </button>
+  </view>
+  
+  <van-toast id="van-toast" />
+</view>

@@ -1,0 +1,158 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/reportlist/reportlist",
+    "pages/reportdetail/reportdetail",
+    "pages/update/update",
+    "pages/admin/admin",
+    "pages/privacy/privacy",
+    "pages/roomstats2/roomstats2",
+    "pages/modeselect/modeselect",
+    "pages/bind/bind",
+    "pages/distributor/distributor",
+    "pages/roomdetail/roomdetail",
+    "pages/rooms/rooms",
+    "pages/user/user",
+    "pages/projectstatus/projectstatus",
+    "pages/message/message",
+    "pages/report/report",
+    "pages/knowledge/knowledge",
+    "pages/equipment/equipment",
+    "pages/home/home",
+    "pages/verification/verification",
+    "pages/home2/home2",
+    "pages/envir/envir",
+    "pages/clock/clock",
+    "pages/clockNew/clockNew",
+    "pages/singlereport/singlereport",
+    "pages/devicemanage/devicemanage",
+    "pages/usermanage/usermanage"
+  ],
+  "subpackages": [
+    {
+      "root": "subpackages/mode",
+      "pages": [
+        "mode"
+      ]
+    },
+    {
+      "root": "subpackages/electricity",
+      "pages": [
+        "electricity"
+      ]
+    },
+    {
+      "root": "subpackages/roomstats",
+      "pages": [
+        "roomstats"
+      ]
+    },
+    {
+      "root": "subpackages/building",
+      "pages": [
+        "building"
+      ]
+    },
+    {
+      "root": "subpackages/userinfo",
+      "pages": [
+        "userinfo"
+      ]
+    },
+    {
+      "root": "subpackages/membership",
+      "pages": [
+        "membership"
+      ]
+    },
+    {
+      "root": "subpackages/addMember",
+      "pages": [
+        "addMember"
+      ]
+    },
+    {
+      "root": "subpackages/orders",
+      "pages": [
+        "orders"
+      ]
+    },
+    {
+      "root": "subpackages/orderdetail",
+      "pages": [
+        "orderdetail"
+      ]
+    },
+    {
+      "root": "subpackages/service",
+      "pages": [
+        "service"
+      ]
+    },
+    {
+      "root": "subpackages/repairdetail",
+      "pages": [
+        "repairdetail"
+      ]
+    },
+    {
+      "root": "subpackages/repaircreate",
+      "pages": [
+        "repaircreate"
+      ]
+    }
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#f7f7f7",
+    "navigationBarTitleText": "HC健康舒适家",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#aaaaaa",
+    "selectedColor": "#1F1F1F",
+    "backgroundColor": "#e6e6e6",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "我的家",
+        "iconPath": "icons/jia.png",
+        "selectedIconPath": "icons/jia-2.png"
+      },
+      {
+        "pagePath": "pages/rooms/rooms",
+        "text": "房间",
+        "iconPath": "icons/fangjian.png",
+        "selectedIconPath": "icons/fangjian-2.png"
+      },
+      {
+        "pagePath": "pages/user/user",
+        "text": "个人中心",
+        "iconPath": "icons/gerenfill.png",
+        "selectedIconPath": "icons/gerenfill-2.png"
+      },
+      {
+        "pagePath": "pages/home2/home2",
+        "text": "我的家",
+        "iconPath": "icons/jia.png",
+        "selectedIconPath": "icons/jia-2.png"
+      },
+      {
+        "pagePath": "pages/envir/envir",
+        "text": "环境数据",
+        "iconPath": "icons/huanjingjiance.png",
+        "selectedIconPath": "icons/huanjingjiance-2.png"
+      }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于小程序位置接口的效果展示"
+    }
+  },
+  "usingComponents": {
+    "iconfont": "/iconfont/iconfont"
+  },
+  "sitemapLocation": "sitemap.json"
+}

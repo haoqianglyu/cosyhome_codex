@@ -1,0 +1,54 @@
+<view class="roompage">
+    <view class="realtime">
+     
+        <view class="wrapper">
+            <view class="left">
+                <view class="cl1">实测温湿度</view>
+                <view class="cl2" style="text-align:{{sliderable?'left':'center'}};margin:{{sliderable?'0 0 45rpx 20%;':'0 0 45rpx 0;'}}"><text class="iconfont icon-temperature" style="font-size:80rpx;margin-right: 10rpx;color:#8a8a8a;"></text><text style="font-size:70rpx">{{realtemp}}℃</text></view>
+                <view class="cl3" style="text-align:{{sliderable?'left':'center'}};margin-left:{{sliderable?'20%;':'0;'}}"><text class="iconfont icon-humidity" style="font-size:60rpx;margin-right: 10rpx;color:#8a8a8a"></text><text style="font-size:70rpx"> {{realhumidity}}%</text></view>
+                <view class="cl4" style="text-align:{{sliderable?'left':'center'}};margin-left:{{sliderable?'20%;':'0;'}}"><text class="iconfont icon-dewpoint" style="font-size:60rpx;margin-right: 10rpx;color:#8a8a8a"></text><text style="font-size:70rpx"> {{dewPoint}}℃</text></view>
+            </view>
+            
+            <view class="right" wx:if="{{sliderable}}">
+                <view class="cl">{{setwords}}</view>
+                <text class="iconfont icon-plus" style="font-size:70rpx;margin-right: 10rpx;color:#8a8a8a" bindtap="bindPlus"></text>
+                <text class="num">{{shownum}}{{chushiway == '相对湿度' ? '%' : (chushiway == '露点温度' ? '℃' : '')}}</text>
+                <text class="iconfont icon-minus" style="font-size:70rpx;margin-right: 10rpx;color:#8a8a8a" bindtap="bindMinus"></text>
+            </view>            
+        </view>
+        
+        <view class="'margin-xl bg-white padding-xl radius shadow-lg'">
+            <view class='text-content'>
+    
+                <view class="mode">
+                    <view class="key">当前模式:</view>
+                    <view class="value">{{show_mode}}</view> 
+                  </view>
+                <view class="dewPoint">
+                  <view class="key">除湿方式:</view>
+                  <view class="value">{{chushiway}}</view> 
+                </view>
+                <view class="wind">
+                    <view class="key">除湿出风:</view>
+                    <view class="value">{{wind}}</view> 
+                  </view>
+                
+                
+            
+              </view>
+        </view>
+          
+    </view>
+    
+    <view class="statistics">
+        <ec-canvas id="mychart1" canvas-id="mychart1" ec="{{ ec1 }}"></ec-canvas>
+    </view>
+      
+</view>
+  
+
+
+  
+
+
+  

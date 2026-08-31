@@ -1,0 +1,101 @@
+<cu-custom isBack="{{true}}">
+    <view slot="backText" bindtap="BackPage">返回</view>
+    <view slot="content">房间</view>
+</cu-custom>
+<view class="roompage">
+    <view class="realtime">
+        <view class="room_name">
+            <view class="roomName">
+                {{roomName}}
+                <button class="modifybutton" bindtap="modalinput">
+                    <text class="iconfont icon-modify" style="font-size:38rpx;margin-right: 10rpx;color:#8a8a8a"></text>
+                </button>
+            </view>
+            <view class="switch_container" wx:if="{{canOff===true}}">
+                <i-cell title="kaiguan">
+                    <i-switch size="small" bind:change="onChange" slot="footer" value="{{switch1}}">
+                        <view slot="open">开</view>
+                        <view slot="close">关</view>
+                    </i-switch>
+                </i-cell>
+            </view>
+        </view>
+        <modal hidden="{{hiddenmodalput}}" title="请输入您要修改的房间名称" confirm-text="提交" cancel-text="取消" bindcancel="cancel" bindconfirm="confirm">
+            <input type='text' placeholder="请输入内容" bindinput="modifyRoomName" />
+        </modal>
+        <view class="wrapper">
+            <view class="left" wx:if="{{realtemp || realhumidity}}">
+                <view class="cl1" wx:if="{{isXLLG}}">实测温度</view>
+                <view class="cl1" wx:elif="{{realhumidity}}">实测温湿度</view>
+                <view class="cl1" wx:else>实测温度</view>
+                <view class="cl2" style="text-align:{{sliderable?'left':'center'}};margin:{{sliderable?'0 0 45rpx 15%;':'0 0 45rpx 0;'}}">
+                    <text class="iconfont icon-temperature" style="font-size:80rpx;margin-right: 10rpx;color:#8a8a8a;"></text>
+                    <text style="font-size:70rpx">{{realtemp}}℃</text>
+                </view>
+                <view class="cl3" wx:if="{{realhumidity && !isXLLG}}" style="text-align:{{sliderable?'left':'center'}};margin-left:{{sliderable?'15%;':'0;'}}">
+                    <text class="iconfont icon-humidity" style="font-size:60rpx;margin-right: 10rpx;color:#8a8a8a"></text>
+                    <text style="font-size:70rpx">{{realhumidity}}%</text>
+                </view>
+            </view>
+            <view class="right" wx:if="{{sliderable && !(isHeatingDehumidify && airConditionerModeName === '制冷')}}">
+                <view class="cl">设定温度</view>
+                <text class="iconfont icon-plus" style="font-size:70rpx;margin-right: 10rpx;color:#8a8a8a" bindtap="bindPlus"></text>
+                <text class="num">{{showtemp}}℃</text>
+                <text class="iconfont icon-minus" style="font-size:70rpx;margin-right: 10rpx;color:#8a8a8a" bindtap="bindMinus"></text>
+            </view>
+        </view>
+        <view class="'margin-xl bg-white padding-xl radius shadow-lg'">
+            <view class='text-content'>
+                <view class="realenergy" wx:if="{{!isHeatingDehumidify}}">
+                    <view class="key">节能:</view>
+                    <i-cell title="kaiguan">
+                        <i-switch size="small" bind:change="onChangePower" slot="footer" value="{{switch_power}}">
+                            <view slot="open">开</view>
+                            <view slot="close">关</view>
+                        </i-switch>
+                    </i-cell>
+                </view>
+                <view class="lock">
+                    <view class="key">锁定:</view>
+                    <i-cell title="kaiguan">
+                        <i-switch size="small" bind:change="onChangeLock" slot="footer" value="{{switch_lock}}">
+                            <view slot="open">开</view>
+                            <view slot="close">关</view>
+                        </i-switch>
+                    </i-cell>
+                </view>
+                <view class="windcontrol" wx:if="{{windLevelNumber != null && !(isHeatingDehumidify && airConditionerModeName === '制冷')}}">
+                    <view class="key">风速:</view>
+                    <view class="value">
+                        <view class="button-bar">
+                            <block wx:for="{{windLevels}}" wx:key="index">
+                                <view class="button {{currentButton == index ? 'button-active' : ''}}" bindtap="switchButton" data-index="{{index}}">
+                                    {{index + 1}}
+                                </view>
+                            </block>
+                            <view wx:if="{{isAutoWindLevel}}" class="button {{currentButton == 100 ? 'button-active' : ''}}" bindtap="switchButton" data-index="100">
+                                自动
+                            </view>
+                        </view>
+                    </view>
+                </view>
+                <view class="realteminal" wx:if="{{workModes.length > 0 && !(isHeatingDehumidify && airConditionerModeName === '制冷')}}">
+                    <view class="key">末端类型:</view>
+                    <!-- <view class="value">{{roomConfigCategoryName}}</view> -->
+                    <view class="value">
+                        <view class="btn-group">
+                            <block wx:for="{{workModes}}" wx:key="index">
+                                <button class="{{item.isSelect ? 'selected' : ''}}" data-index="{{index}}" bindtap="toggleSelection">
+                                    {{item.optionName}}
+                                </button>
+                            </block>
+                        </view>
+                    </view>
+                </view>
+            </view>
+        </view>
+    </view>
+    <view class="statistics">
+        <ec-canvas id="mychart1" canvas-id="mychart1" ec="{{ ec1 }}"></ec-canvas>
+    </view>
+</view>

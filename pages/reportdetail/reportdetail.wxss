@@ -1,0 +1,168 @@
+.report-container {
+  padding: 0 24rpx;
+}
+.spc {
+  padding: 0 24rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+/* 标题 / 日期 */
+.title {
+  font-size: 30rpx;
+  font-weight: 700;
+  text-align: center;
+  margin: 32rpx 0 20rpx;
+}
+.first_title {
+  font-size: 40rpx;
+  font-weight: 700;
+  text-align: center;
+  margin: 32rpx 0 20rpx;
+}
+.period {
+  font-size: 30rpx;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 24rpx;
+}
+/* 基本信息 */
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+.item {
+  font-size: 28rpx;
+  width: 48%;
+  word-break: break-all;
+}
+.item-wide {
+  font-size: 28rpx;
+  width: 100%;
+  word-break: break-all;
+}
+/* 饼图 */
+.chart-wrapper {
+  width: 100%;
+  height: 500rpx;
+  margin: 40rpx 0;
+}
+/* 运行情况表格 */
+.table-section {
+  margin: 60rpx 0;
+}
+.table-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+.table-row {
+  display: flex;
+}
+.cell {
+  flex: 1;
+  padding: 12rpx 6rpx;
+  font-size: 26rpx;
+  border: 1rpx solid #dcdcdc;
+  word-wrap: break-word;
+  /* 自动换行 */
+  word-break: break-all;
+  /* 强制单词在任意地方断开 */
+  white-space: normal;
+  /* 确保内容能换行 */
+}
+.header {
+  background: #f0f0f0;
+  font-weight: 600;
+}
+.row-even {
+  background: #f5f5f5;
+}
+.calendar {
+  width: 100%;
+  height: auto;
+}
+.room-summary {
+  margin: 60rpx 0 40rpx;
+  text-align: center;
+}
+.rs-title {
+  font-size: 40rpx;
+  font-weight: 700;
+}
+.rs-score {
+  font-size: 30rpx;
+  margin-top: 10rpx;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-bottom: 20rpx;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  width: 33%;
+  margin-bottom: 8rpx;
+}
+.legend-color {
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: 8rpx;
+  border: 1rpx solid #666;
+}
+.legend-label {
+  font-size: 26rpx;
+}
+.air-quality-container {
+  margin: 80rpx 0;
+  padding: 0 24rpx;
+  text-align: center;
+}
+.chart-wrapper2 {
+  width: 100%;
+  height: 400rpx;
+  margin: 40rpx 0;
+}
+.chart-wrapper3 {
+  width: 100%;
+  height: 400rpx;
+  margin: 20rpx 0;
+}
+.build-energy {
+  margin: 80rpx 0;
+  padding: 0 24rpx;
+  text-align: center;
+}
+.chart-wrapper4 {
+  width: 100%;
+  height: 400rpx;
+  margin: 20rpx 0;
+}
+.final-area {
+  margin: 80rpx 0;
+  padding: 0 24rpx;
+}
+.rowline {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+.lastlabel {
+  flex: 1.2;
+  font-size: 28rpx;
+  width: 48%;
+}
+.lastvalue {
+  flex: 2;
+  font-size: 28rpx;
+  text-align: left;
+  width: 48%;
+}
+.notice {
+  margin: 80rpx 0;
+  padding: 0 24rpx;
+}

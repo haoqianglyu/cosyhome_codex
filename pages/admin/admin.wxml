@@ -1,0 +1,24 @@
+<view class="cu-bar search" style="background:white">
+    <view class="search-form radius" style="margin-left:2%;margin-right:2%;position: fixed;width: 96%;">
+      <text class="cuIcon-search"></text>
+      <input type="text" placeholder="搜索经销商" confirm-type="search" name="distributor" bindinput="getDistributor"></input>
+    </view>
+</view>
+
+<scroll-view scroll-y class="scroll-view-y"  scroll-top="{{scrollTop}}">
+			
+    <view class="table">
+        
+        <view wx:for="{{showList}}" wx:for-index="idx" data-index="{{idx}}" bindtap="selectDistributor">
+            <view class="tr bg-g" wx:if="{{idx % 2 == 0}}" >
+                {{item.name}}
+            </view>
+            <view class="tr bg-w" wx:else>
+                {{item.name}}
+            </view>
+        </view>
+        
+        
+    </view>
+    
+</scroll-view>

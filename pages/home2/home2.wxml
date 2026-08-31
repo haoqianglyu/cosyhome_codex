@@ -1,0 +1,96 @@
+<view class="panel" style='background-image: url("https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/bg7.png");'>
+    <view class='select_box'>
+        <view class='select' catchtap='selectTap'>
+          <text class='select_text'>{{showname}}</text>
+          <image class='select_img {{show&&"select_img_rotate"}}' src='/icons/gobottom.png'></image>   
+        </view>
+          
+        
+        <view class='option_box' style='height:{{show?(searchedList.length>5?420:searchedList.length*60+120):0}}rpx;'>
+            <view class="cu-bar search">
+                <view class="search-form radius" wx:if="{{show}}" style="margin-left:1%;margin-right:1%;position: fixed;width: 93%;">
+                  <text class="cuIcon-search"></text>
+                  <input type="text" placeholder="搜索项目" confirm-type="search" name="project" bindinput="getProject"></input>
+                </view>
+            </view>
+            <view class='option' style='{{index==searchedList.length-1&&"border:0;"}}' wx:for='{{searchedList}}' wx:key='this' data-index='{{index}}' catchtap='optionTap'>{{item.name}}</view>
+        </view>
+    </view>
+
+    
+    <view class="top">
+    
+        <navigator class="mode" open-type="navigate" url="/pages/modeselect/modeselect" hover-class="none">
+            <view class="flex justify-start">
+                <text class="iconfont icon-mode{{mode_icon}}" style="font-size:55rpx;margin-right: 10rpx"></text>
+                <text class="mode" space="ensp">{{show_mode}} </text>
+                <view class="online" style="color:#E27A6D;" wx:if="{{offline}}">(设备不在线)</view>
+            </view>
+        </navigator>        
+            
+        
+          
+
+        <view class="halflogo">
+            <image class="logo" src="../../images/half_logo.png" mode="widthFix"/> 
+        </view>
+        
+          
+
+
+        <view class="deviceData">
+          <block wx:for="{{deviceData}}" wx:key="*this">
+              <view class="{{item}}">
+                  <!-- <view class="deviceName">{{item.deviceName}}</view> -->
+                  <view class="deviceName">室内环境数据</view>
+                  <view class="center">
+                      <!-- 湿度模块 -->
+                        <view class="humidity" wx:if="{{item.humidity != 65536}}">
+                            <view class="txt"> {{item.humidity}}<sup class="large-sup">%</sup></view>
+                            <view>室内湿度</view>
+                        </view>
+
+                        <!-- 间隔，仅当湿度和PM2.5都显示时 -->
+                        <view class="divider" wx:if="{{item.humidity != 65536 && item.pm2_5 != 65536}}"></view>
+
+                        <!-- PM2.5模块 -->
+                        <view class="PM2_5" wx:if="{{item.pm2_5 != 65536}}">
+                            <view class="txt"> {{item.pm2_5}}<sup class="large-sup">μg/m³</sup></view>
+                            <view>室内PM2.5</view>
+                        </view>
+
+                        <!-- 间隔，仅当PM2.5和CO₂都显示时或者湿度和CO₂都显示时 -->
+                        <view class="divider" wx:if="{{(item.pm2_5 != 65536 && item.co2 != 65536) || (item.humidity != 65536 && item.co2 != 65536)}}"></view>
+
+                        <!-- CO₂模块 -->
+                        <view class="CO" wx:if="{{item.co2 != 65536}}">
+                            <view class="txt">{{item.co2}}<sup class="large-sup">PPM</sup></view>
+                            <view>室内CO₂</view>
+                        </view>
+                  </view>
+              </view>
+          </block>
+      </view>
+      
+        
+        <view class="home_mode" >
+            <view class="athome" bindtap="backhome" style="background-color:{{home_mode?'#F6BE48':'white'}}">
+              <text class="iconfont icon-on" style="color:{{home_mode?'#fff':'grey'}}"></text>
+              <!-- <view class="margin-top-sm" style="color:{{home_mode?'#fff':'grey'}}">开启</view> -->
+            </view>
+            
+              
+            <view class="leavehome" bindtap="leavehome" style="background-color:{{home_mode?'white':'#F6BE48'}} ;">
+              <text class="iconfont icon-off" style="color:{{home_mode?'grey':'#fff'}}"></text>
+              <!-- <view class="margin-top-sm" style="color:{{home_mode?'#grey':'#fff'}}">关闭</view> -->
+            </view>
+            
+        </view> 
+        
+        
+    </view>
+
+    <view class="filter" wx:if="{{filter!=''}}">滤网剩余有效期: <text class="day" style="color:{{filter>0?'black':'red'}}">{{filter}}天</text></view>
+    
+    
+</view>

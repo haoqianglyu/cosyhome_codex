@@ -1,0 +1,84 @@
+<view class="main_container">
+  <view class="user_info_wrap">
+    <view class="user_img_wrap">
+      <image class="user_bg" src="https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/iconbg.jpg" />
+      <view class="user_info">
+        <view class="user_icon">
+          <image mode='widthFix' src="https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/bind_bg.jpg"></image>
+        </view>
+        <view class="user_nickname">您好：{{username}}</view>
+      </view>
+    </view>
+  </view>
+  <view class="padding flex text-center text-grey bg-white shadow">
+    <navigator class="flex flex-sub flex-direction solid-right" url="/pages/message/message" hover-class="none">
+      <text class="cuIcon-message text-grey"></text>
+      <view class="margin-top-sm">我的消息</view>
+    </navigator>
+    <view class="flex flex-sub flex-direction solid-right" bindtap="goReport" hover-class="none">
+      <text class="cuIcon-form text-grey"></text>
+      <view class="margin-top-sm">运行月报</view>
+      <!-- <view class="cu-tag badge">{{num}}</view> -->
+    </view>
+    <navigator class="flex flex-sub flex-direction" wx:if="{{!btn2show}}" url="/pages/knowledge/knowledge" hover-class="none">
+      <text class="cuIcon-creative text-grey"></text>
+      <view class="margin-top-sm">基础知识</view>
+    </navigator>
+    <navigator class="flex flex-sub flex-direction" wx:if="{{btn2show}}" url="/pages/update/update" hover-class="none">
+      <text class="cuIcon-warn text-grey"></text>
+      <view class="margin-top-sm">强制更新</view>
+    </navigator>
+  </view>
+  <view class="menu-grid-container margin-top-xl margin-bottom-xl">
+    <view class="menu-grid-item shadow radius">
+      <navigator class="menu-item-content" url="/subpackages/userinfo/userinfo" hover-class="none">
+        <text class="cuIcon-info text-grey menu-icon"></text>
+        <text class="text-grey menu-text">项目信息</text>
+      </navigator>
+    </view>
+    <view class="menu-grid-item shadow radius">
+      <button class="menu-item-content" style="font-weight: normal; background: transparent; border: none;" hover-class="none" open-type="feedback">
+        <text class="cuIcon-write text-grey menu-icon"></text>
+        <text class="text-grey menu-text">意见反馈</text>
+      </button>
+    </view>
+    <view class="menu-grid-item shadow radius">
+      <navigator class="menu-item-content" url="/pages/equipment/equipment" hover-class="none">
+        <text class="cuIcon-apps text-grey menu-icon"></text>
+        <text class="text-grey menu-text">设备数据</text>
+      </navigator>
+    </view>
+    <view class="menu-grid-item shadow radius" wx:if="{{showProjectStatus}}">
+      <navigator class="menu-item-content" url="/pages/projectstatus/projectstatus" hover-class="none">
+        <text class="cuIcon-command text-grey menu-icon"></text>
+        <text class="text-grey menu-text">项目状态</text>
+      </navigator>
+    </view>
+    <view class="menu-grid-item shadow radius" wx:if="{{!isXinLiangLianGong}}">
+      <navigator class="menu-item-content" url="/subpackages/service/service" hover-class="none">
+        <text class="cuIcon-repair text-grey menu-icon"></text>
+        <text class="text-grey menu-text">报修工单</text>
+      </navigator>
+    </view>
+    <view class="menu-grid-item shadow radius">
+      <navigator class="menu-item-content" url="/pages/usermanage/usermanage" hover-class="none">
+        <text class="cuIcon-settings text-grey menu-icon"></text>
+        <text class="text-grey menu-text">账号管理</text>
+      </navigator>
+    </view>
+    <view class="menu-grid-item shadow radius" wx:if="{{reportshow}}">
+      <navigator class="menu-item-content" url="/pages/reportlist/reportlist" hover-class="none">
+        <text class="cuIcon-news text-grey menu-icon"></text>
+        <text class="text-grey menu-text">查看报告</text>
+      </navigator>
+    </view>
+  </view>
+  <view class="transfer" style="text-align:center">
+    <button class="cu-btn bg-grey lg" bindtap='switchLogin' wx:if="{{buttonShow}}">
+      {{buttonMessage}}
+    </button>
+  </view>
+  <navigator class="transfer2" wx:if="{{btn2show}}" url="/pages/admin/admin" style="text-align:center">
+    <button class="cu-btn bg-grey lg">切换经销商</button>
+  </navigator>
+</view>

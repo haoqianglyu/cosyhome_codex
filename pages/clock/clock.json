@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "i-switch": "../../dist/switch/index"
+  }
+}

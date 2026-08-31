@@ -1,0 +1,107 @@
+<div class="main_container">
+    <view class="control">
+        <view class="key">定时功能:</view>
+        <i-switch size="small" bind:change="onChangePower" value="{{switch_on}}">
+            <view slot="open" style="font-size: 25rpx;">开</view>
+            <view slot="close" style="font-size: 25rpx;">关</view>
+        </i-switch>
+    </view>
+
+
+    <view class="tabs">
+        <view class="{{currentTab == 1 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="1">模式1</view>
+        <view class="{{currentTab == 2 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="2">模式2</view>
+        <view class="{{currentTab == 3 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="3">模式3</view>
+        <view class="{{currentTab == 4 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="4">单次</view>
+    </view>
+
+    <view class="tab-content">
+        <!-- 模式1的时间选择器 -->
+        <view wx:if="{{currentTab == 1}}">
+            <view class="cu-form-group">
+                <view class="title">时间选择</view>
+                <picker mode="time" value="{{clock_info.timingMode[0][0]}}" start="00:00" end="23:59" bindchange="bindTimeChangeMode1Start">
+                    <view class="picker">
+                        当前开始时间: {{clock_info.timingMode[0][0]}}
+                    </view>
+                </picker>
+            </view>   
+            <view class="cu-form-group">
+                <view class="title">时间选择</view>
+                <picker mode="time" value="{{clock_info.timingMode[0][1]}}" start="00:00" end="23:59" bindchange="bindTimeChangeMode1End">
+                    <view class="picker">
+                        当前结束时间: {{clock_info.timingMode[0][1]}}
+                    </view>
+                </picker>
+            </view>
+        </view>
+    
+        <!-- 模式2的时间选择器 -->
+        <view wx:if="{{currentTab == 2}}">
+            <view class="cu-form-group">
+                <view class="title">时间选择</view>
+                <picker mode="time" value="{{clock_info.timingMode[1][0]}}" start="00:00" end="23:59" bindchange="bindTimeChangeMode2Start">
+                    <view class="picker">
+                        当前开始时间: {{clock_info.timingMode[1][0]}}
+                    </view>
+                </picker>
+            </view>   
+            <view class="cu-form-group">
+                <view class="title">时间选择</view>
+                <picker mode="time" value="{{clock_info.timingMode[1][1]}}" start="00:00" end="23:59" bindchange="bindTimeChangeMode2End">
+                    <view class="picker">
+                        当前结束时间: {{clock_info.timingMode[1][1]}}
+                    </view>
+                </picker>
+            </view>
+        </view>
+    
+        <!-- 模式3的时间选择器 -->
+        <view wx:if="{{currentTab == 3}}">
+            <view class="cu-form-group">
+                <view class="title">时间选择</view>
+                <picker mode="time" value="{{clock_info.timingMode[2][0]}}" start="00:00" end="23:59" bindchange="bindTimeChangeMode3Start">
+                    <view class="picker">
+                        当前开始时间: {{clock_info.timingMode[2][0]}}
+                    </view>
+                </picker>
+            </view>   
+            <view class="cu-form-group">
+                <view class="title">时间选择</view>
+                <picker mode="time" value="{{clock_info.timingMode[2][1]}}" start="00:00" end="23:59" bindchange="bindTimeChangeMode3End">
+                    <view class="picker">
+                        当前结束时间: {{clock_info.timingMode[2][1]}}
+                    </view>
+                </picker>
+            </view>
+        </view>
+    
+        <!-- 单次模式的时间选择器 -->
+        <view wx:if="{{currentTab == 4}}">
+            <view class="cu-form-group">
+                <view class="title">时间选择</view>
+                <picker mode="time" value="{{clock_info.timingMode[3][0]}}" start="00:00" end="23:59" bindchange="bindTimeChangeMode4Start">
+                    <view class="picker">
+                        当前开始时间: {{clock_info.timingMode[3][0]}}
+                    </view>
+                </picker>
+            </view>   
+            <view class="cu-form-group">
+                <view class="title">时间选择</view>
+                <picker mode="time" value="{{clock_info.timingMode[3][1]}}" start="00:00" end="23:59" bindchange="bindTimeChangeMode4End">
+                    <view class="picker">
+                        当前结束时间: {{clock_info.timingMode[3][1]}}
+                    </view>
+                </picker>
+            </view>
+        </view>
+    </view>
+
+    <view class="buttons">
+        <view class="cancel-btn" bindtap="cancel">取消</view>
+        <view class="confirm-btn" bindtap="confirm">确认</view>
+    </view>
+    
+    
+
+</div>

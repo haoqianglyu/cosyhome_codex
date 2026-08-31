@@ -1,0 +1,31 @@
+<view class="table">
+    <view class="tr bg-w">
+      <view class="th">计量参数</view>
+      <view class="th">计量表</view>
+      <view class="th">单位</view>
+      <view class="th">月消耗</view>
+      <view class="th">日均值</view>
+    </view>
+    
+    <block wx:for="{{listData}}" wx:key="index">
+        <view class="tr bg-g" wx:if="{{index % 2 == 0}}">
+            <view class="td">{{ item.column1 }}</view>
+            <view class="td">{{ item.column2 }}</view>
+            <view class="td">{{ item.column3 }}</view>
+            <view class="td">{{ item.column4 }}</view>
+            <view class="td">{{ item.column5 }}</view>
+      </view>
+      <view class="tr" wx:else>
+            <view class="td">{{ item.column1 }}</view>
+            <view class="td">{{ item.column2 }}</view>
+            <view class="td">{{ item.column3 }}</view>
+            <view class="td">{{ item.column4 }}</view>
+            <view class="td">{{ item.column5 }}</view>
+            </view>
+    </block>
+  </view>
+
+<view class="statistics">
+    <ec-canvas id="mychart1" canvas-id="mychart1" ec="{{ ec1 }}"></ec-canvas>
+</view>
+  

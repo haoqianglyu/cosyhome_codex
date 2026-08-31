@@ -1,0 +1,17 @@
+<!-- 报告列表 -->
+<view class="report-list">
+  <view class="report-item" wx:for="{{reports}}" wx:key="id"
+        data-index="{{index}}" bindtap="onReportTap">
+    <view class="row">
+      <text class="name">{{item.name}}</text>
+      <text class="score">{{item.score}}</text>
+    </view>
+    <view class="row">
+      <text class="period">{{item.period}}</text>
+      <text class="created">{{item.created_at}}</text>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{!reports.length}}" class="empty">暂无报告</view>
+</view>

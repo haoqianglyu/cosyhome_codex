@@ -1,0 +1,32 @@
+<view class="page-container">
+  
+  <view class="page-wrapper">
+    <view class="order-list-container">
+      <view wx:if="{{ orderList.length > 0 }}">
+        <view class="order-card" wx:for="{{ orderList }}" wx:key="id" bind:tap="navigateToDetail" data-id="{{item.id}}">
+          <view class="card-header">
+            <view class="user-info">
+              <van-icon name="user-circle-o" size="20px" color="#1989fa" />
+              <text class="user-name">{{ item.name }}</text>
+            </view>
+          </view>
+          <view class="create-time-row">
+            <view class="create-time">创建时间: {{ item.createdAt }}</view>
+          </view>
+  
+          <view class="card-body">
+            <view class="order-title">{{ item.title }}</view>
+          </view>
+          
+          <view class="card-footer">
+            <view class="service-type">服务类型: {{ item.serviceType }}</view>
+            <view class="rating-status {{item.ratingClass}}">{{ item.ratingText }}</view>
+          </view>
+        </view>
+      </view>
+      <view wx:else class="empty-state">
+        <text>暂无已完成工单</text>
+      </view>
+    </view>
+  </view>
+</view>

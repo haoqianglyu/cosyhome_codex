@@ -1,0 +1,26 @@
+.margin-xl.bg-white.padding-xl.radius.shadow-lg {
+  border-radius: 20rpx;
+  margin-top: 40%;
+}
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content {
+  font-size: 35rpx;
+}
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .currentCodeVersion,
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .currentVersion,
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .latestCodeVersion,
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .latestVersion {
+  display: flex;
+  margin-bottom: 15rpx;
+}
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .key {
+  flex: 50%;
+}
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .value {
+  flex: 50%;
+}
+
+.force-update-button {
+  width: 360rpx;
+  margin: 36rpx auto 0;
+  border-radius: 999rpx;
+}

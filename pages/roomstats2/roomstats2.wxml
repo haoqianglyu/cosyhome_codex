@@ -1,0 +1,43 @@
+<wxs module="numberUtil" src="../../utils/numberUtil.wxs"></wxs>
+<view class="panel">
+    <view class='nav-list margin-top'>
+        <view class="nav-li" wx:for="{{content}}" wx:key="index">
+          
+            <!-- <view class="text-center margin-bottom text-lg  text-grey">
+                {{item.name}}
+            </view> -->
+    
+            <view class="table">
+                <view class="tr">
+                  <view class="th_first">参数</view>
+                  <view class="th_first">温度</view>
+                  <view class="th_first">湿度</view>
+                  <view class="th_first">露点</view>
+    
+                </view>
+                <view class="tr">
+                  <view class="th">单位</view>
+                  <view class="th">℃</view>
+                  <view class="th">%</view>
+                  <view class="th">℃</view>
+                </view>
+                
+                  <view class="tr">
+                    <view class="td">均值</view>
+                    <view class="td">{{item.avgTemperature?numberUtil.toFix(item.avgTemperature):"-"}}</view>
+                    <view class="td">{{item.avgHumidity?numberUtil.toFix(item.avgHumidity):"-"}}</view>
+                    <view class="td">{{item.avgDewPoint?numberUtil.toFix(item.avgDewPoint):"-"}}</view>
+                  </view>
+                  <view class="tr">
+                    <view class="td">标准差</view>
+                    <view class="td">{{item.sdTemperature?2*numberUtil.toFix(item.sdTemperature):"-"}}</view>
+                    <view class="td">{{item.sdHumidity?2*numberUtil.toFix(item.sdHumidity):"-"}}</view>
+                    <view class="td">{{item.sdDewPoint?2*numberUtil.toFix(item.sdDewPoint):"-"}}</view>
+                
+                  </view>
+                
+              </view>
+            
+        </view>
+    </view>
+</view>

@@ -1,0 +1,299 @@
+/* 页面级别设置 */
+page {
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
+
+/* Page Container */
+.page-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+}
+
+
+.page-wrapper {
+    flex: 1;
+    padding: 40rpx 24rpx 24rpx 24rpx;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 0;
+    padding-bottom: 60rpx;
+  }
+  .card {
+    background: #ffffff;
+    border: 1rpx solid #e8e8e8;
+    border-radius: 16rpx;
+    padding: 40rpx 32rpx;
+    margin-bottom: 30rpx;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+  }
+  .submit-btn {
+    background: linear-gradient(135deg, #00bcd4, #009688);
+    color: white;
+    border: none;
+    border-radius: 16rpx;
+    font-size: 32rpx;
+    font-weight: 600;
+    box-shadow: 0 4rpx 16rpx rgba(0, 188, 212, 0.3);
+    margin-top: 30rpx;
+    padding: 24rpx 60rpx !important;
+  }
+  .header-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header-title {
+    font-size: 36rpx;
+    font-weight: bold;
+    color: #333333;
+  }
+  .header-status {
+    font-size: 30rpx;
+    font-weight: bold;
+    color: #666666;
+  }
+  .status-completed {
+    color: #07c160;
+  }
+  .detail-row {
+    display: flex;
+    font-size: 28rpx;
+    line-height: 1.7;
+    align-items: flex-start;
+    padding: 8rpx 0;
+  }
+  .label {
+    width: 220rpx;
+    color: #666666;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+  .value {
+    color: #333333;
+    flex: 1;
+    font-weight: 500;
+  }
+  .value.address {
+    word-break: break-all;
+  }
+  .card-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20rpx;
+  }
+  .card-title {
+    font-size: 30rpx;
+    font-weight: 500;
+    color: #333333;
+  }
+  .service-checkbox {
+    padding: 16rpx 0;
+    border-bottom: 1rpx solid #f0f0f0;
+  }
+  .service-checkbox:last-child {
+    border-bottom: none;
+  }
+
+  /* van-checkbox 颜色适配白色主题 */
+  .service-checkbox .van-checkbox__label {
+    color: #333333 !important;
+    font-weight: 500;
+  }
+
+  .service-checkbox .van-checkbox__icon--checked {
+    background-color: #00bcd4 !important;
+    border-color: #00bcd4 !important;
+  }
+
+  .service-checkbox .van-checkbox__icon {
+    border-color: #ddd !important;
+    background-color: #ffffff !important;
+  }
+  .remarks-row {
+    margin-top: 20rpx;
+    border-top: 1rpx solid #f0f0f0;
+    padding-top: 10rpx;
+  }
+  .remarks-row .value {
+    word-break: break-all;
+  }
+  .timeline-card .card-title {
+    margin-bottom: 30rpx;
+    display: block;
+  }
+  .manual-timeline {
+    position: relative;
+  }
+  .timeline-item {
+    position: relative;
+    padding-left: 50rpx;
+    padding-bottom: 40rpx;
+  }
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 11rpx;
+    width: 2rpx;
+    height: 100%;
+    background-color: #ebedf0;
+  }
+  .timeline-item:last-child::before {
+    height: 12rpx;
+  }
+  .timeline-item::after {
+    content: '';
+    position: absolute;
+    top: 6rpx;
+    left: 0;
+    width: 24rpx;
+    height: 24rpx;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 4rpx solid #1989fa;
+    box-sizing: border-box;
+    z-index: 1;
+  }
+  .timeline-item-content {
+    position: relative;
+  }
+  .content-line-1 {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 28rpx;
+    color: #333333;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+  .line-1-text {
+    margin-right: 10rpx;
+  }
+  .desc-icon {
+    color: #1989fa;
+    font-size: 34rpx;
+    flex-shrink: 0;
+  }
+  .content-line-2 {
+    font-size: 24rpx;
+    color: #999999;
+    margin-top: 8rpx;
+  }
+  .empty-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60vh;
+  }
+  .empty-text {
+    font-size: 32rpx;
+    color: #999999;
+  }
+
+/* 评价区域样式 */
+.rating-card {
+  margin-top: 20rpx;
+}
+
+.rating-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30rpx;
+  flex-wrap: wrap;
+}
+
+.rating-label {
+  color: #666666;
+  font-size: 28rpx;
+  margin-right: 20rpx;
+  margin-bottom: 10rpx;
+  line-height: 60rpx;
+}
+
+.rating-text {
+  color: #333333;
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-left: 20rpx;
+}
+
+.review-section {
+  margin-bottom: 30rpx;
+}
+
+.review-label {
+  color: #666666;
+  font-size: 28rpx;
+  margin-bottom: 15rpx;
+  display: block;
+}
+
+/* van-field 输入框样式适配 */
+.review-input {
+  color: #333333 !important;
+  font-size: 28rpx !important;
+}
+
+.review-input::placeholder {
+  color: #999999 !important;
+}
+
+.submit-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 20rpx;
+}
+
+/* van-button 样式适配 */
+.submit-section .van-button {
+  width: 100%;
+  max-width: 400rpx;
+  padding: 24rpx 60rpx !important; /* 增加左右内边距 */
+}
+
+.submit-section .van-button--large {
+  height: 88rpx;
+  line-height: 88rpx;
+  padding: 24rpx 60rpx !important; /* 增加左右内边距 */
+}
+
+/* van-rate 组件样式适配 */
+.rating-section .van-rate {
+  margin: 10rpx 0;
+}
+
+/* 已评价显示样式 */
+.existing-rating {
+  opacity: 0.9;
+}
+
+.existing-review-content {
+  background: #f8f8f8;
+  border: 1rpx solid #e8e8e8;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  color: #333333;
+  font-size: 28rpx;
+  line-height: 1.6;
+  word-break: break-all;
+  min-height: 80rpx;
+  height: auto;
+  max-height: none;
+}

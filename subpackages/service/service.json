@@ -1,0 +1,9 @@
+{
+    "navigationBarTitleText": "报修工单",
+    "usingComponents": {
+        "van-icon": "@vant/weapp/icon/index",
+        "van-empty": "@vant/weapp/empty/index",
+        "van-button": "@vant/weapp/button/index"
+    },
+    "navigationStyle": "default"
+}

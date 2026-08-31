@@ -1,0 +1,35 @@
+<!-- pages/usermanage/usermanage.wxml -->
+<view class="container">
+    <view class="card-container">
+        <navigator class="card-item" url="/subpackages/membership/membership" hover-class="none" wx:if="{{!isMemberLogin}}">
+            <view class="card-content">
+                <text class="cuIcon-group card-icon"></text>
+                <view class="card-info">
+                    <text class="card-title">成员管理</text>
+                    <text class="card-desc">管理家庭成员权限</text>
+                </view>
+                <text class="cuIcon-right card-arrow"></text>
+            </view>
+        </navigator>
+        <navigator class="card-item" url="/pages/bind/bind" hover-class="none" open-type="reLaunch">
+            <view class="card-content">
+                <text class="cuIcon-link card-icon"></text>
+                <view class="card-info">
+                    <text class="card-title">切换绑定</text>
+                    <text class="card-desc">切换当前绑定账号</text>
+                </view>
+                <text class="cuIcon-right card-arrow"></text>
+            </view>
+        </navigator>
+        <navigator class="card-item" url="/pages/devicemanage/devicemanage" hover-class="none">
+            <view class="card-content">
+                <text class="cuIcon-mobile card-icon"></text>
+                <view class="card-info">
+                    <text class="card-title">登录设备</text>
+                    <text class="card-desc">管理已登录的设备</text>
+                </view>
+                <text class="cuIcon-right card-arrow"></text>
+            </view>
+        </navigator>
+    </view>
+</view>

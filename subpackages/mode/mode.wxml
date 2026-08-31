@@ -1,0 +1,4 @@
+<!--pages/mode/mode.wxml-->
+<view class="statistics">
+    <ec-canvas id="mychart2" canvas-id="mychart2" ec="{{ ec2 }}"></ec-canvas>
+</view>

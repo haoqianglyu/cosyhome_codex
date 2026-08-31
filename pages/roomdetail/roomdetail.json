@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "ec-canvas":"../../ec-canvas/ec-canvas",
+    "i-switch": "../../dist/switch/index",
+    "cu-custom": "/colorui/components/cu-custom"
+  },
+  "navigationStyle": "custom"
+}

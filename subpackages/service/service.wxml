@@ -1,0 +1,82 @@
+<view class="page-container">
+    <view class="tabs-header">
+        <view class="tab-item {{currentTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">
+            <text>我的报修</text>
+            <view class="indicator" wx:if="{{currentTab === 0}}"></view>
+        </view>
+        <view class="tab-item {{currentTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">
+            <text>我的工单</text>
+            <view class="indicator" wx:if="{{currentTab === 1}}"></view>
+        </view>
+    </view>
+    <swiper class="content-swiper" current="{{currentTab}}" bindchange="onSwiperChange">
+        <!-- Repair List Tab -->
+        <swiper-item>
+            <scroll-view scroll-y class="scroll-view" refresher-enabled bindrefresherrefresh="onPullDownRefreshRepair" refresher-triggered="{{isRepairRefreshing}}">
+                <view class="list-container">
+                    <view wx:if="{{ repairList.length > 0 }}">
+                        <view class="card" wx:for="{{ repairList }}" wx:key="id" bindtap="navigateToRepairDetail" data-item="{{item}}">
+                            <view class="card-header">
+                                <view class="header-left">
+                                    <van-icon name="label-o" size="20px" color="{{ item.statusColor }}" />
+                                    <text class="title">{{ item.description || '未填写描述' }}</text>
+                                </view>
+                                <view class="status {{item.statusClass}}">
+                                    {{ item.statusText }}
+                                </view>
+                            </view>
+                            <view class="card-body">
+                                <view class="info-row">
+                                    <text class="label">创建时间:</text>
+                                    <text class="value">{{ item.created_at }}</text>
+                                </view>
+                            </view>
+                        </view>
+                    </view>
+                    <view wx:else class="empty-state">
+                        <van-empty description="暂无报修记录" />
+                    </view>
+                    <!-- Spacer for the fixed button -->
+                    <view style="height: 80px;"></view>
+                </view>
+            </scroll-view>
+            <view class="feedback-btn-container">
+                <van-button type="primary" round block bind:click="navigateToFeedback" icon="plus">
+                    一键反馈
+                </van-button>
+            </view>
+        </swiper-item>
+        <!-- Order List Tab -->
+        <swiper-item>
+            <scroll-view scroll-y class="scroll-view" refresher-enabled bindrefresherrefresh="onPullDownRefreshOrder" refresher-triggered="{{isOrderRefreshing}}">
+                <view class="list-container">
+                    <view wx:if="{{ orderList.length > 0 }}">
+                        <view class="order-card" wx:for="{{ orderList }}" wx:key="id" bindtap="navigateToOrderDetail" data-id="{{item.id}}">
+                            <view class="card-header">
+                                <view class="user-info">
+                                    <van-icon name="orders-o" size="20px" color="#1989fa" />
+                                    <text class="user-name">{{ item.name }}</text>
+                                </view>
+                            </view>
+                            <view class="create-time-row">
+                                <view class="create-time">创建时间: {{ item.createdAt }}</view>
+                            </view>
+                            <view class="card-body">
+                                <view class="order-title">{{ item.title }}</view>
+                            </view>
+                            <view class="card-footer">
+                                <view class="service-type">服务类型: {{ item.serviceType }}</view>
+                                <view class="rating-status {{item.ratingClass}}">
+                                    {{ item.ratingText }}
+                                </view>
+                            </view>
+                        </view>
+                    </view>
+                    <view wx:else class="empty-state">
+                        <van-empty description="暂无工单记录" />
+                    </view>
+                </view>
+            </scroll-view>
+        </swiper-item>
+    </swiper>
+</view>

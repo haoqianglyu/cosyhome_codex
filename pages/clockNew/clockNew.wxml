@@ -1,0 +1,150 @@
+<view class="main-container">
+    <!-- 定时功能开关和时间模式选择 -->
+  <view class="top-controls">
+    <!-- 定时功能开关 -->
+    <view class="control-group left">
+        <view class="key">定时功能:</view>
+        <i-switch size="small" bind:change="onChangePower" value="{{switch_on}}">
+            <view slot="open" style="font-size: 32rpx;">开</view>
+            <view slot="close" style="font-size: 32rpx;">关</view>
+        </i-switch>
+    </view>
+
+    <!-- 时间模式(在家/离家) -->
+    <view class="control-group right">
+      <text class="label">时间模式:</text>
+      <view class="btn-group">
+        <button 
+          class="mode-btn first-btn {{mode==='home'?'btn-active':''}}" 
+          data-mode="home" 
+          bindtap="setMode"
+        >在家</button>
+        <button 
+          class="mode-btn last-btn {{mode==='away'?'btn-active':''}}" 
+          data-mode="away"
+          bindtap="setMode"
+        >离家</button>
+      </view>
+    </view>
+  </view>
+    
+  
+    <!-- Tab切换：每天 / 节假日 / 工作日 / 单次 -->
+    <view class="tabs">
+        <view class="{{currentTab == 1 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="1">每天</view>
+        <view class="{{currentTab == 2 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="2">节假日</view>
+        <view class="{{currentTab == 3 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="3">工作日</view>
+        <view class="{{currentTab == 4 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="4">单次</view>
+      </view>
+      
+  
+   <!-- 对应tab的内容区域 -->
+<view class="tab-content">
+    <!-- 每天 -->
+    <view wx:if="{{currentTab == 1}}" class="time-picker-blocks">
+      <view class="cu-form-group">
+          <view class="title">时间选择</view>
+          <picker mode="time" value="{{clock_info.timingMode[0][0]}}" start="00:00" end="23:59" bindchange="bindTimeChangeDailyStart">
+              <view class="picker">
+                  当前开始时间: {{clock_info.timingMode[0][0]}}
+              </view>
+          </picker>
+      </view>   
+      <view class="cu-form-group">
+          <view class="title">时间选择</view>
+          <picker mode="time" value="{{clock_info.timingMode[0][1]}}" start="00:00" end="23:59" bindchange="bindTimeChangeDailyEnd">
+              <view class="picker">
+                  当前结束时间: {{clock_info.timingMode[0][1]}}
+              </view>
+          </picker>
+      </view>
+      <!-- 当定时功能为“开”时，显示提示文字 -->
+      <view wx:if="{{switch_on}}" class="notice">
+        *每天 {{clock_info.timingMode[0][0]}} - {{clock_info.timingMode[0][1]}} {{mode === 'away' ? '离家' : '在家'}}，<br />
+        其余时间段均为 {{mode === 'away' ? '在家' : '离家'}}
+      </view>
+  </view>
+
+    <view wx:if="{{currentTab == 2}}" class="time-picker-blocks">
+      <view class="cu-form-group">
+          <view class="title">时间选择</view>
+          <picker mode="time" value="{{clock_info.timingMode[1][0]}}" start="00:00" end="23:59" bindchange="bindTimeChangeHolidayStart">
+              <view class="picker">
+                  当前开始时间: {{clock_info.timingMode[1][0]}}
+              </view>
+          </picker>
+      </view>   
+      <view class="cu-form-group">
+          <view class="title">时间选择</view>
+          <picker mode="time" value="{{clock_info.timingMode[1][1]}}" start="00:00" end="23:59" bindchange="bindTimeChangeHolidayEnd">
+              <view class="picker">
+                  当前结束时间: {{clock_info.timingMode[1][1]}}
+              </view>
+          </picker>
+      </view>
+      <!-- 当定时功能为“开”时，显示提示文字 -->
+      <view wx:if="{{switch_on}}" class="notice">
+        *节假日(智能跳过工作日) {{clock_info.timingMode[1][0]}} - {{clock_info.timingMode[1][1]}} {{mode === 'away' ? '离家' : '在家'}}，<br />
+        其余时间段(含工作日)均为 {{mode === 'away' ? '在家' : '离家'}}
+      </view>
+  </view>
+  
+    <!-- 工作日 -->
+    <view wx:if="{{currentTab == 3}}" class="time-picker-blocks">
+      <view class="cu-form-group">
+          <view class="title">时间选择</view>
+          <picker mode="time" value="{{clock_info.timingMode[2][0]}}" start="00:00" end="23:59" bindchange="bindTimeChangeWorkdayStart">
+              <view class="picker">
+                  当前开始时间: {{clock_info.timingMode[2][0]}}
+              </view>
+          </picker>
+      </view>   
+      <view class="cu-form-group">
+          <view class="title">时间选择</view>
+          <picker mode="time" value="{{clock_info.timingMode[2][1]}}" start="00:00" end="23:59" bindchange="bindTimeChangeWorkdayEnd">
+              <view class="picker">
+                  当前结束时间: {{clock_info.timingMode[2][1]}}
+              </view>
+          </picker>
+      </view>
+      <view wx:if="{{switch_on}}" class="notice">
+        *工作日(智能跳过节假日) {{clock_info.timingMode[2][0]}} - {{clock_info.timingMode[2][1]}} {{mode === 'away' ? '离家' : '在家'}}，<br />
+        其余时间段(含节假日)均为 {{mode === 'away' ? '在家' : '离家'}}
+      </view>
+  </view>
+  
+    <!-- 单次 -->
+    <view wx:if="{{currentTab == 4}}" class="time-picker-blocks">
+      <view class="cu-form-group">
+          <view class="title">时间选择</view>
+          <picker mode="time" value="{{clock_info.timingMode[3][0]}}" start="00:00" end="23:59" bindchange="bindTimeChangeOnceStart">
+              <view class="picker">
+                  当前开始时间: {{clock_info.timingMode[3][0]}}
+              </view>
+          </picker>
+      </view>   
+      <view class="cu-form-group">
+          <view class="title">时间选择</view>
+          <picker mode="time" value="{{clock_info.timingMode[3][1]}}" start="00:00" end="23:59" bindchange="bindTimeChangeOnceEnd">
+              <view class="picker">
+                  当前结束时间: {{clock_info.timingMode[3][1]}}
+              </view>
+          </picker>
+      </view>
+      <view wx:if="{{switch_on}}" class="notice">
+        <!-- 判断开始时间和结束时间的关系 -->
+        <view>
+            {{noticeText}}
+     
+        </view>
+      </view>
+  </view>
+  </view>
+  
+    <!-- 底部按钮 -->
+    <view class="buttons">
+      <view class="cancel-btn" bindtap="cancel">取消</view>
+      <view class="confirm-btn" bindtap="confirm">确认</view>
+    </view>
+  </view>
+  

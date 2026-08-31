@@ -1,0 +1,22 @@
+.margin-xl.bg-white.padding-xl.radius.shadow-lg {
+  border-radius: 20rpx;
+  margin-top: 40%;
+}
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content {
+  font-size: 35rpx;
+}
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .project_number,
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .customer_name,
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .customer_phone,
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .distributor_name,
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .distributor_phone,
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .warranty_rem {
+  display: flex;
+  margin-bottom: 15rpx;
+}
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .key {
+  flex: 50%;
+}
+.margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .value {
+  flex: 50%;
+}

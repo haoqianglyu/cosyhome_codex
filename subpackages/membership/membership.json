@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "成员列表",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "van-toast": "@vant/weapp/toast/index",
+    "van-swipe-cell": "@vant/weapp/swipe-cell/index"
+  }
+}

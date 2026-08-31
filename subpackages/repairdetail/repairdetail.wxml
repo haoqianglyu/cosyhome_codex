@@ -1,0 +1,41 @@
+<view class="page-container">
+    <view class="detail-card">
+        <view class="header">
+            <text class="title">{{ repair.project_name || '未命名报修' }}</text>
+            <view class="status {{repair.statusClass}}">{{ repair.statusText }}</view>
+        </view>
+        <view class="info-section">
+            <view class="section-title">基本信息</view>
+            <view class="info-item">
+                <text class="label">联系人</text>
+                <text class="value">{{ repair.name || '-' }}</text>
+            </view>
+            <view class="info-item">
+                <text class="label">联系电话</text>
+                <text class="value">{{ repair.phone || '-' }}</text>
+            </view>
+            <view class="info-item">
+                <text class="label">详细地址</text>
+                <text class="value">{{ repair.address || '-' }}</text>
+            </view>
+            <view class="info-item">
+                <text class="label">关联工单</text>
+                <text class="value">{{ repair.work_order_name || '-' }}</text>
+            </view>
+            <view class="info-item">
+                <text class="label">创建时间</text>
+                <text class="value">{{ repair.created_at }}</text>
+            </view>
+        </view>
+        <view class="info-section">
+            <view class="section-title">问题描述</view>
+            <view class="description">{{ repair.description || '无详细描述' }}</view>
+        </view>
+        <view class="info-section" wx:if="{{ attachments.length > 0 }}">
+            <view class="section-title">附件</view>
+            <view class="attachment-container">
+                <van-uploader file-list="{{ attachments }}" preview-size="200rpx" disabled="{{ true }}" deletable="{{ false }}" max-count="{{ attachments.length }}" />
+            </view>
+        </view>
+    </view>
+</view>

@@ -1,0 +1,68 @@
+<wxs module="numberUtil" src="../../utils/numberUtil.wxs"></wxs>
+
+<view class="panel">
+    <view class='select_box'>
+        <view class='select' catchtap='selectTap'>
+          <text class='select_text'>{{floors[index]}}</text>
+          <image class='select_img {{show&&"select_img_rotate"}}' src='/icons/gobottom.png'></image>   
+        </view>
+        
+        <view class='option_box' style='height:{{show?(floors.length>5?300:floors.length*60):0}}rpx;'>
+            <text class='option' style='{{index==floors.length-1&&"border:0;"}}' wx:for='{{floors}}' wx:key='this' data-index='{{index}}' catchtap='optionTap'>{{item}}</text>
+        </view>
+    </view>
+
+
+    <view class='nav-list margin-top'>
+        <view class="nav-li" wx:for="{{content}}" wx:key="index">
+          
+            <view class="text-center margin-bottom text-lg  text-grey">
+                {{item.name}}
+            </view>
+
+            <view class="table">
+                <view class="tr">
+                  <view class="th_first">参数</view>
+                  <view class="th_first">温度</view>
+                  <view class="th_first">湿度</view>
+                  <view class="th_first">露点</view>
+                  <view class="th_first">PM2.5</view>
+                  <view class="th_first">CO₂</view>
+                </view>
+                <view class="tr">
+                  <view class="th">单位</view>
+                  <view class="th">℃</view>
+                  <view class="th">%</view>
+                  <view class="th">℃</view>
+                  <view class="th">μg/m³</view>
+                  <view class="th">ppm</view>
+                </view>
+                
+                  <view class="tr">
+                    <view class="td">均值</view>
+                    <view class="td">{{item.avgTemperature?numberUtil.toFix(item.avgTemperature):"-"}}</view>
+                    <view class="td">{{item.avgHumidity?numberUtil.toFix(item.avgHumidity):"-"}}</view>
+                    <view class="td">{{item.avgDewPoint?numberUtil.toFix(item.avgDewPoint):"-"}}</view>
+                    <view class="td">{{item.avgPm?numberUtil.toFix(item.avgPm):"-"}}</view>
+                    <view class="td">{{item.avgCO2?numberUtil.toFix(item.avgCO2):"-"}}</view>
+                  </view>
+                  <view class="tr">
+                    <view class="td">标准差</view>
+                    <view class="td">{{item.sdTemperature?2*numberUtil.toFix(item.sdTemperature):"-"}}</view>
+                    <view class="td">{{item.sdHumidity?2*numberUtil.toFix(item.sdHumidity):"-"}}</view>
+                    <view class="td">{{item.sdDewPoint?2*numberUtil.toFix(item.sdDewPoint):"-"}}</view>
+                    <view class="td">{{item.sdPm?2*numberUtil.toFix(item.sdPm):"-"}}</view>
+                    <view class="td">{{item.sdCO2?2*numberUtil.toFix(item.sdCO2):"-"}}</view>
+                  </view>
+                
+              </view>
+            
+        </view>
+    </view>
+      
+      
+
+    
+      
+</view>
+  

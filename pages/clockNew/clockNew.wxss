@@ -1,0 +1,195 @@
+.main-container {
+  font-size: 35rpx;
+  padding: 30rpx;
+}
+.key {
+  margin-right: 3px;
+}
+/* 顶部两行 controls */
+.top-controls {
+  display: flex;
+  justify-content: space-between;
+  /* 保证左右部分分开 */
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+.control-group.left {
+  display: flex;
+  align-items: center;
+  width: 40%;
+  /* 定时功能部分宽度为40% */
+}
+.control-group.right {
+  display: flex;
+  align-items: center;
+  width: 60%;
+  /* 时间模式部分宽度为60% */
+}
+.label {
+  margin-right: 10rpx;
+}
+.button-bar {
+  display: flex;
+  border-radius: 10px;
+  /* 设置圆角 */
+  margin-left: 8rpx;
+  /* 减小左边距，根据实际需要调整 */
+  background-color: #f2f2f2;
+  /* 整个按钮组的灰色背景 */
+}
+.button {
+  flex-grow: 1;
+  text-align: center;
+  padding: 8rpx 0;
+  border-left: 1px solid #ddd;
+  /* 按钮之间的分隔线 */
+  background-color: #ddd;
+  /* 未选中按钮的灰色背景 */
+  color: black;
+  /* 未选中按钮的黑色文字 */
+}
+/* 时间模式按钮组 */
+.btn-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  /* 让按钮靠左对齐，紧贴在一起 */
+  width: 60%;
+  /* 确保按钮组宽度适应父容器 */
+}
+/* 按钮基本样式 */
+.mode-btn {
+  background-color: #ccc;
+  color: #333;
+  padding: 8rpx 16rpx;
+  /* 增加内边距，给文字更多空间 */
+  font-size: 28rpx;
+  /* 稍微减小字体，确保在小屏幕上也能正常显示 */
+  min-width: 90rpx;
+  /* 使用最小宽度而不是固定宽度，确保文字有足够空间 */
+  height: 60rpx;
+  /* 设置固定高度 */
+  margin: 0 !important;
+  /* 强制移除所有边距 */
+  border: none;
+  /* 移除边框 */
+  border-radius: 0rpx;
+  /* 默认没有圆角 */
+  box-sizing: border-box;
+  /* 确保padding不会增加宽度 */
+  display: inline-block;
+  /* 确保按钮为行内块元素 */
+  vertical-align: top;
+  /* 垂直对齐 */
+  line-height: 44rpx;
+  /* 设置行高，确保文字垂直居中 */
+  white-space: nowrap;
+  /* 防止文字换行 */
+  text-align: center;
+  /* 文字居中 */
+  overflow: hidden;
+  /* 隐藏溢出内容 */
+}
+/* 设置“在家”按钮的左侧圆角 */
+.first-btn {
+  border-top-left-radius: 8rpx;
+  border-bottom-left-radius: 8rpx;
+}
+/* 设置"离家"按钮的右侧圆角 */
+.last-btn {
+  border-top-right-radius: 8rpx;
+  border-bottom-right-radius: 8rpx;
+  margin-left: -1rpx !important;
+  /* 使用负边距让按钮重叠，确保紧贴 */
+}
+/* 激活状态的按钮样式 */
+.btn-active {
+  background-color: #55C2BB;
+  color: white;
+}
+.tabs {
+  display: flex;
+  background-color: #d3d3d3;
+  /* 调整为更浅的灰色 */
+}
+/* Tab按钮样式 */
+.tab {
+  flex: 1;
+  /* 四等分长方形 */
+  padding: 10px;
+  text-align: center;
+  color: white;
+  /* 文字颜色 */
+  background-color: gray;
+  /* 未选中时的背景色 */
+  font-size: 35rpx;
+  /* 固定字体大小 */
+  line-height: 20px;
+  /* 固定行高 */
+  transition: background-color 0.3s;
+  /* 平滑背景色变换 */
+}
+.tab-active {
+  background-color: #55C2BB;
+  /* 选中时的背景色 */
+  flex: 1;
+  /* 四等分长方形 */
+  padding: 10px;
+  text-align: center;
+  color: white;
+  /* 文字颜色 */
+  font-size: 35rpx;
+  /* 固定字体大小 */
+  line-height: 20px;
+  /* 固定行高 */
+  transition: background-color 0.3s;
+  /* 平滑背景色变换 */
+}
+.time-picker-blocks {
+  display: flex;
+  flex-direction: column;
+}
+.picker-group {
+  display: flex;
+  align-items: center;
+  margin-top: 40rpx;
+  margin-bottom: 30rpx;
+}
+.picker-display {
+  margin-left: 10rpx;
+  padding: 10rpx 20rpx;
+  border: 1rpx solid #ccc;
+  border-radius: 8rpx;
+  width: 200rpx;
+  background-color: #f2f2f2;
+}
+.cu-form-group {
+  font-size: 35rpx;
+}
+.notice {
+  margin-top: 20rpx;
+  color: red;
+  font-size: 28rpx;
+  line-height: 40rpx;
+}
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40rpx;
+}
+.cancel-btn,
+.confirm-btn {
+  flex: 1;
+  text-align: center;
+  margin: 0 10rpx;
+  padding: 15rpx 0;
+  border-radius: 8rpx;
+}
+.cancel-btn {
+  background-color: #ccc;
+  color: #333;
+}
+.confirm-btn {
+  background-color: #68DD89;
+  color: #fff;
+}

@@ -1,0 +1,194 @@
+.roompage {
+  .realtime {
+    .room_name {
+      font-size: 50rpx;
+      position: relative;
+      .roomName {
+        position: relative;
+        text-align: center;
+        width: fit-content;
+        // border: 1px green solid;
+        margin: 0 auto;
+        // text-align: center;
+        // margin-top: 2%;
+        .modifybutton {
+          position: absolute;
+          top: -5rpx;
+          right: -30vw;
+        }
+      }
+      
+      .switch_container{
+        top: 0.1vh;
+        // background-color: red;
+        position: absolute;
+        right: 6vw;
+      }
+      
+      
+    }
+
+    .margin-xl.bg-white.padding-xl.radius.shadow-lg {
+      border-radius: 20rpx;
+      padding: 30rpx 50rpx;
+      .text-content{
+        font-size: 35rpx;
+        .realdew,.realenergy,.lock,.windcontrol{
+          display: flex;
+          margin-bottom: 15rpx;
+        }
+        .key{
+          flex:1%
+        }
+        .value{
+          flex:50%
+        }
+        
+      }
+    }
+  }
+  .wrapper {
+    height: 100%;
+    display: flex;
+  
+    // border: 1rpx solid blue;
+    .left {
+      flex: 3;
+      display: flex;
+      flex-flow: column;
+      padding: 5rpx 0;
+      border-right: 1rpx solid #74CEAE;
+      .cl1 {
+        margin: 15rpx 0 0 0;
+        text-align: center;
+        
+        flex: 1;
+        font-size: 35rpx;
+      }
+      .cl2 {
+        // margin: 0 0 45rpx 15%;
+        // text-align: left;
+        flex: 1;
+        
+      }
+      .cl3 {
+        
+        // margin-left:15%;
+        // text-align: left;
+        
+        flex: 1;
+      
+      }
+    }
+  
+    .right {
+      flex: 2;
+      display: flex;
+      flex-flow: column;
+      padding: 5rpx 0;
+      margin-left: 20rpx;
+      text-align: center;
+      .cl {
+        margin: 15rpx 0;
+        flex: 1;
+        font-size: 35rpx;
+      }
+      .num {
+        margin: 15rpx 0;
+        flex: 1;
+        font-size: 50rpx;
+      }
+      .iconfont.icon-plus {
+        margin: 15rpx 0;
+        border-radius: 5rpx;
+        flex: 1;
+      }
+      .iconfont.icon-minus {
+        margin: 15rpx 0;
+        border-radius: 5rpx;
+        flex: 1;
+      }
+    }
+  }
+  .statistics {
+    // background-color: red;
+    // margin-top: 10rpx;
+    // padding:10prx 10prx 10rpx 10rpx;
+  }
+}
+ec-canvas {
+  margin-top: 5px;
+  width: 100%;
+  height: 50%;
+  background-color: white;
+}
+
+#mychart1 {
+  width: 87%;
+  height: 500rpx;
+  margin: 50rpx;
+  border-radius: 20rpx;
+  display: block;
+  // border: 1px solid red;
+}
+
+.btn-group {
+  display: flex;
+  // justify-content: flex-start;
+}
+
+.btn-group button {
+  width:190rpx;
+  padding: 10px 2px;
+  background-color: #ddd;
+  border-radius: 5px;
+  margin-left: 0;
+  margin-right: 10px;
+}
+
+.btn-group button:first-child {
+  margin-left: 0px;
+}
+
+.btn-group button.selected {
+  background-color: #74CEAE;
+  color: #fff;
+}
+
+
+wx-slider .wx-slider-handle-wrapper {
+  height: 20rpx;
+}
+
+
+
+.windcontrol {
+  display: flex;
+  align-items: center; /* 确保垂直居中 */
+}
+
+.button-bar {
+  display: flex;
+  border-radius: 10px; /* 设置圆角 */
+  margin-left: 8rpx; /* 减小左边距，根据实际需要调整 */
+  background-color: #f2f2f2; /* 整个按钮组的灰色背景 */
+}
+
+.button {
+  flex-grow: 1;
+  text-align: center;
+  padding: 8rpx 0;
+  border-left: 1px solid #ddd; /* 按钮之间的分隔线 */
+  background-color: #ddd; /* 未选中按钮的灰色背景 */
+  color: black; /* 未选中按钮的黑色文字 */
+}
+
+.button:first-child {
+  border-left: none; /* 第一个按钮没有左边界 */
+}
+
+.button-active {
+  background-color: #74CEAE; /* 选中按钮的背景色 */
+  color: white; /* 选中按钮的白色文字 */
+}
+

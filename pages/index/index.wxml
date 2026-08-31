@@ -1,0 +1,28 @@
+<view class="splash">
+  <view class="splash__decoration splash__decoration--top"></view>
+  <view class="splash__decoration splash__decoration--bottom"></view>
+
+  <view class="splash__brand">
+    <view class="splash__logo-wrap">
+      <view class="splash__logo-ring splash__logo-ring--outer"></view>
+      <view class="splash__logo-ring splash__logo-ring--inner"></view>
+      <image
+        class="splash__logo"
+        src="/images/half_logo.png"
+        mode="widthFix"
+      />
+    </view>
+    <view class="splash__slogan">健康 · 舒适 · 智慧人居</view>
+  </view>
+
+  <view class="splash__status">
+    <view class="splash__dots">
+      <view class="splash__dot"></view>
+      <view class="splash__dot"></view>
+      <view class="splash__dot"></view>
+    </view>
+    <view class="splash__hint">正在登录，请稍候</view>
+  </view>
+
+  <view class="splash__footer">HC健康舒适家</view>
+</view>

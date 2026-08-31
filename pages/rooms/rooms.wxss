@@ -1,0 +1,101 @@
+/* pages/rooms/rooms.wxss */
+page {
+  height: 100%;
+}
+.panel {
+  height: 100%;
+}
+.panel .select_box {
+  background: #fff;
+  z-index: 10;
+  position: relative;
+  height: 70rpx;
+}
+.panel .select_box .select {
+  box-sizing: border-box;
+  width: 100%;
+  height: 70rpx;
+  border: 1px solid #efefef;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  padding: 0 20rpx;
+}
+.panel .select_box .select .select_text {
+  font-size: 30rpx;
+  flex: 1;
+}
+.panel .select_box .select .select_img {
+  width: 60rpx;
+  height: 100%;
+  display: block;
+  margin-right: -20rpx;
+  transition: transform 0.3s;
+}
+.panel .select_box .select .select_img_rotate {
+  transform: rotate(90deg);
+}
+.panel .select_box .option_box {
+  position: absolute;
+  top: 70rpx;
+  width: 100%;
+  border: 1px solid #efefef;
+  box-sizing: border-box;
+  height: 0;
+  overflow-y: auto;
+  border-top: 0;
+  background: #fff;
+  padding-left: 20rpx;
+  transition: height 0.3s;
+}
+.panel .select_box .option {
+  display: block;
+  line-height: 3vh;
+  font-size: 30rpx;
+  border-bottom: 1px solid #efefef;
+  padding: 10rpx;
+}
+.panel .nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0px 30rpx 0px;
+  justify-content: space-between;
+}
+.panel .nav-li {
+  display: flex;
+  padding: 30rpx;
+  border-radius: 25rpx;
+  width: 100%;
+  margin: 0 2.5% 40rpx;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  z-index: 1;
+  color: #fff;
+}
+.panel .room_name {
+  width: 33%;
+  margin-left: 20rpx;
+  font-size: 35rpx;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+}
+.panel .room_name .room_name_info {
+  line-height: 50rpx;
+  vertical-align: middle;
+}
+.panel .room_key {
+  line-height: 45rpx;
+  font-size: 28rpx;
+  width: 33%;
+}
+.panel .room_value {
+  line-height: 45rpx;
+  font-size: 28rpx;
+  width: 33%;
+}
+.panel .nav-list .nav-li:last-child {
+  margin-bottom: 15vh;
+}

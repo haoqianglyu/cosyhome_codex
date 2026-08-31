@@ -1,0 +1,112 @@
+/* 页面级别设置 */
+page {
+    height: 100vh;
+    overflow: hidden;
+    background-color: #f5f5f5;
+}
+
+/* Page Container */
+.page-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: #f5f5f5;
+}
+
+.page-wrapper {
+    flex: 1;
+    padding: 40rpx 24rpx 24rpx 24rpx;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 0;
+    padding-bottom: 60rpx;
+}
+
+.card {
+    background: #ffffff;
+    border: 1rpx solid #e8e8e8;
+    border-radius: 16rpx;
+    padding: 40rpx 32rpx;
+    margin-bottom: 30rpx;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.header-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30rpx;
+}
+
+.header-title {
+    font-size: 36rpx;
+    font-weight: bold;
+    color: #333333;
+}
+
+.card-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20rpx;
+}
+
+.card-title {
+    font-size: 30rpx;
+    font-weight: 500;
+    color: #333333;
+    border-left: 8rpx solid #1989fa;
+    padding-left: 16rpx;
+}
+
+.upload-container {
+    padding: 10rpx 0;
+}
+
+.submit-section {
+    margin-top: 40rpx;
+    padding-bottom: 40rpx;
+    display: flex;
+    justify-content: center;
+}
+
+.submit-btn {
+    width: 80vw !important;
+    height: 88rpx !important;
+    line-height: 88rpx !important;
+    background: linear-gradient(135deg, #1989fa, #1070e0) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 44rpx !important;
+    font-size: 32rpx !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4rpx 16rpx rgba(25, 137, 250, 0.3) !important;
+}
+
+/* Custom label styles for asterisk alignment */
+.custom-label {
+    display: flex;
+    align-items: center;
+}
+
+.required-star {
+    color: #ee0a24;
+    margin-right: 4rpx;
+    font-size: 28rpx;
+}
+
+/* Ensure title width is consistent */
+.van-cell__title {
+    max-width: 6.2em !important;
+    min-width: 6.2em !important;
+    margin-right: 12px !important;
+}

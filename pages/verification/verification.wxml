@@ -1,0 +1,74 @@
+<view class="verification-page">
+  <view class="verification-glow glow-top"></view>
+  <view class="verification-glow glow-bottom"></view>
+
+  <view class="verification-header">
+    <view class="shield-mark">
+      <text class="cuIcon-safe shield-icon"></text>
+    </view>
+    <view class="verification-kicker">安全验证</view>
+    <view class="verification-title">输入短信验证码</view>
+    <view class="verification-description">验证码已发送至</view>
+    <view class="phone-pill">+86 {{phone}}</view>
+  </view>
+
+  <view class="code-card">
+    <view class="code-label">4 位验证码</view>
+    <view class="input-area">
+      <view class="input-wrapper {{input1 ? 'input-filled' : ''}}">
+        <input class="input-box {{input1Class}}" id="1" maxlength="1" bindinput="moveFocus" focus="{{focus1}}" value="{{input1}}" disabled />
+        <view class="particles" id="particles1">
+          <view wx:for="{{particles1Array}}" wx:key="key" class="particle {{item.animationClass}}" style="left: {{item.left}}; top: {{item.top}}"></view>
+        </view>
+      </view>
+
+      <view class="input-wrapper {{input2 ? 'input-filled' : ''}}">
+        <input class="input-box {{input2Class}}" id="2" maxlength="1" bindinput="moveFocus" focus="{{focus2}}" value="{{input2}}" disabled />
+        <view class="particles" id="particles2">
+          <view wx:for="{{particles2Array}}" wx:key="key" class="particle {{item.animationClass}}" style="left: {{item.left}}; top: {{item.top}}"></view>
+        </view>
+      </view>
+
+      <view class="input-wrapper {{input3 ? 'input-filled' : ''}}">
+        <input class="input-box {{input3Class}}" id="3" maxlength="1" bindinput="moveFocus" focus="{{focus3}}" value="{{input3}}" disabled />
+        <view class="particles" id="particles3">
+          <view wx:for="{{particles3Array}}" wx:key="key" class="particle {{item.animationClass}}" style="left: {{item.left}}; top: {{item.top}}"></view>
+        </view>
+      </view>
+
+      <view class="input-wrapper {{input4 ? 'input-filled' : ''}}">
+        <input class="input-box {{input4Class}}" id="4" maxlength="1" bindinput="moveFocus" focus="{{focus4}}" value="{{input4}}" disabled />
+        <view class="particles" id="particles4">
+          <view wx:for="{{particles4Array}}" wx:key="key" class="particle {{item.animationClass}}" style="left: {{item.left}}; top: {{item.top}}"></view>
+        </view>
+      </view>
+    </view>
+
+    <view class="error-message {{errorCode ? 'error-visible' : ''}}">{{errorCode}}</view>
+    <view class="code-tip">
+      <text class="cuIcon-info code-tip-icon"></text>
+      <text>输入满 4 位后将自动验证</text>
+    </view>
+  </view>
+
+  <view class="keypad-card">
+    <view class="keypad">
+      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="1">1</view>
+      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="2">2</view>
+      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="3">3</view>
+      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="4">4</view>
+      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="5">5</view>
+      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="6">6</view>
+      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="7">7</view>
+      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="8">8</view>
+      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="9">9</view>
+      <view class="key key-placeholder"></view>
+      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="0">0</view>
+      <view class="key delete-key" hover-class="key-pressed" bindtap="deleteNumber">
+        <text class="iconfont icon-delete delete-icon"></text>
+      </view>
+    </view>
+  </view>
+
+  <view class="verification-footer">请勿向任何人透露验证码</view>
+</view>

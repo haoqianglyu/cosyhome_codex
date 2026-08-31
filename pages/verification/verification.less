@@ -1,0 +1,157 @@
+page {
+    background-color: #68DD89;
+    height: 100vh;
+}
+
+.container {
+    padding: 40rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title {
+    font-size: 60rpx;
+    margin-bottom: 40rpx;
+    color:#FFF;
+    margin-top: 80rpx; /* 或者您需要的其他距离 */
+}
+
+.description {
+    font-size: 40rpx;
+    margin-bottom: 60rpx;
+    color:#FFF
+}
+
+.input-area {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+    margin-bottom: 30rpx;
+    margin-top: 60rpx; /* 或者您需要的其他距离 */
+}
+
+.input-box {
+    width: 120rpx;
+    height: 120rpx; /* 使输入框成为正方形 */
+    text-align: center;
+    // line-height: 60px;
+    font-size: 60rpx;
+    border: none; /* 去掉边框 */
+    background-color: #79E1A6; /* 更改背景颜色 */
+    // padding: 10px;
+    color: #FFF;  /* 设置输入的数字颜色为白色 */
+    caret-color: #FFF;  /* 设置光标颜色为白色 */
+}
+
+
+
+.keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20rpx;
+    width: 80%;
+    margin-top: 20rpx; /* 或者您需要的其他距离 */
+}
+
+.key, .delete {
+    background-color: #68DD89;
+    padding: 40rpx;
+    text-align: center;
+    font-size: 60rpx;
+    border: none;
+    color: #FFF; /* 设置文字为白色 */
+    border-radius: 10rpx; /* 可以加入圆角 */
+    transition: all 0.3s; /* 过渡效果，包括背景颜色和缩放效果 */
+    transform: scale(1); /* 设置默认缩放级别为1 */
+}
+
+.key:active, .delete:active {
+    background-color: #57c77a; /* 当按下按钮时的背景颜色 */
+    transform: scale(0.9); /* 当按下按钮时缩小到原始大小的90% */
+}
+
+
+.placeholder {
+    background-color: #68DD89; /* 使其与页面背景颜色相同 */
+    border: none; /* 去掉边框 */
+    pointer-events: none; /* 禁止点击和触摸事件 */
+}
+
+.iconfont {
+    font-size: 36rpx;
+}
+
+.error-message {
+    height: 40rpx; /* 保留错误消息的位置，以确保界面布局稳定 */
+    color: red;
+    font-size: 32rpx;
+    text-align: center;
+    margin-top: 20rpx;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateY(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateY(-10rpx); }
+    20%, 40%, 60%, 80% { transform: translateY(10rpx); }
+}
+
+.shake-animation {
+    animation: shake 0.5s;
+}
+
+.particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible; /* 修改overflow属性 */
+    z-index: 10; /* 确保粒子在上层 */
+}
+
+.particle {
+    position: absolute;
+    background-color: #FFF;
+    width: 10rpx;  
+    height: 10rpx;
+    border-radius: 50%;
+    opacity: 0;
+    animation: fall 1s forwards; /* 调整动画时长为1s */
+}
+
+.input-wrapper {
+    position: relative;
+    width: 120rpx;
+    height: 120rpx;
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(300rpx); /* 根据需要调整距离 */
+        opacity: 0;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,6 @@
+<view class='button_container'>
+    <block wx:for="{{buttons}}" wx:key="buttons">
+        <button wx:if="{{index < buttons.length - 1 || (index === buttons.length - 1 && buttons.length % 2 === 0)}}" class='{{item.checked?"button_group checked_button":"button_group normal_button"}}' data-id='{{item.id}}' bindtap='radioButtonTap'>{{item.name}}</button>
+    </block>
+    <button wx:if="{{buttons.length % 2 === 1}}" class='{{buttons[buttons.length - 1].checked?"button_group checked_button last_button":"button_group normal_button last_button"}}' data-id='{{buttons[buttons.length - 1].id}}' bindtap='radioButtonTap'>{{buttons[buttons.length - 1].name}}</button>
+</view>

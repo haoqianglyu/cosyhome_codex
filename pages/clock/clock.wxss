@@ -1,0 +1,80 @@
+.main_container {
+  font-size: 35rpx;
+  margin-top: 50rpx;
+  margin-left: 40rpx;
+  margin-right: 40rpx;
+}
+.control {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+.key {
+  margin-right: 10px;
+  /* 根据需要调整 */
+}
+.tabs {
+  display: flex;
+  background-color: #d3d3d3;
+  /* 调整为更浅的灰色 */
+}
+.tab {
+  flex: 1;
+  /* 四等分长方形 */
+  padding: 10px;
+  text-align: center;
+  color: white;
+  /* 文字颜色 */
+  background-color: gray;
+  /* 未选中时的背景色 */
+  font-size: 35rpx;
+  /* 固定字体大小 */
+  line-height: 20px;
+  /* 固定行高 */
+  transition: background-color 0.3s;
+  /* 平滑背景色变换 */
+}
+.tab-active {
+  background-color: #55C2BB;
+  /* 选中时的背景色 */
+  flex: 1;
+  /* 四等分长方形 */
+  padding: 10px;
+  text-align: center;
+  color: white;
+  /* 文字颜色 */
+  font-size: 35rpx;
+  /* 固定字体大小 */
+  line-height: 20px;
+  /* 固定行高 */
+  transition: background-color 0.3s;
+  /* 平滑背景色变换 */
+}
+.tab-content {
+  margin-top: 20px;
+}
+.cu-form-group {
+  font-size: 35rpx;
+}
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 80rpx;
+  margin-bottom: 40rpx;
+}
+.cancel-btn,
+.confirm-btn {
+  padding: 20rpx 70rpx;
+  /* Adjusting button width */
+  margin: 0 60rpx;
+  /* Adjusting button distance from the sides */
+  border: 2rpx solid #E6E6E6;
+  border-radius: 10rpx;
+}
+.cancel-btn {
+  background-color: #cccccc;
+}
+.confirm-btn {
+  background-color: #68DD89;
+  color: #ffffff;
+}

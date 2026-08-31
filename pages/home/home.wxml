@@ -1,0 +1,167 @@
+<!-- pages/index/index.wxml（完整） -->
+<view class="panel" style='background-image: url("https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/bg7.png");'>
+  <!-- 项目下拉框 -->
+  <view class='select_box'>
+    <view class='select' catchtap='selectTap'>
+      <text class='select_text'>{{showname}}</text>
+      <image class='select_img {{show&&"select_img_rotate"}}' src='/icons/gobottom.png'></image>
+    </view>
+    <view class='option_box' style='height:{{show?(searchedList.length>5?420:searchedList.length*60+120):0}}rpx;'>
+      <view class="cu-bar search">
+        <view class="search-form radius" wx:if="{{show}}" style="margin-left:1%;margin-right:1%;position: fixed;width: 93%;">
+          <text class="cuIcon-search"></text>
+          <input type="text" placeholder="搜索项目" confirm-type="search" name="project" bindinput="getProject" />
+        </view>
+      </view>
+      <view class='option' wx:for="{{searchedList}}" wx:key='this' data-index='{{index}}' style='{{index==searchedList.length-1&&"border:0;"}}' catchtap='optionTap'>
+        {{item.name}}
+      </view>
+    </view>
+  </view>
+  <!-- 顶部区域 -->
+  <view class="top">
+    <!-- 模式 + 天气：同一行，点击范围分离 -->
+    <view class="flex justify-start mode-row">
+      <!-- 模式（可跳转） -->
+      <navigator class="mode-navigator" open-type="navigate" url="/pages/modeselect/modeselect" hover-class="none">
+        <text class="iconfont icon-mode{{mode_icon}}" style="font-size:55rpx;margin-right:10rpx"></text>
+        <text class="mode" space="ensp">{{show_mode}}</text>
+      </navigator>
+      <!-- 设备离线提示 -->
+      <view class="online" style="color:#E27A6D;" wx:if="{{offline}}">(设备不在线)</view>
+      <!-- 天气（只开弹窗，不跳页） -->
+      <iconfont wx:if="{{weatherIconName && !offline}}" name="{{weatherIconName}}" size="40" bindtap="openWeatherBox" />
+    </view>
+    <!-- LOGO -->
+    <view class="halflogo">
+      <image class="logo" src="../../images/half_logo.png" mode="widthFix" />
+    </view>
+    <!-- 设备数据滑块 -->
+    <swiper class="deviceData" indicator-dots="true">
+      <block wx:for="{{deviceData}}" wx:key="*this">
+        <swiper-item>
+          <view class="swiper-item {{item}}">
+            <view class="temperature">
+              <text>{{item.temperature}}℃</text>
+            </view>
+            <view class="deviceName">{{item.deviceName}}</view>
+            <!-- 新两联供项目：湿度 + 露点 -->
+            <view class="center" wx:if="{{isXinLiangLianGong}}">
+              <!-- 湿度 -->
+              <view class="humidity" wx:if="{{item.humidity != 65536}}">
+                <view class="txt">
+                  {{item.humidity}}
+                  <sup class="large-sup">%</sup>
+                </view>
+                <view>室内湿度</view>
+              </view>
+              <!-- 分隔 -->
+              <view class="divider" wx:if="{{item.humidity != 65536}}"></view>
+              <!-- 露点 -->
+              <view class="PM2_5">
+                <view class="txt">
+                  {{item.dewPoint}}
+                  <sup class="large-sup">℃</sup>
+                </view>
+                <view>室内露点</view>
+              </view>
+            </view>
+            <!-- 其他项目：湿度 + PM2.5 + CO₂ -->
+            <view class="center" wx:else>
+              <!-- 湿度 -->
+              <view class="humidity" wx:if="{{item.humidity != 65536}}">
+                <view class="txt">
+                  {{item.humidity}}
+                  <sup class="large-sup">%</sup>
+                </view>
+                <view>室内湿度</view>
+              </view>
+              <!-- 分隔 -->
+              <view class="divider" wx:if="{{item.humidity != 65536 && item.pm2_5 != 65536}}"></view>
+              <!-- PM2.5 -->
+              <view class="PM2_5" wx:if="{{item.pm2_5 != 65536}}">
+                <view class="txt">
+                  {{item.pm2_5}}
+                  <sup class="large-sup">μg/m³</sup>
+                </view>
+                <view>室内PM2.5</view>
+              </view>
+              <!-- 分隔 -->
+              <view class="divider" wx:if="{{(item.pm2_5 != 65536 && item.co2 != 65536) || (item.humidity != 65536 && item.co2 != 65536)}}"></view>
+              <!-- CO₂ -->
+              <view class="CO" wx:if="{{item.co2 != 65536}}">
+                <view class="txt">
+                  {{item.co2}}
+                  <sup class="large-sup">PPM</sup>
+                </view>
+                <view>室内CO₂</view>
+              </view>
+            </view>
+          </view>
+        </swiper-item>
+      </block>
+    </swiper>
+    <!-- 在家 / 离家 / 定时 -->
+    <view class="home_mode">
+      <view class="athome" bindtap="backhome" style="background-color:{{home_mode?'#F6BE48':'white'}}">
+        <text class="iconfont icon-huijiamoshi" style="color:{{home_mode?'#fff':'grey'}}"></text>
+        <view class="margin-top-sm" style="color:{{home_mode?'#fff':'grey'}}">在家</view>
+      </view>
+      <view class="leavehome" bindtap="leavehome" style="background-color:{{home_mode?'white':'#F6BE48'}};">
+        <text class="iconfont icon-lijiamoshi" style="color:{{home_mode?'grey':'#fff'}}"></text>
+        <view class="margin-top-sm" style="color:{{home_mode?'grey':'#fff'}}">离家</view>
+      </view>
+      <view class="clock" wx:if="{{hasclock}}" bindtap="clock" style="background-color:{{clock_on?'#F6BE48':'white'}};">
+        <text class="iconfont icon-clock" style="color:{{clock_on?'#fff':'grey'}}"></text>
+        <view class="margin-top-sm" style="color:{{clock_on?'#fff':'grey'}}">定时</view>
+      </view>
+    </view>
+  </view>
+  <!-- 滤网剩余 -->
+  <view class="filter" wx:if="{{filter!=''}}">
+    滤网剩余有效期:
+    <text class="day" style="color:{{filter>0?'black':'red'}}">{{filter}}天</text>
+  </view>
+  <!-- 天气详情弹层 -->
+  <view class="weather-overlay" wx:if="{{showWeatherBox}}" bindtap="closeWeatherBox">
+    <view class="weather-box" bindtap="noop">
+      <!-- 关闭按钮 -->
+      <text class="close-btn" catchtap="closeWeatherBox">×</text>
+      <!-- 地点信息 -->
+      <view class="location">
+        <iconfont name="didian1" size="20" />
+        <text class="location-text">{{locationText}}</text>
+      </view>
+      <!-- 天气图标 -->
+      <view class="weather-icon">
+        <iconfont name="{{weatherIconName}}" size="55" />
+      </view>
+      <!-- 温度 -->
+      <view class="temperature2">
+        <text>{{weatherDetail.temperature}}℃</text>
+      </view>
+      <!-- 天气情况 -->
+      <view class="weather-condition">
+        <text>{{weatherDetail.weather}}</text>
+      </view>
+      <!-- 湿度 -->
+      <view class="humidity2">
+        <iconfont name="shidu1" size="30" />
+        <text decode="{{true}}">&nbsp;&nbsp;&nbsp;湿度</text>
+        <text class="humidity-value">{{weatherDetail.sd}}</text>
+      </view>
+      <!-- 露点 -->
+      <view class="dew-point2">
+        <iconfont name="humidity" size="30" />
+        <text decode="{{true}}">&nbsp;&nbsp;&nbsp;露点</text>
+        <text class="dew-point-value">{{dewPoint}}℃</text>
+      </view>
+      <!-- PM2.5 -->
+      <view class="pm252">
+        <iconfont name="pm25" size="30" />
+        <text decode="{{true}}">&nbsp;&nbsp;&nbsp;PM2.5</text>
+        <text class="pm25-value">{{weatherDetail.pm2_5}}μg/m³</text>
+      </view>
+    </view>
+  </view>
+</view>

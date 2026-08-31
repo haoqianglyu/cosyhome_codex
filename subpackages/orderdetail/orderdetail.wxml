@@ -1,0 +1,199 @@
+<view class="page-container">
+  
+  <view class="page-wrapper" wx:if="{{ orderInfo }}">
+    <view class="card header-card">
+      <view class="header-title">{{ orderInfo.name }}</view>
+      <view class="header-status {{ orderInfo.statusClass }}">{{ orderInfo.statusText }}</view>
+    </view>
+  
+    <view class="card info-card">
+      <view class="detail-row">
+        <text class="label">项目名称：</text>
+        <text class="value">{{ orderInfo.projectName }}</text>
+      </view>
+      <view class="detail-row">
+        <text class="label">项目ID：</text>
+        <text class="value">{{ orderInfo.projectId }}</text>
+      </view>
+      <view class="detail-row">
+        <text class="label">用户名称：</text>
+        <text class="value">{{ orderInfo.customerName }}</text>
+      </view>
+      <view class="detail-row">
+        <text class="label">电话：</text>
+        <text class="value">{{ orderInfo.phone }}</text>
+      </view>
+      <view class="detail-row">
+        <text class="label">地址：</text>
+        <text class="value address">{{ orderInfo.address }}</text>
+      </view>
+      <view class="detail-row">
+        <text class="label">上门日期：</text>
+        <text class="value">{{ orderInfo.appointmentDate }}</text>
+      </view>
+      <view class="detail-row">
+        <text class="label">服务类型：</text>
+        <text class="value">{{ orderInfo.serviceType }}</text>
+      </view>
+    </view>
+  
+    <view class="card service-card">
+      <view class="card-title-row">
+        <text class="card-title">服务内容</text>
+      </view>
+      
+      <van-checkbox-group
+        value="{{ checkedServiceContent }}"
+        direction="vertical"
+        disabled="{{ true }}"
+      >
+        <van-checkbox
+          wx:for="{{ orderInfo.serviceContent }}"
+          wx:key="id"
+          name="{{ item.id }}"
+          custom-class="service-checkbox"
+          disabled="{{ true }}"
+        >
+          <text>{{ item.text }}</text>
+        </van-checkbox>
+      </van-checkbox-group>
+  
+      <view class="detail-row remarks-row">
+        <text class="label">其他说明：</text>
+        <text class="value">{{ orderInfo.remarks }}</text>
+      </view>
+    </view>
+  
+    <view class="card completion-card">
+      <view class="detail-row">
+        <text class="label">完成情况说明：</text>
+        <text class="value">{{ completionDescription }}</text>
+      </view>
+  
+      <view class="detail-row">
+        <text class="label">审核人：</text>
+        <text class="value">{{ orderInfo.reviewer || '-' }}</text>
+      </view>
+      <view class="detail-row">
+        <text class="label">审核时间：</text>
+        <text class="value">{{ orderInfo.reviewTime || '-' }}</text>
+      </view>
+      <view class="detail-row">
+        <text class="label">审核意见：</text>
+        <text class="value">{{ orderInfo.reviewComments || '-' }}</text>
+      </view>
+  
+      <view class="detail-row">
+        <text class="label">附件：</text>
+        <view class="value">
+          <van-uploader
+            file-list="{{ fileList }}"
+            accept="image"
+            multiple
+            preview-size="150rpx"
+            disabled="{{ true }}"
+            deletable="{{ false }}"
+            max-count="{{ fileList.length }}"
+          />
+        </view>
+      </view>
+    </view>
+  
+    <view class="card timeline-card">
+      <text class="card-title">时间节点</text>
+      <view class="manual-timeline">
+        <view 
+          class="timeline-item" 
+          wx:for="{{ orderInfo.timeline }}" 
+          wx:key="index"
+        >
+          <view class="timeline-item-content">
+            <view class="content-line-1">
+              <text class="line-1-text">{{ item.text }}</text>
+              <van-icon 
+                wx:if="{{ item.desc }}"
+                name="question-o" 
+                class="desc-icon"
+                data-desc="{{ item.desc }}"
+                catch:tap="showTimelineDesc"
+              />
+            </view>
+            <view class="content-line-2">
+              {{ item.date }}
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 用户评分区域 -->
+    <view class="card rating-card">
+      <text class="card-title">服务评价</text>
+      
+      <!-- 已评价显示 -->
+      <view wx:if="{{ hasRated }}" class="existing-rating">
+        <view class="rating-section">
+          <view class="rating-label">您的评分：</view>
+          <van-rate
+            value="{{ existingScore }}"
+            allow-half
+            color="#ffd21e"
+            void-color="#e8e8e8"
+            readonly
+          />
+          <view class="rating-text">{{ existingScore }}分</view>
+        </view>
+        
+        <view class="review-section">
+          <view class="review-label">您的评价：</view>
+          <view class="existing-review-content">{{ existingReview }}</view>
+        </view>
+      </view>
+      
+      <!-- 评价输入表单 -->
+      <view wx:else>
+        <view class="rating-section">
+          <view class="rating-label">请为本次服务评分：</view>
+          <van-rate
+            value="{{ rating }}"
+            color="#ffd21e"
+            void-color="#e8e8e8"
+            bind:change="onRatingChange"
+          />
+          <view class="rating-text">{{ rating }}分</view>
+        </view>
+
+        <view class="review-section">
+          <view class="review-label">评价内容：</view>
+          <van-field
+            value="{{ review }}"
+            type="textarea"
+            placeholder="请输入您的评价内容"
+            autosize="{{ { minHeight: 80 } }}"
+            bind:change="onReviewChange"
+            custom-style="background: #f8f8f8; border: 1px solid #e8e8e8; border-radius: 16rpx; margin-top: 0; color: #333333;"
+            input-class="review-input"
+          />
+        </view>
+
+        <view class="submit-section">
+          <van-button
+            type="primary"
+            size="large"
+            bind:click="submitRating"
+            loading="{{ submitting }}"
+            custom-style="background: linear-gradient(135deg, #00bcd4, #009688); border: none; border-radius: 24rpx; color: white; font-weight: 600;"
+          >
+            {{ submitting ? '提交中...' : '提交评价' }}
+          </van-button>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <view class="empty-state" wx:else>
+    <text class="empty-text">暂无已完成工单</text>
+  </view>
+</view>
+  
+<van-dialog id="van-dialog" />

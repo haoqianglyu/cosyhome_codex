@@ -1,0 +1,142 @@
+@font-face {
+  
+
+  font-family: 'iconfont';  /* Project id 2747681 */
+  src: url('//at.alicdn.com/t/c/font_2747681_fysnxlomzh9.woff2?t=1745901148759') format('woff2'),
+       url('//at.alicdn.com/t/c/font_2747681_fysnxlomzh9.woff?t=1745901148759') format('woff'),
+       url('//at.alicdn.com/t/c/font_2747681_fysnxlomzh9.ttf?t=1745901148759') format('truetype');
+
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* padding-top: 5px; */
+}
+
+.icon-modify:before {
+  content: "\e607";
+}
+.icon-switch:before {
+  content: "\e61e";
+}
+
+.icon-mode0:before {
+  content: "\e608";
+}
+
+.icon-mode101:before {
+  content: "\e612";
+}
+
+.icon-mode10:before {
+  content: "\e63b";
+}
+
+.icon-mode4:before {
+  content: "\e60e";
+}
+
+.icon-mode3:before {
+  content: "\e64c";
+}
+
+.icon-mode6:before {
+  content: "\e670";
+}
+
+.icon-mode5:before {
+  content: "\e686";
+}
+
+.icon-mode9:before {
+  content: "\e603";
+}
+
+.icon-mode12:before {
+  content: "\e633";
+}
+
+
+.icon-lijiamoshi1:before {
+  content: "\e611";
+}
+
+.icon-huijiamoshi-copy:before {
+  content: "\e613";
+}
+
+.icon-huijiamoshi:before {
+  content: "\e602";
+}
+
+.icon-lijiamoshi:before {
+  content: "\e601";
+}
+
+.icon-yonghufangkeshu:before {
+  content: "\e7ad";
+}
+
+.icon-home:before {
+  content: "\e734";
+}
+
+.icon-dongtaiquxian:before {
+  content: "\e644";
+}
+
+.icon-temperature:before {
+  content: "\e62e";
+}
+
+.icon-humidity:before {
+  content: "\e696";
+}
+
+.icon-dewpoint:before {
+  content: "\ea33";
+}
+
+.icon-plus:before {
+  content: "\e8c0";
+}
+
+.icon-minus:before {
+  content: "\e8b1";
+}
+
+.icon-delete:before {
+  content:  "\e714";
+}
+
+.icon-home:before {
+  content:  "\e702";
+}
+
+.icon-room:before {
+  content:  "\e64a";
+}
+
+.icon-my:before {
+  content:  "\e604";
+}
+
+.icon-on:before {
+  content:  "\e60a";
+}
+
+.icon-off:before {
+  content:  "\e606";
+}
+
+.icon-clock:before {
+  content:  "\e890";
+}
+

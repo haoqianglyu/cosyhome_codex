@@ -1,0 +1,32 @@
+<view class='margin-xl bg-white padding-xl radius shadow-lg'>
+    <view class='text-center margin-bottom text-lg  text-grey'>版本信息</view>
+    <view class='text-content'>
+      
+      
+      <view class="currentCodeVersion">
+        <view class="key">当前代码版本:</view>
+        <view class="value">{{version_info.currentCodeVersion}}</view>
+      </view>
+      <view class="currentVersion">
+        <view class="key">当前版本号:</view>
+        <view class="value">{{version_info.currentVersion}}</view>
+      </view>
+      <view class="latestCodeVersion">
+        <view class="key">最新代码版本:</view>
+        <view class="value">{{version_info.latestCodeVersion}}</view>
+      </view>
+      <view class="latestVersion">
+        <view class="key">最新版本号:</view>
+        <view class="value">{{version_info.latestVersion}}</view>
+      </view>
+      <view class="latestDescribe">
+        <view class="key">更新说明:</view>
+        <view class="value">{{version_info.latestDescribe}}</view>
+      </view>
+    
+  
+    </view>
+  </view>
+
+  <button class="cu-btn bg-blue lg force-update-button" bindtap="update">强制更新</button>
+  

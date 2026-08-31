@@ -1,0 +1,45 @@
+<view class="panel">
+    <view class='select_box'>
+        <view class='select' catchtap='selectTap'>
+          <text class='select_text'>{{floors[index]}}</text>
+          <image class='select_img {{show&&"select_img_rotate"}}' src='/icons/gobottom.png'></image>   
+        </view>
+        
+        <view class='option_box' style='height:{{show?(floors.length>5?300:floors.length*60):0}}rpx;'>
+            <view class='option' style='{{index==floors.length-1&&"border:0;"}}' wx:for='{{floors}}' wx:key='this' data-index='{{index}}' catchtap='optionTap'>{{item}}</view>
+        </view>
+    </view>
+
+
+    <view class='nav-list margin-top'>
+    <navigator open-type="navigate" hover-class='none' url="/pages/roomdetail/roomdetail?roomID={{item.id}}&roomName={{item.roomName}}" class="nav-li" wx:for="{{content}}" wx:key="index" style='background-image: url(https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/bg_{{item.panelState===0?"0":"1"}}.png);'>
+      
+        <view class="room_name">
+            <view class="room_name_info">
+                {{item.roomName}}
+            </view>
+        </view>
+
+        <view class="room_key">
+            <view class="temperature_key" style="line-height:{{!item.roomTemp && !item.roomDewTemp ? 120 : (item.roomTemp && !item.roomDewTemp ? 70 : 45)}}rpx">温度状态:</view>
+            <view class="humidity_key" wx:if="{{item.roomTemp}}" style="line-height:{{item.roomDewTemp?45:70}}rpx">实测温度:</view>
+            <view class="CO2_key" wx:if="{{item.roomDewTemp !== '' && item.roomDewTemp !== null && item.roomDewTemp !== undefined}}" >露点温度:</view>
+            <view class="PM2_5_key" wx:if="{{item.roomHumidity}}">相对湿度:</view>
+        </view>
+
+        <view class="room_value">
+            <view class="temperature_key" style="line-height:{{!item.roomTemp && !item.roomDewTemp ? 120 : (item.roomTemp && !item.roomDewTemp ? 70 : 45)}}rpx">{{item.valveState===0?"关":"开"}}</view>
+            <view class="humidity_value" wx:if="{{item.roomTemp}}" style="line-height:{{item.roomDewTemp?45:70}}rpx">{{item.roomTemp}}℃</view>
+            <view class="CO2_value" wx:if="{{item.roomDewTemp !== '' && item.roomDewTemp !== null && item.roomDewTemp !== undefined}}">{{item.roomDewTemp}}℃</view>
+            <view class="PM2_5_value" wx:if="{{item.roomHumidity}}">{{item.roomHumidity}}%</view>    
+        </view>
+        
+    </navigator>
+</view>
+      
+      
+
+    
+      
+</view>
+  

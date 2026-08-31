@@ -1,0 +1,219 @@
+.main_container {
+    position: relative; /* 给予main_container相对定位 */
+    height: 100vh; /* 这可以确保整个容器占据整个屏幕 */
+}
+
+.upper_container {
+    height: 50vh; 
+    background-color: #68DD89;
+}
+
+.margin-lg.bg-white.padding-xl.radius.shadow-lg {
+    position: absolute;
+    height: 50vh; 
+    border-radius: 20rpx;
+    bottom: 2vh; 
+    left: 3%; 
+    right: 3%; 
+    display: flex; 
+    flex-direction: column;  
+    justify-content: flex-start; /* 将子元素向上推 */
+    align-items: center; 
+    padding-top: 100rpx; /* 上部空间留出一些 */
+    padding-bottom: 100rpx; /* 下部空间留出一些 */
+}
+
+.input-container {
+    position: relative;
+    width: 480rpx;
+    background-color: #ffffff;
+    margin-bottom: 30rpx;
+}
+
+.icon {
+    position: absolute;
+    left: 30rpx; /* Adjust based on your icon size and preference */
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    font-size:50rpx;
+}
+
+.input-field {
+    width: 100%;
+    border: 2rpx solid gray;
+    padding: 20rpx 30rpx 20rpx 80rpx; /* Adjust left padding based on icon's width and your preference */
+    border-radius: 8rpx;
+    font-size: 36rpx;
+    background: transparent;
+    outline: none;
+    height: 120rpx; 
+    z-index: 1;
+}
+
+.label {
+    position: absolute;
+    left: 80rpx;
+    top: 20rpx;  
+    transition: all 0.2s ease, font-size 0.2s ease, color 0.2s ease;
+    color: ffffff;
+    pointer-events: none;
+    z-index: 2;
+    background-color: #ffffff;
+    padding-left: 10rpx;
+    padding-right: 10rpx;
+}
+
+.input-container:before {
+    content: '';
+    position: absolute;
+    top: 2rpx;
+    left: 24rpx; 
+    width: 12rpx;
+    height: 2rpx;
+    background-color: #f7f7f7;
+    z-index: 0;
+}
+
+.textbox {
+    font-size: 36rpx; 
+    margin-top: 20rpx; 
+    margin-bottom: 30rpx;
+    line-height: 68rpx;
+    color: #666; 
+    width: 480rpx; 
+    text-align: left; 
+}
+
+.custom-button {
+    display: flex; 
+    justify-content: space-between;  
+    align-items: center; 
+    padding: 30rpx 40rpx;  /* 增大了内边距来增加按钮的高度 */
+    background-color: #68DD89;
+    border-radius: 16rpx;  
+    width: 480rpx;  
+    margin-top: auto; 
+    height: 120rpx; /* 设定一个固定的高度 */
+}
+
+.btn-text {
+    color: #FFFFFF;  
+    font-size: 36rpx;  /* 设置了与.textbox相同的字体大小 */
+    margin-right: 0;
+}
+
+.btn-arrow {
+    color: #FFFFFF; 
+    font-size: 44rpx;  /* 稍微增大了箭头大小 */
+    margin-left: auto;
+    font-weight: bold; 
+    animation: moveRight 1s infinite;
+}
+
+.drawer-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #ffffff;
+    transition: bottom 0.3s;
+    z-index: 1000;
+    border-radius: 20rpx;
+    border-top: 2rpx solid #d1d1d1; /* 浅灰色上边框 */
+    box-shadow: 0 -4rpx 10rpx rgba(0, 0, 0, 0.1); /* 向上的阴影效果 */
+}
+
+.drawer-content {
+    padding: 40rpx;
+    // box-shadow: 0px -2px 8px rgba(0, 0, 0, 0.1);
+    border-top-left-radius: 100rpx;
+    border-top-right-radius: 100rpx;
+}
+
+.drawer-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40rpx;
+    margin-bottom: 40rpx;
+}
+
+.cancel-btn, .confirm-btn {
+    padding: 20rpx 50rpx;  /* Adjusting button width */
+    margin: 0 60rpx;     /* Adjusting button distance from the sides */
+    border: 2rpx solid #E6E6E6;
+    border-radius: 10rpx;
+}
+
+.cancel-btn {
+    background-color: #cccccc;
+}
+
+.confirm-btn {
+    background-color: #68DD89;
+    color: #ffffff;
+}
+
+.welcome-text {
+    font-size: 44rpx;  /* 根据需要调整大小 */
+    font-weight: bold;
+    margin-bottom: 50rpx;
+}
+
+.user-notice {
+    font-size: 36rpx;
+    margin-bottom: 40rpx;
+}
+
+.agreement-checkbox {
+    margin-right: 20rpx;
+    vertical-align: middle;
+}
+
+// .privacy {
+//     font-size: 14px;
+//     color: #007BFF;
+//     margin-bottom: 20px;
+// }
+
+.checkbox-container {
+    display: flex;
+    align-items: center;  // 确保所有子元素在垂直方向上居中对齐
+    margin-bottom: 40rpx;
+    
+}
+
+.round {
+    border-radius: 0 !important; /* 将圆角设为0，使其成为方形 */
+    vertical-align: middle; /* 使checkbox与旁边的文本垂直对齐 */
+}
+
+// .checkbox-label {
+//     display: flex;
+//     align-items: center;  // 确保复选框与文本垂直对齐
+// }
+
+.guest-checkbox {
+    margin-right: 20rpx;  // 复选框与文本之间的间隔
+}
+
+.left-align {
+    align-items: flex-start;  // 使内容靠左对齐
+    width: 100%;  // 确保容器宽度适应父容器
+    margin-left: 50rpx;
+}
+
+
+
+
+
+@keyframes moveRight {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(20rpx);
+    }
+}
+
+

@@ -1,0 +1,253 @@
+page {
+  height: 100%;
+  background: #f4f7f5;
+  color: #26372f;
+}
+
+.message-page {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f7faf8 0%, #f1f5f3 100%);
+}
+
+.tab-shell {
+  flex-shrink: 0;
+  padding: 16rpx 24rpx 12rpx;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8rpx 24rpx rgba(33, 67, 51, 0.05);
+}
+
+.switch-tab {
+  display: flex;
+  box-sizing: border-box;
+  height: 82rpx;
+  padding: 6rpx;
+  border-radius: 22rpx;
+  background: #f1f5f3;
+}
+
+.tab-item {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  border-radius: 17rpx;
+  color: #78867f;
+  font-size: 28rpx;
+  font-weight: 500;
+  transition: color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.tab-active {
+  background: #ffffff;
+  box-shadow: 0 6rpx 16rpx rgba(30, 79, 56, 0.09);
+  color: #18a96d;
+  font-weight: 600;
+}
+
+.tab-indicator {
+  position: absolute;
+  bottom: 8rpx;
+  left: 50%;
+  width: 0;
+  height: 5rpx;
+  border-radius: 5rpx;
+  background: #20b979;
+  transform: translateX(-50%);
+  transition: width 0.2s;
+}
+
+.tab-active .tab-indicator {
+  width: 34rpx;
+}
+
+.message-swiper {
+  flex: 1;
+  height: 0;
+  min-height: 0;
+}
+
+.message-scroll {
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.message-list {
+  box-sizing: border-box;
+  padding: 22rpx 24rpx calc(40rpx + env(safe-area-inset-bottom));
+}
+
+.message-card {
+  box-sizing: border-box;
+  margin-bottom: 20rpx;
+  padding: 28rpx;
+  border: 1rpx solid #e4ece8;
+  border-radius: 24rpx;
+  background: #ffffff;
+  box-shadow: 0 10rpx 28rpx rgba(33, 69, 51, 0.06);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.card-type {
+  display: flex;
+  align-items: center;
+  color: #249468;
+  font-size: 25rpx;
+  font-weight: 600;
+}
+
+.type-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50rpx;
+  height: 50rpx;
+  margin-right: 12rpx;
+  border-radius: 16rpx;
+  background: #eaf8f2;
+  color: #20b979;
+  font-size: 28rpx;
+}
+
+.message-time {
+  flex-shrink: 0;
+  color: #93a099;
+  font-size: 22rpx;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.message-content {
+  margin-top: 22rpx;
+  color: #3c4d45;
+  font-size: 28rpx;
+  line-height: 1.75;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  word-break: break-all;
+}
+
+.service-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.service-header {
+  align-items: flex-start;
+  padding: 26rpx 28rpx 22rpx;
+  background: linear-gradient(135deg, #f1faf6 0%, #f8fbf9 100%);
+}
+
+.device-info {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+}
+
+.device-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 62rpx;
+  height: 62rpx;
+  margin-right: 16rpx;
+  border-radius: 19rpx;
+  background: #dcf5e9;
+  color: #18aa6d;
+  font-size: 32rpx;
+}
+
+.device-copy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.device-label,
+.content-label {
+  color: #91a098;
+  font-size: 21rpx;
+  line-height: 1.4;
+}
+
+.device-name {
+  margin-top: 5rpx;
+  color: #264238;
+  font-size: 27rpx;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  word-break: break-all;
+}
+
+.service-time {
+  max-width: 190rpx;
+  padding-top: 3rpx;
+}
+
+.content-divider {
+  height: 1rpx;
+  margin: 0 28rpx;
+  background: #e8efeb;
+}
+
+.content-label {
+  margin: 22rpx 28rpx 0;
+}
+
+.service-content {
+  margin: 8rpx 28rpx 28rpx;
+  color: #34473f;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 70vh;
+  padding: 80rpx 40rpx;
+  color: #8b9992;
+  text-align: center;
+}
+
+.empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 38rpx;
+  background: #e7f4ed;
+  color: #57ad84;
+  font-size: 54rpx;
+}
+
+.empty-title {
+  margin-top: 28rpx;
+  color: #56675f;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.empty-description {
+  margin-top: 12rpx;
+  color: #9aa6a0;
+  font-size: 24rpx;
+}

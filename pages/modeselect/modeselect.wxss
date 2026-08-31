@@ -1,0 +1,24 @@
+.button_container {
+  display: flex;
+  margin-top: 50%;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: space-around;
+}
+.button_container .button_group.normal_button {
+  margin: 20rpx;
+  width: 36%;
+  border: 2px solid grey;
+}
+.button_container .button_group.checked_button {
+  background: grey;
+  color: white;
+  margin: 20rpx;
+  width: 36%;
+}
+/* 修改.last_button的宽度为86% */
+.button_container .button_group.last_button {
+  margin: 20rpx;
+  width: 86%;
+  border: 2px solid grey;
+}

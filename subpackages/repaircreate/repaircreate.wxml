@@ -1,0 +1,49 @@
+<view class="page-container">
+    <view class="page-wrapper">
+        <view class="card info-card">
+            <view class="card-title-row">
+                <text class="card-title">基本信息</text>
+            </view>
+            <van-cell-group border="{{ false }}">
+                <van-field value="{{ contactName }}" use-label-slot placeholder="请输入联系人姓名" bind:change="onNameChange" border="{{ false }}" custom-style="padding: 12px 0;">
+                    <view slot="label" class="custom-label">
+                        <text class="required-star">*</text>
+                        <text>联系人</text>
+                    </view>
+                </van-field>
+                <van-field value="{{ contactPhone }}" use-label-slot placeholder="请输入联系电话" type="number" bind:change="onPhoneChange" border="{{ false }}" custom-style="padding: 12px 0;">
+                    <view slot="label" class="custom-label">
+                        <text class="required-star">*</text>
+                        <text>联系电话</text>
+                    </view>
+                </van-field>
+                <van-field value="{{ address }}" use-label-slot placeholder="请输入详细地址" bind:change="onAddressChange" border="{{ false }}" custom-style="padding: 12px 0;">
+                    <view slot="label" class="custom-label">
+                        <text class="required-star">*</text>
+                        <text>地址</text>
+                    </view>
+                </van-field>
+            </van-cell-group>
+        </view>
+        <view class="card description-card">
+            <view class="card-title-row">
+                <text class="card-title">问题描述</text>
+            </view>
+            <van-field value="{{ description }}" type="textarea" placeholder="请详细描述您遇到的问题" autosize="{{ { minHeight: 100 } }}" border="{{ false }}" bind:change="onDescriptionChange" required custom-style="background: #f8f8f8; border-radius: 8px; padding: 12px;" />
+        </view>
+        <view class="card upload-card">
+            <view class="card-title-row">
+                <text class="card-title">上传附件 (图片)</text>
+            </view>
+            <view class="upload-container">
+                <van-uploader file-list="{{ fileList }}" bind:after-read="afterRead" bind:delete="deleteFile" bind:click-preview="onClickPreview" max-count="9" accept="image" multiple preview-size="200rpx" />
+            </view>
+        </view>
+        <view class="submit-section">
+            <van-button type="primary" bind:click="submitFeedback" custom-class="submit-btn">
+                提交反馈
+            </van-button>
+        </view>
+    </view>
+    <van-toast id="van-toast" />
+</view>

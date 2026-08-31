@@ -1,0 +1,6 @@
+<view class="statistics">
+  <ec-canvas id="mychart2" canvas-id="mychart2" ec="{{ ec2 }}"></ec-canvas>
+</view>
+<view class="sum-container">
+  当前曲线总和：{{selectedSeriesSum}}
+</view>

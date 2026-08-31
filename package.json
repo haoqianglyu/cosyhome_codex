@@ -1,0 +1,22 @@
+{
+  "name": "cosyhome_allmini",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@hi-txw.tpddns.cn:cosyhomedevteam/cosyhome_mini.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vant/weapp": "^1.11.7",
+    "lottie-miniprogram": "^1.0.12"
+  },
+  "devDependencies": {
+    "mini-program-iconfont-cli": "^0.6.1"
+  },
+  "description": ""
+}
