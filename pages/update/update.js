@@ -1,5 +1,5 @@
 import {
-  controlMessageBody,
+  legacyControlMessageBody,
   sendControlCommand,
 } from "../../utils/controlMessage.js";
 
@@ -15,7 +15,7 @@ Page({
 
   async loadVersionInfo() {
     try {
-      const body = await controlMessageBody({
+      const body = await legacyControlMessageBody({
         messageType: 12,
         body: String(Date.now()),
       });
@@ -26,6 +26,7 @@ Page({
   },
 
   update() {
+    if (this._updatePending) return;
     wx.showModal({
       title: "提示",
       cancelText: "取消",
@@ -33,6 +34,7 @@ Page({
       content: "确认需要远程强制更新吗",
       success: (res) => {
         if (res.confirm) {
+          this._updatePending = true;
           sendControlCommand({
             messageType: 13,
             body: String(Date.now()),
@@ -42,6 +44,9 @@ Page({
             })
             .catch(() => {
               wx.showToast({ title: "升级指令发送失败", icon: "none" });
+            })
+            .finally(() => {
+              this._updatePending = false;
             });
         }
       },

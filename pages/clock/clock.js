@@ -98,12 +98,14 @@ Page({
 
   confirm: function () {
     let that = this;
+    if (this._confirmPending) return;
     if (app.globalData.isvisitor) {
       wx.showToast({
         title: "访客模式不可操作",
         icon: "none",
       });
     } else {
+      this._confirmPending = true;
       var body_json = JSON.stringify({
         isTiming: that.data.switch_on, // 开关的状态
         currentMode: that.data.currentTab - 1, // 当前选中的模式，减1是因为Tab从1开始，而currentMode可能是从0开始
@@ -119,12 +121,6 @@ Page({
   
           // 延迟返回上一页
           setTimeout(function () {
-            let pages = getCurrentPages(); // 获取小程序页面栈
-            let beforePage = pages[pages.length - 2]; // 获取上个页面的实例对象
-            if (beforePage && typeof beforePage.onShow === "function") {
-              beforePage.onShow();
-            }
-  
             wx.navigateBack({
               delta: 1, // 返回上一层页面
             });
@@ -136,6 +132,9 @@ Page({
             icon: "none",
           });
           console.error(error);
+        })
+        .finally(function () {
+          that._confirmPending = false;
         });
     }
   },

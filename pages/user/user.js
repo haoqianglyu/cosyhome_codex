@@ -21,11 +21,17 @@ Page({
     buttonShow: false,
     isXinLiangLianGong: false,
     showProjectStatus: false,
+    statusBarHeight: 0,
   },
 
   onLoad() {
+    const windowInfo =
+      typeof wx.getWindowInfo === "function"
+        ? wx.getWindowInfo()
+        : wx.getSystemInfoSync();
     this.setData({
       isMemberLogin: Boolean(wx.getStorageSync("is_member_login")),
+      statusBarHeight: windowInfo.statusBarHeight || 0,
     });
   },
 
@@ -113,16 +119,18 @@ Page({
   async changeLoginRole(toUser) {
     const loginRole = toUser ? "user" : "distributor";
     const request = toUser ? api.user_projects : api.distributor_projects;
-    wx.setStorageSync("login", loginRole);
-    app.globalData.isvisitor = !toUser;
 
     try {
       const data = await apiRequest(request);
       const projects = normalizeProjects(data, !toUser);
       this.setData({ homes: projects });
-      if (!enterProjectRole(projects, 1000)) {
+      if (!projects.length) {
         wx.showToast({ title: "无项目可查看", icon: "none" });
+        return;
       }
+      wx.setStorageSync("login", loginRole);
+      app.setVisitorMode(!toUser, app.globalData.isdistributor_visitor);
+      enterProjectRole(projects, 1000);
     } catch (error) {
       console.error("身份切换失败", error);
       wx.showToast({ title: "身份切换失败", icon: "none" });

@@ -72,12 +72,6 @@ Page({
   },
 
   async switchDistributor(distributor) {
-    wx.setStorageSync("login", "user");
-    wx.setStorageSync("current_distributor", distributor.name);
-    wx.setStorageSync("current_distributorid", distributor.id);
-    wx.setStorageSync("change_distributor", true);
-    app.globalData.isvisitor = false;
-
     try {
       const data = await apiRequest(api.distributor_id_projects, {
         page_options: { page: 1, limit: 10000 },
@@ -85,9 +79,16 @@ Page({
       });
       const projects = normalizeProjects(data, true);
       this.setData({ homes: projects });
-      if (!enterProjectRole(projects)) {
+      if (!projects.length) {
         wx.showToast({ title: "该经销商无项目", icon: "none" });
+        return;
       }
+      wx.setStorageSync("login", "user");
+      wx.setStorageSync("current_distributor", distributor.name);
+      wx.setStorageSync("current_distributorid", distributor.id);
+      wx.setStorageSync("change_distributor", true);
+      app.setVisitorMode(false, false);
+      enterProjectRole(projects);
     } catch (error) {
       console.error("经销商项目获取失败", error);
       wx.showToast({ title: "经销商项目获取失败", icon: "none" });

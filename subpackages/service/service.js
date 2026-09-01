@@ -16,12 +16,12 @@ Page({
         currentTab: 0,
         repairList: [],
         orderList: [],
-        categoriesMap: new Map(),
         isRepairRefreshing: false,
         isOrderRefreshing: false,
     },
 
     onLoad(options) {
+        this.categoriesMap = new Map();
         wx.setNavigationBarTitle({
             title: '报修工单'
         });
@@ -36,8 +36,10 @@ Page({
 
     switchTab(e) {
         const index = parseInt(e.currentTarget.dataset.index);
+        if (index === this.data.currentTab) {
+            return;
+        }
         this.setData({ currentTab: index });
-        this.loadData();
     },
 
     onSwiperChange(e) {
@@ -141,7 +143,7 @@ Page({
         };
 
         const fetchCategoriesPromise = new Promise((resolve) => {
-            if (this.data.categoriesMap.size > 0) {
+            if (this.categoriesMap.size > 0) {
                 return resolve(null);
             }
             api.work_order_categories({
@@ -185,7 +187,7 @@ Page({
                     categories.forEach(cat => {
                         newCategoriesMap.set(cat.id, cat.name);
                     });
-                    this.setData({ categoriesMap: newCategoriesMap });
+                    this.categoriesMap = newCategoriesMap;
                 }
 
                 if (workOrdersResult.status === 'fulfilled') {
@@ -203,7 +205,7 @@ Page({
     handleOrderApiResponse(res) {
         if (res && res.data && Array.isArray(res.data.entities)) {
             const orders = res.data.entities;
-            const { categoriesMap } = this.data;
+            const categoriesMap = this.categoriesMap || new Map();
 
             const formattedOrders = orders.map(item => {
                 const statusInfo = ORDER_STATUS_MAP[item.status] || { text: '已完成', class: 'status-completed' };

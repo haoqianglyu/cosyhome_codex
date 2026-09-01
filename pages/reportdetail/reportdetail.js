@@ -1,5 +1,7 @@
 import * as echarts from "../../ec-canvas/echarts";
 import api from "../../api/api.js";
+import { prepareReport } from "../../utils/report.js";
+import { apiRequest, getErrorMessage, isCurrentPage } from "../../utils/request.js";
 
 const COLOR_MAP = {
   "过热+过湿": "#A50026",
@@ -181,10 +183,53 @@ Page({
   },
 
   /* ---------------- 页面加载 ---------------- */
-  onLoad() {
+  onLoad(options = {}) {
+    this._pageVisible = true;
     var that = this;
     const ec = this.getOpenerEventChannel();
-    ec.on("acceptData", (report) => {
+    ec.on("acceptData", (report) => this.applyReport(report));
+    if (options.id) {
+      this._reportFallbackTimer = setTimeout(() => {
+        if (!this._reportLoaded) {
+          this.loadReportById(decodeURIComponent(options.id));
+        }
+      }, 200);
+    }
+  },
+
+  async loadReportById(reportId) {
+    if (this._reportLoading) return;
+    this._reportLoading = true;
+    wx.showLoading({ title: "报告加载中", mask: true });
+    try {
+      const response = await apiRequest(api.project_report, {
+        method: "POST",
+        header: {
+          "content-type": "application/json",
+          Authorization: wx.getStorageSync("access_token"),
+        },
+        data: { project_id: wx.getStorageSync("selected_home") },
+      });
+      if (!isCurrentPage(this) || this._reportLoaded) return;
+      const entities = response.data.project_report_entities || [];
+      const entity = entities.find((item) => String(item.id) === String(reportId));
+      if (!entity) throw new Error("未找到这份报告");
+      this.applyReport(prepareReport(entity));
+    } catch (error) {
+      if (isCurrentPage(this)) {
+        wx.showToast({ title: getErrorMessage(error, "报告加载失败"), icon: "none" });
+      }
+    } finally {
+      this._reportLoading = false;
+      wx.hideLoading();
+    }
+  },
+
+  applyReport(report) {
+      if (!report || this._reportLoaded) return;
+      this._reportLoaded = true;
+      clearTimeout(this._reportFallbackTimer);
+      this.disposeCharts();
       console.log(report);
       // 获取 report 详细信息并传递到页面
       const endarea = {
@@ -195,10 +240,16 @@ Page({
       that.setData({
         endarea,
       });
-      let body = {};
-      try {
-        body = JSON.parse(report.bodyDecrypted);
-      } catch (e) {}
+      let body = report.bodyParsed || {};
+      if (!report.bodyParsed) {
+        try {
+          body = JSON.parse(report.bodyDecrypted);
+        } catch (error) {
+          this._reportLoaded = false;
+          wx.showToast({ title: "报告内容损坏，无法打开", icon: "none" });
+          return;
+        }
+      }
 
       // metrics 和 rows 的处理
       const proj = wx.getStorageSync("selected_project_info") || {};
@@ -208,7 +259,7 @@ Page({
       };
 
       // 获取三级行政区域代码
-      const customerRegion = project.customer_region.split("/");
+      const customerRegion = String(project.customer_region || "").split("/");
       const cityCode = customerRegion[2]; // 获取第三级的代码
 
       const buildEnergyData = body?.build_energy || [];
@@ -513,11 +564,30 @@ Page({
               cell: room._inner.cell,
               margin: H_MARGIN,
             });
-            return initChart(canvas, w, h, dpr, opt);
+            const chart = initChart(canvas, w, h, dpr, opt);
+            this.trackChart(chart);
+            return chart;
           });
         });
       });
+  },
+
+  trackChart(chart) {
+    this._chartInstances = this._chartInstances || [];
+    this._chartInstances.push(chart);
+  },
+
+  disposeCharts() {
+    (this._chartInstances || []).forEach((chart) => {
+      if (
+        chart &&
+        typeof chart.dispose === "function" &&
+        (typeof chart.isDisposed !== "function" || !chart.isDisposed())
+      ) {
+        chart.dispose();
+      }
     });
+    this._chartInstances = [];
   },
 
   // 系统能耗曲线图渲染函数
@@ -619,6 +689,7 @@ Page({
         series,
       });
 
+      this.trackChart(chart);
       return chart;
     });
   },
@@ -709,6 +780,7 @@ Page({
         series,
       });
 
+      this.trackChart(chart);
       return chart;
     });
   },
@@ -799,6 +871,7 @@ Page({
         series,
       });
 
+      this.trackChart(chart);
       return chart;
     });
   },
@@ -901,6 +974,7 @@ Page({
         ],
       });
 
+      this.trackChart(chart);
       return chart;
     });
   },
@@ -951,6 +1025,7 @@ Page({
           },
         ],
       });
+      this.trackChart(chart);
       return chart;
     });
   },
@@ -966,6 +1041,20 @@ Page({
       return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
     }
     return ts.slice(0, 10);
+  },
+
+  onHide() {
+    this._pageVisible = false;
+  },
+
+  onShow() {
+    this._pageVisible = true;
+  },
+
+  onUnload() {
+    this._pageVisible = false;
+    clearTimeout(this._reportFallbackTimer);
+    this.disposeCharts();
   },
 
   onShareAppMessage: function () {

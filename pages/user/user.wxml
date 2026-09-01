@@ -1,84 +1,69 @@
-<view class="main_container">
-  <view class="user_info_wrap">
-    <view class="user_img_wrap">
-      <image class="user_bg" src="https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/iconbg.jpg" />
-      <view class="user_info">
-        <view class="user_icon">
-          <image mode='widthFix' src="https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/bind_bg.jpg"></image>
-        </view>
-        <view class="user_nickname">您好：{{username}}</view>
+<view class="user-page-shell">
+  <view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
+  <view class="custom-nav-bar">
+    <view class="nav-title">个人中心</view>
+  </view>
+
+  <view class="profile-page {{buttonShow || btn2show ? 'profile-page--with-account-action' : ''}}">
+  <view class="profile-hero">
+    <image class="hero-texture" src="https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/iconbg.jpg" mode="aspectFill"></image>
+    <view class="hero-overlay"></view>
+    <view class="hero-orbit"></view>
+    <view class="profile-content">
+      <view class="avatar-shell">
+        <image class="avatar" src="https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/bind_bg.jpg" mode="aspectFill"></image>
+        <view class="online-dot"></view>
+      </view>
+      <view class="profile-copy">
+        <view class="welcome">欢迎回来</view>
+        <view class="username">{{username || '舒适家用户'}}</view>
+        <view class="profile-caption">HC COMFORT MEMBER</view>
       </view>
     </view>
   </view>
-  <view class="padding flex text-center text-grey bg-white shadow">
-    <navigator class="flex flex-sub flex-direction solid-right" url="/pages/message/message" hover-class="none">
-      <text class="cuIcon-message text-grey"></text>
-      <view class="margin-top-sm">我的消息</view>
+
+  <view class="quick-actions">
+    <navigator class="quick-item" url="/pages/message/message" hover-class="quick-pressed">
+      <view class="quick-icon quick-icon--blue cuIcon-message"></view><text>我的消息</text>
     </navigator>
-    <view class="flex flex-sub flex-direction solid-right" bindtap="goReport" hover-class="none">
-      <text class="cuIcon-form text-grey"></text>
-      <view class="margin-top-sm">运行月报</view>
-      <!-- <view class="cu-tag badge">{{num}}</view> -->
+    <view class="quick-item" aria-role="button" aria-label="查看运行月报" bindtap="goReport" hover-class="quick-pressed">
+      <view class="quick-icon quick-icon--green cuIcon-form"></view><text>运行月报</text>
     </view>
-    <navigator class="flex flex-sub flex-direction" wx:if="{{!btn2show}}" url="/pages/knowledge/knowledge" hover-class="none">
-      <text class="cuIcon-creative text-grey"></text>
-      <view class="margin-top-sm">基础知识</view>
+    <navigator class="quick-item" wx:if="{{!btn2show}}" url="/pages/knowledge/knowledge" hover-class="quick-pressed">
+      <view class="quick-icon quick-icon--amber cuIcon-creative"></view><text>基础知识</text>
     </navigator>
-    <navigator class="flex flex-sub flex-direction" wx:if="{{btn2show}}" url="/pages/update/update" hover-class="none">
-      <text class="cuIcon-warn text-grey"></text>
-      <view class="margin-top-sm">强制更新</view>
+    <navigator class="quick-item" wx:if="{{btn2show}}" url="/pages/update/update" hover-class="quick-pressed">
+      <view class="quick-icon quick-icon--rose cuIcon-warn"></view><text>强制更新</text>
     </navigator>
   </view>
-  <view class="menu-grid-container margin-top-xl margin-bottom-xl">
-    <view class="menu-grid-item shadow radius">
-      <navigator class="menu-item-content" url="/subpackages/userinfo/userinfo" hover-class="none">
-        <text class="cuIcon-info text-grey menu-icon"></text>
-        <text class="text-grey menu-text">项目信息</text>
-      </navigator>
-    </view>
-    <view class="menu-grid-item shadow radius">
-      <button class="menu-item-content" style="font-weight: normal; background: transparent; border: none;" hover-class="none" open-type="feedback">
-        <text class="cuIcon-write text-grey menu-icon"></text>
-        <text class="text-grey menu-text">意见反馈</text>
-      </button>
-    </view>
-    <view class="menu-grid-item shadow radius">
-      <navigator class="menu-item-content" url="/pages/equipment/equipment" hover-class="none">
-        <text class="cuIcon-apps text-grey menu-icon"></text>
-        <text class="text-grey menu-text">设备数据</text>
-      </navigator>
-    </view>
-    <view class="menu-grid-item shadow radius" wx:if="{{showProjectStatus}}">
-      <navigator class="menu-item-content" url="/pages/projectstatus/projectstatus" hover-class="none">
-        <text class="cuIcon-command text-grey menu-icon"></text>
-        <text class="text-grey menu-text">项目状态</text>
-      </navigator>
-    </view>
-    <view class="menu-grid-item shadow radius" wx:if="{{!isXinLiangLianGong}}">
-      <navigator class="menu-item-content" url="/subpackages/service/service" hover-class="none">
-        <text class="cuIcon-repair text-grey menu-icon"></text>
-        <text class="text-grey menu-text">报修工单</text>
-      </navigator>
-    </view>
-    <view class="menu-grid-item shadow radius">
-      <navigator class="menu-item-content" url="/pages/usermanage/usermanage" hover-class="none">
-        <text class="cuIcon-settings text-grey menu-icon"></text>
-        <text class="text-grey menu-text">账号管理</text>
-      </navigator>
-    </view>
-    <view class="menu-grid-item shadow radius" wx:if="{{reportshow}}">
-      <navigator class="menu-item-content" url="/pages/reportlist/reportlist" hover-class="none">
-        <text class="cuIcon-news text-grey menu-icon"></text>
-        <text class="text-grey menu-text">查看报告</text>
-      </navigator>
-    </view>
-  </view>
-  <view class="transfer" style="text-align:center">
-    <button class="cu-btn bg-grey lg" bindtap='switchLogin' wx:if="{{buttonShow}}">
-      {{buttonMessage}}
+
+  <view class="service-grid">
+    <navigator class="service-item" url="/subpackages/userinfo/userinfo" hover-class="service-pressed" aria-label="项目信息">
+      <view class="service-icon icon-blue cuIcon-info"></view><view class="service-copy"><text class="service-name">项目信息</text><text class="service-caption">查看项目资料</text></view><text class="service-arrow">›</text>
+    </navigator>
+    <button class="service-item feedback-item" hover-class="service-pressed" open-type="feedback" aria-label="意见反馈">
+      <view class="service-icon icon-amber cuIcon-write"></view><view class="service-copy"><text class="service-name">意见反馈</text><text class="service-caption">帮助我们持续改进</text></view><text class="service-arrow">›</text>
     </button>
+    <navigator class="service-item" url="/pages/equipment/equipment" hover-class="service-pressed" aria-label="设备数据">
+      <view class="service-icon icon-green cuIcon-apps"></view><view class="service-copy"><text class="service-name">设备数据</text><text class="service-caption">查看设备实时参数</text></view><text class="service-arrow">›</text>
+    </navigator>
+    <navigator class="service-item" wx:if="{{showProjectStatus}}" url="/pages/projectstatus/projectstatus" hover-class="service-pressed" aria-label="项目状态">
+      <view class="service-icon icon-cyan cuIcon-command"></view><view class="service-copy"><text class="service-name">项目状态</text><text class="service-caption">健康检查与故障预警</text></view><text class="service-arrow">›</text>
+    </navigator>
+    <navigator class="service-item" wx:if="{{!isXinLiangLianGong}}" url="/subpackages/service/service" hover-class="service-pressed" aria-label="报修工单">
+      <view class="service-icon icon-rose cuIcon-repair"></view><view class="service-copy"><text class="service-name">报修工单</text><text class="service-caption">提交并跟进服务</text></view><text class="service-arrow">›</text>
+    </navigator>
+    <navigator class="service-item" url="/pages/usermanage/usermanage" hover-class="service-pressed" aria-label="账号管理">
+      <view class="service-icon icon-violet cuIcon-settings"></view><view class="service-copy"><text class="service-name">账号管理</text><text class="service-caption">设备与用户安全</text></view><text class="service-arrow">›</text>
+    </navigator>
+    <navigator class="service-item" wx:if="{{reportshow}}" url="/pages/reportlist/reportlist" hover-class="service-pressed" aria-label="查看报告">
+      <view class="service-icon icon-green cuIcon-news"></view><view class="service-copy"><text class="service-name">查看报告</text><text class="service-caption">项目舒适度报告</text></view><text class="service-arrow">›</text>
+    </navigator>
   </view>
-  <navigator class="transfer2" wx:if="{{btn2show}}" url="/pages/admin/admin" style="text-align:center">
-    <button class="cu-btn bg-grey lg">切换经销商</button>
-  </navigator>
+
+  <view class="account-actions" wx:if="{{buttonShow || btn2show}}">
+    <button class="secondary-button" bindtap="switchLogin" wx:if="{{buttonShow}}">{{buttonMessage}}</button>
+    <navigator class="secondary-button" wx:if="{{btn2show}}" url="/pages/admin/admin">切换经销商</navigator>
+  </view>
+  </view>
 </view>

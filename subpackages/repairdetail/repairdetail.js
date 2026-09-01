@@ -1,9 +1,9 @@
 import api from "../../api/api.js";
 
 const REPAIR_STATUS_MAP = {
-    0: { text: '待处理', class: 'status-pending' },
-    1: { text: '处理中', class: 'status-processing' },
-    2: { text: '已完成', class: 'status-completed' }
+    1: { text: '已反馈', class: 'status-pending' },
+    2: { text: '处理中', class: 'status-processing' },
+    3: { text: '已完成', class: 'status-completed' }
 };
 
 Page({
@@ -18,23 +18,74 @@ Page({
         if (eventChannel && eventChannel.on) {
             eventChannel.on('acceptDataFromServicePage', (data) => {
                 const { data: repairData } = data;
-
-                // 只要 repairData 里有 address 字段，wxml 就能自动显示
-                this.setData({ repair: repairData });
+                this.setData({ repair: this.formatRepair(repairData) });
                 this.loadAttachments(repairData.id);
             });
         }
 
-        // Fallback if data not passed via event channel (e.g. direct open with ID)
-        if (!this.data.repair.id && options.id) {
-            console.log("Repair ID from options:", options.id);
-            this.loadAttachments(options.id);
-            // 注意：如果是直接通过 ID 进入页面，repair 对象可能不完整
-            // 如果需要完整信息（包括地址），可能需要在这里调用 api.get_repair_detail(options.id)
+        if (options.id) {
+            wx.nextTick(() => {
+                if (!this.data.repair.id) {
+                    this.loadRepairDetail(options.id);
+                }
+            });
         }
     },
 
+    loadRepairDetail(repairId) {
+        api.get_repair_reports({
+            method: "POST",
+            data: {
+                project_id: wx.getStorageSync("selected_home"),
+                page_options: { page: 1, limit: 0 },
+            },
+            header: {
+                "content-type": "application/json",
+                Authorization: wx.getStorageSync("access_token"),
+            },
+            success: (res) => {
+                if (this.data.repair.id) {
+                    return;
+                }
+                const entities = res.data && Array.isArray(res.data.entities)
+                    ? res.data.entities
+                    : [];
+                const repair = entities.find(
+                    (item) => String(item.id) === String(repairId),
+                );
+                if (!repair) {
+                    wx.showToast({ title: "未找到报修信息", icon: "none" });
+                    return;
+                }
+                this.setData({ repair: this.formatRepair(repair) });
+                this.loadAttachments(repair.id);
+            },
+            fail: () => {
+                wx.showToast({ title: "报修详情加载失败", icon: "none" });
+            },
+        });
+    },
+
+    formatRepair(repair) {
+        const status = REPAIR_STATUS_MAP[repair.status] || {
+            text: "未知状态",
+            class: "status-unknown",
+        };
+        return {
+            ...repair,
+            statusText: repair.statusText || status.text,
+            statusClass: repair.statusClass || status.class,
+            created_at: repair.created_at
+                ? String(repair.created_at).replace("T", " ").slice(0, 19)
+                : "-",
+        };
+    },
+
     loadAttachments(repairId) {
+        if (String(this._attachmentsRepairId) === String(repairId)) {
+            return;
+        }
+        this._attachmentsRepairId = repairId;
         console.log('Loading attachments for repair ID:', repairId);
         api.get_repair_report_attachments({
             method: "POST",

@@ -1,7 +1,6 @@
 import api from "../api/api.js";
 
 const JSON_CONTENT_TYPE = { "content-type": "application/json" };
-const LEGACY_MESSAGE_TYPES = new Set([14, 15, 16, 17, 18, 20, 22, 300]);
 
 function parseJson(value) {
   if (typeof value !== "string") {
@@ -45,52 +44,6 @@ export function parseControlResponse(response) {
   }
 
   return payload;
-}
-
-export function requestControlMessage({
-  messageType,
-  body,
-  projectId = wx.getStorageSync("selected_home"),
-  header = {},
-}) {
-  if (LEGACY_MESSAGE_TYPES.has(Number(messageType))) {
-    return Promise.reject(
-      new Error(`message_type ${messageType} 必须使用旧透传接口`),
-    );
-  }
-
-  return new Promise((resolve, reject) => {
-    const data = {
-      project_id: projectId,
-      message_type: messageType,
-    };
-
-    if (body !== undefined) {
-      data.body = typeof body === "string" ? body : JSON.stringify(body);
-    }
-
-    api.trans_ctrl_message_sync({
-      method: "POST",
-      header: {
-        ...JSON_CONTENT_TYPE,
-        Authorization: wx.getStorageSync("access_token"),
-        ...header,
-      },
-      data,
-      success: (response) => {
-        try {
-          resolve({ body: parseControlResponse(response), response });
-        } catch (error) {
-          reject(error);
-        }
-      },
-      fail: reject,
-    });
-  });
-}
-
-export function controlMessageBody(options) {
-  return requestControlMessage(options).then((result) => result.body);
 }
 
 export function controlDataArray(body) {

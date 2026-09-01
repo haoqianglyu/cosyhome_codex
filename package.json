@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "check": "node scripts/check-project.js",
+    "styles:sync": "node scripts/sync-styles.js",
+    "test": "node scripts/test-utils.js && npm run check"
   },
   "repository": {
     "type": "git",

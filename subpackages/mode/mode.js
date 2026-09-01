@@ -2,7 +2,7 @@
 import * as echarts from "../../ec-canvas/echarts";
 import {
   controlDataArray,
-  controlMessageBody,
+  legacyControlMessageBody,
 } from "../../utils/controlMessage.js";
 
 let pieChart = null;
@@ -53,7 +53,7 @@ Page({
   },
 
   async loadModeData() {
-    const body = await controlMessageBody({
+    const body = await legacyControlMessageBody({
       messageType: 7,
       body: {
         requestId: this.data.requestId,
@@ -106,11 +106,9 @@ Page({
       wx.showNavigationBarLoading();
       pieChart.showLoading({ text: "正在加载数据" });
 
-      setTimeout(() => {
-        pieChart.setOption(this.getPieOption(chartData));
-        pieChart.hideLoading();
-        wx.hideNavigationBarLoading();
-      }, 1200);
+      pieChart.setOption(this.getPieOption(chartData));
+      pieChart.hideLoading();
+      wx.hideNavigationBarLoading();
 
       return pieChart;
     });
@@ -200,6 +198,13 @@ Page({
       seriesData: this.data.value,
     };
     this.init_echarts2(chartData2);
+  },
+
+  onUnload() {
+    if (pieChart) {
+      pieChart.dispose();
+      pieChart = null;
+    }
   },
 
   onShareAppMessage: function () {

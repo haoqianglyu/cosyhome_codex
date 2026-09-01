@@ -31,17 +31,18 @@ Page({
   },
 
   async loginWithProjects({ loginRole, visitor, request, sort }) {
-    wx.setStorageSync("login", loginRole);
-    app.globalData.isvisitor = visitor;
-    wx.showToast({ title: "登录成功", icon: "none", duration: 1500 });
-
     try {
       const data = await apiRequest(request);
       const projects = normalizeProjects(data, sort);
       this.setData({ homes: projects });
-      if (!enterProjectRole(projects, 1000)) {
+      if (!projects.length) {
         wx.showToast({ title: "无项目可查看", icon: "none" });
+        return;
       }
+      wx.setStorageSync("login", loginRole);
+      app.setVisitorMode(visitor, false);
+      wx.showToast({ title: "登录成功", icon: "none", duration: 1500 });
+      enterProjectRole(projects, 1000);
     } catch (error) {
       console.error("身份切换失败", error);
       wx.showToast({ title: "项目列表获取失败", icon: "none" });

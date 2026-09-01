@@ -1,4 +1,4 @@
-import { controlMessageBody } from "../../utils/controlMessage.js";
+import { legacyControlMessageBody } from "../../utils/controlMessage.js";
 
 let currentMenuType = null;
 let currentEquipmentId = null;
@@ -44,7 +44,7 @@ Page({
   async loadMenuList() {
     wx.showLoading({ title: "正在加载数据" });
     try {
-      const body = await controlMessageBody({ messageType: 5 });
+      const body = await legacyControlMessageBody({ messageType: 5 });
       const menuItems = Array.isArray(body && body.menuList)
         ? body.menuList
         : [];
@@ -82,7 +82,7 @@ Page({
       wx.showToast({ title: "设备列表获取失败", icon: "none" });
     } finally {
       wx.hideLoading();
-      this.setData({ color: "#74ceae", open_gif: false });
+      this.setData({ color: "#55c2bb", open_gif: false });
     }
   },
 
@@ -136,6 +136,10 @@ Page({
       return;
     }
     if (this._equipmentRequestPending) {
+      if (showLoading) {
+        this._equipmentReloadRequested = true;
+        this._equipmentReloadShowLoading = true;
+      }
       return;
     }
     this._equipmentRequestPending = true;
@@ -144,21 +148,30 @@ Page({
     }
 
     const requestId = Date.now();
+    const requestedMenuType = currentMenuType;
+    const requestedEquipmentId = currentEquipmentId;
     try {
-      const body = await controlMessageBody({
+      const body = await legacyControlMessageBody({
         messageType: 6,
         body: {
-          menuType: currentMenuType,
-          equipmentId: currentEquipmentId,
+          menuType: requestedMenuType,
+          equipmentId: requestedEquipmentId,
           requestId,
         },
       });
+      if (
+        String(currentMenuType) !== String(requestedMenuType) ||
+        String(currentEquipmentId) !== String(requestedEquipmentId)
+      ) {
+        return;
+      }
       if (
         body &&
         body.requestId !== undefined &&
         String(body.requestId) !== String(requestId)
       ) {
         console.warn("设备数据 requestId 不匹配", requestId, body.requestId);
+        return;
       }
       this.setData({ content: this.remove_empty((body && body.data) || []) });
     } catch (error) {
@@ -168,8 +181,15 @@ Page({
       }
     } finally {
       this._equipmentRequestPending = false;
+      const shouldReload = this._equipmentReloadRequested;
+      const reloadWithLoading = this._equipmentReloadShowLoading;
+      this._equipmentReloadRequested = false;
+      this._equipmentReloadShowLoading = false;
       if (showLoading) {
         wx.hideLoading();
+      }
+      if (shouldReload) {
+        this.loadEquipmentData(reloadWithLoading);
       }
     }
   },

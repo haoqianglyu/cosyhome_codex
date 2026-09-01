@@ -161,9 +161,6 @@ Page({
     } else if (this.data.isGuestModeEnabled) {
       // 如果是访客模式，并且用户已经勾选同意条款
       const phone_number = this.data.inputValue;
-      app.globalData.isvisitor = true;
-      app.globalData.isdistributor_visitor = true;
-      wx.setStorageSync("login", "distributor");
       wx.login({
         success(res) {
           const wx_code = res.code;
@@ -178,41 +175,41 @@ Page({
               distributor_phone: phone_number,
             },
             success: function (res) {
-              console.log(res);
-              if (res.data.code === 5) {
-                wx.showToast({
-                  title: res.data.message,
-                  icon: "none",
-                  duration: 2000
-                });
-              } else {
-                var access_token = "Bearer " + res.data.access_token;
-                // app.globalData.access_token = access_token;
-                wx.setStorageSync("access_token", access_token);
-                api.vistor_projects({
-                  method: "POST",
-                  data: {},
-                  header: {
-                    "content-type": "application/json",
-                    Authorization: wx.getStorageSync("access_token"),
-                  },
-                  success: function (res) {
-                    console.log(res);
-                    const projects = normalizeProjects(res.data, true);
-                    that.setData({ homes: projects });
-                    if (!projects.length) {
-                      wx.showToast({
-                        title: "暂无访客项目",
-                        icon: "none",
-                        duration: 2000
-                      });
-                      return;
-                    }
-                    enterProjectRole(projects, 1000);
-                  },
-                });
-              }
+              const access_token = "Bearer " + res.data.access_token;
+              api.visitor_projects({
+                method: "POST",
+                data: {},
+                header: {
+                  "content-type": "application/json",
+                  Authorization: access_token,
+                },
+                success: function (projectResponse) {
+                  const projects = normalizeProjects(
+                    projectResponse.data,
+                    true,
+                  );
+                  that.setData({ homes: projects });
+                  if (!projects.length) {
+                    wx.showToast({
+                      title: "暂无访客项目",
+                      icon: "none",
+                      duration: 2000,
+                    });
+                    return;
+                  }
+                  wx.setStorageSync("access_token", access_token);
+                  app.setVisitorMode(true, true);
+                  wx.setStorageSync("login", "distributor");
+                  enterProjectRole(projects, 1000);
+                },
+              });
 
+            },
+            fail: function (error) {
+              wx.showToast({
+                title: (error.data && error.data.message) || "访客登录失败",
+                icon: "none",
+              });
             },
           });
         },

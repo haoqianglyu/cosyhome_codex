@@ -1,12 +1,10 @@
 var app = getApp();
 import {
-  controlMessageBody,
   legacyControlMessageBody,
   sendControlCommand,
 } from "../../utils/controlMessage.js";
 import { calculateDewPoint } from "../../utils/environment.js";
 import * as echarts from "../../ec-canvas/echarts";
-let TimeID = -1;
 let barChart1 = null;
 Page({
   /**
@@ -55,7 +53,7 @@ Page({
 
   async getDataFromScreen() {
     try {
-      const body = await controlMessageBody({ messageType: 100 });
+      const body = await legacyControlMessageBody({ messageType: 100 });
       const sensors = Array.isArray(body && body.sensor)
         ? body.sensor.map((sensor) => ({
             ...sensor,
@@ -71,9 +69,9 @@ Page({
         mode: (body && body.mode) || [],
         show_mode: (body && body.currentModeName) || "",
         deviceData: sensors,
-        realtemp: firstSensor.temperature || "",
-        realhumidity: firstSensor.humidity || "",
-        dewPoint: firstSensor.dewPoint || "",
+        realtemp: this.valueOrEmpty(firstSensor.temperature),
+        realhumidity: this.valueOrEmpty(firstSensor.humidity),
+        dewPoint: this.valueOrEmpty(firstSensor.dewPoint),
       });
       if (body && body.currentMode !== undefined) {
         wx.setStorageSync("current_mode", body.currentMode);
@@ -81,6 +79,10 @@ Page({
     } catch (error) {
       console.error("环境数据获取失败", error);
     }
+  },
+
+  valueOrEmpty(value) {
+    return value === undefined || value === null ? "" : value;
   },
 
   setTemp(setType, setValue) {
@@ -142,7 +144,7 @@ Page({
 
   async get24hData() {
     try {
-      const body = await controlMessageBody({ messageType: 19 });
+      const body = await legacyControlMessageBody({ messageType: 19 });
       const records = Array.isArray(body) ? body : [];
       const temperatures = records.map((item) => item.temperature);
       const humidities = records.map((item) => item.humidity);
@@ -176,6 +178,7 @@ Page({
    */
   onShow: function () {
     var that = this;
+    this._pageVisible = true;
     console.log(that.getTabBar());
     if (typeof that.getTabBar === "function" && that.getTabBar()) {
       that.getTabBar().setData({
@@ -185,10 +188,38 @@ Page({
     that.getDataFromScreen();
     that.setDataFromScreen();
     that.clearTimeInterval();
+    that.startRealtimePolling();
+  },
+
+  startRealtimePolling: function () {
+    const that = this;
+    if (that.data.refreshInterval) {
+      return;
+    }
     that.data.refreshInterval = setInterval(function () {
       that.getDataFromScreen();
-      that.setDataFromScreen();
     }, 10000);
+  },
+
+  scheduleSettingsRefresh: function (delay = 10000) {
+    clearTimeout(this._settingsRefreshTimer);
+    this._settingsRefreshTimer = setTimeout(() => {
+      this._settingsRefreshTimer = null;
+      if (!this._pageVisible) {
+        return;
+      }
+      this.getDataFromScreen();
+      this.setDataFromScreen();
+      this.startRealtimePolling();
+    }, delay);
+  },
+
+  clearControlTimers: function () {
+    clearTimeout(this.timeout);
+    clearTimeout(this._settingsRefreshTimer);
+    this.timeout = null;
+    this._settingsRefreshTimer = null;
+    this._temperatureOriginalValue = undefined;
   },
 
   /**
@@ -204,16 +235,22 @@ Page({
    * 生命周期函数--监听页面隐藏
    */
   onHide: function () {
-    var that = this;
-    that.clearTimeInterval();
+    this._pageVisible = false;
+    this.clearTimeInterval();
+    this.clearControlTimers();
   },
 
   /**
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
-    var that = this;
-    that.clearTimeInterval();
+    this._pageVisible = false;
+    this.clearTimeInterval();
+    this.clearControlTimers();
+    if (barChart1) {
+      barChart1.dispose();
+      barChart1 = null;
+    }
   },
 
   /**
@@ -258,28 +295,24 @@ Page({
         title: "访客模式不可操作",
         icon: "none",
       });
-    } else {
-      if (num > minTemperatureSet) {
-        num = num - strip;
-      }
-      var minusStatus = num <= minTemperatureSet ? "disabled" : "normal";
-      var plusStatus = num >= maxTemperatureSet ? "disabled" : "normal";
-      // 将数值与状态写回
-      that.setData({
-        shownum: num,
-        minusStatus: minusStatus,
-        plusStatus: plusStatus,
-      });
+      that.startRealtimePolling();
+      return;
     }
-    
+    if (num > minTemperatureSet) {
+      num = num - strip;
+    }
+    var minusStatus = num <= minTemperatureSet ? "disabled" : "normal";
+    var plusStatus = num >= maxTemperatureSet ? "disabled" : "normal";
+    if (this._temperatureOriginalValue === undefined) {
+      this._temperatureOriginalValue = this.data.shownum;
+    }
+    that.setData({
+      shownum: num,
+      minusStatus: minusStatus,
+      plusStatus: plusStatus,
+    });
 
-    // 设置定时器，1秒后如果没有新的点击，就调用setTemp函数
-    that.timeout = setTimeout(function () {
-      that.setTemp(that.data.setType, num);
-      setTimeout(() => {
-        that.onShow();
-      }, 10000);
-    }, 1000);
+    that.scheduleTemperatureUpdate(num);
   },
 
   /* 点击加号 */
@@ -300,27 +333,48 @@ Page({
         title: "访客模式不可操作",
         icon: "none",
       });
-    } else {
-      if (num < maxTemperatureSet) {
-        num = num + strip;
-      }
-
-      var minusStatus = num < minTemperatureSet ? "disabled" : "normal";
-      var plusStatus = num > maxTemperatureSet ? "disabled" : "normal";
-      // 将数值与状态写回
-      that.setData({
-        shownum: num,
-        minusStatus: minusStatus,
-        plusStatus: plusStatus,
-      });
+      that.startRealtimePolling();
+      return;
     }
+    if (num < maxTemperatureSet) {
+      num = num + strip;
+    }
+    var minusStatus = num < minTemperatureSet ? "disabled" : "normal";
+    var plusStatus = num > maxTemperatureSet ? "disabled" : "normal";
+    if (this._temperatureOriginalValue === undefined) {
+      this._temperatureOriginalValue = this.data.shownum;
+    }
+    that.setData({
+      shownum: num,
+      minusStatus: minusStatus,
+      plusStatus: plusStatus,
+    });
 
-    // 设置定时器，1秒后如果没有新的点击，就调用setTemp函数
-    that.timeout = setTimeout(function () {
-      that.setTemp(that.data.setType, num);
-      setTimeout(() => {
-        that.onShow();
-      }, 10000);
+    that.scheduleTemperatureUpdate(num);
+  },
+
+  scheduleTemperatureUpdate: function (value) {
+    clearTimeout(this.timeout);
+    this.timeout = setTimeout(async () => {
+      this.timeout = null;
+      try {
+        await this.setTemp(this.data.setType, value);
+        this._temperatureOriginalValue = undefined;
+      } catch (error) {
+        const original = this._temperatureOriginalValue;
+        this._temperatureOriginalValue = undefined;
+        if (this._pageVisible && original !== undefined) {
+          this.setData({
+            shownum: original,
+            minusStatus:
+              original <= this.data.minset ? "disabled" : "normal",
+            plusStatus:
+              original >= this.data.maxset ? "disabled" : "normal",
+          });
+          wx.showToast({ title: "温湿度设置失败", icon: "none" });
+        }
+      }
+      this.scheduleSettingsRefresh();
     }, 1000);
   },
 
@@ -356,12 +410,9 @@ Page({
 
       wx.showNavigationBarLoading();
       barChart1.showLoading({ text: "正在加载数据" });
-      setTimeout(() => {
-        barChart1.setOption(this.getBarOption1(chartData));
-        barChart1.hideLoading();
-        console.log(barChart1.getOption())
-        wx.hideNavigationBarLoading();
-      }, 1200);
+      barChart1.setOption(this.getBarOption1(chartData));
+      barChart1.hideLoading();
+      wx.hideNavigationBarLoading();
       
 
       return barChart1; //一定要return出去
@@ -396,13 +447,13 @@ Page({
         icon: "none",
         itemWidth: 5, // 图例标记的图形宽度。
         itemGap: 6, // 图例每项之间的间隔。
-        inactiveColor: "#74CEAE", // 图例关闭时的颜色。
+        inactiveColor: "#55c2bb", // 图例关闭时的颜色。
         textStyle: {
           //图例文字的样式
           color: "black",
           fontSize: this.data.windowWidth / 35,
           backgroundColor: "transparent", // 文字块背景色。
-          borderColor: "#74CEAE", // 文字块边框颜色。
+          borderColor: "#55c2bb", // 文字块边框颜色。
           borderWidth: 1, // 文字块边框宽度。
           borderRadius: 8, // 文字块的圆角。
           padding: 6, // 文字块的内边距

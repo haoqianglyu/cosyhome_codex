@@ -158,12 +158,14 @@ generateNoticeText: function(startTime, endTime) {
 
   confirm: function () {
     let that = this;
+    if (this._confirmPending) return;
     if (app.globalData.isvisitor) {
       wx.showToast({
         title: "访客模式不可操作",
         icon: "none",
       });
     } else {
+      this._confirmPending = true;
       var body_json = JSON.stringify({
         timeMode: that.data.clock_info.timeMode,
         isTiming: that.data.switch_on, // 开关的状态
@@ -179,12 +181,6 @@ generateNoticeText: function(startTime, endTime) {
   
           // 延迟返回上一页
           setTimeout(function () {
-            let pages = getCurrentPages(); // 获取小程序页面栈
-            let beforePage = pages[pages.length - 2]; // 获取上个页面的实例对象
-            if (beforePage && typeof beforePage.onShow === "function") {
-              beforePage.onShow();
-            }
-  
             wx.navigateBack({
               delta: 1, // 这里的数字表示返回的层数，1 表示返回上一层页面
             });
@@ -196,6 +192,9 @@ generateNoticeText: function(startTime, endTime) {
             icon: "none",
           });
           console.error(error);
+        })
+        .finally(function () {
+          that._confirmPending = false;
         });
     }
   },

@@ -1,32 +1,14 @@
-<view class='margin-xl bg-white padding-xl radius shadow-lg'>
-    <view class='text-center margin-bottom text-lg  text-grey'>版本信息</view>
-    <view class='text-content'>
-      
-      
-      <view class="currentCodeVersion">
-        <view class="key">当前代码版本:</view>
-        <view class="value">{{version_info.currentCodeVersion}}</view>
-      </view>
-      <view class="currentVersion">
-        <view class="key">当前版本号:</view>
-        <view class="value">{{version_info.currentVersion}}</view>
-      </view>
-      <view class="latestCodeVersion">
-        <view class="key">最新代码版本:</view>
-        <view class="value">{{version_info.latestCodeVersion}}</view>
-      </view>
-      <view class="latestVersion">
-        <view class="key">最新版本号:</view>
-        <view class="value">{{version_info.latestVersion}}</view>
-      </view>
-      <view class="latestDescribe">
-        <view class="key">更新说明:</view>
-        <view class="value">{{version_info.latestDescribe}}</view>
-      </view>
-    
-  
-    </view>
+<view class="update-page">
+  <view class="update-hero"><view class="hero-orbit"></view><view class="update-icon cuIcon-upload"></view><view class="update-title">远程更新</view><view class="update-copy">将控制屏升级到服务器提供的最新版本</view></view>
+  <view class="version-card">
+    <view class="card-title">版本信息</view>
+    <view class="version-row"><text>当前代码版本</text><text>{{version_info.currentCodeVersion || '--'}}</text></view>
+    <view class="version-row"><text>当前版本号</text><text>{{version_info.currentVersion || '--'}}</text></view>
+    <view class="version-divider"></view>
+    <view class="version-row latest-row"><text>最新代码版本</text><text>{{version_info.latestCodeVersion || '--'}}</text></view>
+    <view class="version-row latest-row"><text>最新版本号</text><text>{{version_info.latestVersion || '--'}}</text></view>
+    <view class="description-block"><view class="description-label">更新说明</view><view class="description-value">{{version_info.latestDescribe || '暂无更新说明'}}</view></view>
   </view>
-
-  <button class="cu-btn bg-blue lg force-update-button" bindtap="update">强制更新</button>
-  
+  <button class="force-update-button" bindtap="update">开始强制更新</button>
+  <view class="update-note"><text class="cuIcon-warn"></text><text>更新过程中请保持控制屏在线，不要断电</text></view>
+</view>

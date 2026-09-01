@@ -1,11 +1,14 @@
 // pages/roomdetail/roomdetail.js
 import * as echarts from "../../ec-canvas/echarts";
 import api from "../../api/api.js";
-import { controlMessageBody } from "../../utils/controlMessage.js";
+import { legacyControlMessageBody } from "../../utils/controlMessage.js";
+import {
+  apiRequest,
+  getErrorMessage,
+  isCurrentPage,
+} from "../../utils/request.js";
 var app = getApp();
 let barChart1 = null;
-let input_value = "";
-let TimeID = -1;
 Page({
   /**
    * 页面的初始数据
@@ -57,7 +60,6 @@ Page({
     PM2_5_arraytemp: [],
     dewPoint_arraytemp: [],
     canOff: false,
-    hiddenmodalput: true,
     roomMode: null,
     sliderable: true,
     //可以通过hidden是否掩藏弹出框的属性，来指定那个弹出框
@@ -69,6 +71,7 @@ Page({
     isHeatingDehumidify: false,
     airConditionerModeName: "",
     isXLLG: false,
+    statusBarHeight: 0,
   },
 
   /**
@@ -78,6 +81,10 @@ Page({
     console.log(options);
 
     var that = this;
+    const windowInfo =
+      typeof wx.getWindowInfo === "function"
+        ? wx.getWindowInfo()
+        : wx.getSystemInfoSync();
     var roomID = options.roomID;
     var roomName = options.roomName;
     console.log(roomName)
@@ -88,6 +95,7 @@ Page({
       roomName:roomName,
       windowHeight: wx.getStorageSync("windowHeight"),
       windowWidth: wx.getStorageSync("windowWidth"),
+      statusBarHeight: windowInfo.statusBarHeight || 0,
     });
 
     // 判断是否为"新两联供"项目的供热除湿模式
@@ -108,7 +116,7 @@ Page({
   async loadHistory() {
     wx.showLoading({ title: "正在加载数据" });
     try {
-      const body = await controlMessageBody({
+      const body = await legacyControlMessageBody({
         messageType: 4,
         body: this.data.roomId,
       });
@@ -148,7 +156,7 @@ Page({
     }
     this._statusRequestPending = true;
     try {
-      const body = await controlMessageBody({
+      const body = await legacyControlMessageBody({
         messageType: 3,
         body: this.data.roomId,
       });
@@ -165,7 +173,6 @@ Page({
         body.ecoTemperature === undefined || body.energyMode !== 1
           ? setTemperature
           : body.ecoTemperature;
-
       this.setData({
         canOff: body.canOff,
         maxTemperatureSet: body.maxTemperatureSet,
@@ -189,6 +196,14 @@ Page({
         windLevelNumber: body.windLevelNumber,
         isAutoWindLevel: body.isAutoWindLevel,
         currentButton,
+        minusStatus:
+          Number(showTemperature) <= Number(body.minTemperatureSet)
+            ? "disabled"
+            : "normal",
+        plusStatus:
+          Number(showTemperature) >= Number(body.maxTemperatureSet)
+            ? "disabled"
+            : "normal",
         windLevels: Array.from(
           { length: Number(body.windLevelNumber) || 0 },
           (_, index) => index,
@@ -201,71 +216,56 @@ Page({
     }
   },
 
-  toggleSelection: function (e) {
-    var that = this;
-    that.clearTimeInterval();
+  toggleSelection: async function (e) {
+    this.clearTimeInterval();
     if (app.globalData.isvisitor) {
       wx.showToast({
         title: "访客模式不可操作",
         icon: "none",
       });
-    } else {
-      let index = e.currentTarget.dataset.index;
-      let item = that.data.workModes[index];
-      if (!item.isChange) {
-        // console.log(`${item.optionName} 无法修改`);
-        wx.showToast({
-          title: "不可修改",
-          icon: "error",
-        });
-        return;
-      }
-
-      let selectedCount = that.getSelectedCount();
-      if (item.isSelect && selectedCount === 1) {
-        wx.showToast({
-          title: "至少选择一项",
-          icon: "error",
-        });
-        return;
-      }
-
-      that.setData(
-        {
-          workModes: that.data.workModes.map((item, i) => {
-            if (i === index) {
-              console.log(
-                `${item.optionName} ${!item.isSelect ? "选中" : "未选中"}`
-              );
-              return { ...item, isSelect: !item.isSelect };
-            } else {
-              return item;
-            }
-          }),
-        },
-        function () {
-          // 请求API
-          api.trans_ctrl_message({
-            method: "POST",
-            header: {
-              "content-type": "application/json",
-              Authorization: wx.getStorageSync("access_token"),
-            },
-            data: {
-              project_id: wx.getStorageSync("selected_home"),
-              body: JSON.stringify({
-                id: that.data.roomId,
-                workModes: that.data.workModes,
-              }),
-              message_type: 14,
-            },
-            success: function (res) {},
-          });
-        }
-      );
+      this.startRoomPolling();
+      return;
     }
-    that.onShow();
-  
+    if (this._workModePending) return;
+    const index = Number(e.currentTarget.dataset.index);
+    const item = this.data.workModes[index];
+    if (!item) return;
+    if (!item.isChange) {
+      wx.showToast({ title: "不可修改", icon: "none" });
+      return;
+    }
+    if (item.isSelect && this.getSelectedCount() === 1) {
+      wx.showToast({ title: "至少选择一项", icon: "none" });
+      return;
+    }
+    const previousModes = this.data.workModes;
+    const workModes = previousModes.map((mode, modeIndex) =>
+      modeIndex === index ? { ...mode, isSelect: !mode.isSelect } : mode,
+    );
+    this._workModePending = true;
+    this.setData({ workModes });
+    try {
+      await apiRequest(api.trans_ctrl_message, {
+        method: "POST",
+        header: {
+          "content-type": "application/json",
+          Authorization: wx.getStorageSync("access_token"),
+        },
+        data: {
+          project_id: wx.getStorageSync("selected_home"),
+          body: JSON.stringify({ id: this.data.roomId, workModes }),
+          message_type: 14,
+        },
+      });
+      if (isCurrentPage(this)) this.refreshRoomStatus();
+    } catch (error) {
+      if (isCurrentPage(this)) {
+        this.setData({ workModes: previousModes });
+        wx.showToast({ title: getErrorMessage(error), icon: "none" });
+      }
+    } finally {
+      this._workModePending = false;
+    }
   },
 
   getSelectedCount: function () {
@@ -287,12 +287,9 @@ Page({
 
       wx.showNavigationBarLoading();
       barChart1.showLoading({ text: "正在加载数据" });
-      setTimeout(() => {
-        barChart1.setOption(this.getBarOption1(chartData));
-        barChart1.hideLoading();
-        console.log(barChart1.getOption())
-        wx.hideNavigationBarLoading();
-      }, 1200);
+      barChart1.setOption(this.getBarOption1(chartData));
+      barChart1.hideLoading();
+      wx.hideNavigationBarLoading();
       
 
       return barChart1; //一定要return出去
@@ -327,13 +324,13 @@ Page({
         icon: "none",
         itemWidth: 5, // 图例标记的图形宽度。
         itemGap: 6, // 图例每项之间的间隔。
-        inactiveColor: "#74CEAE", // 图例关闭时的颜色。
+        inactiveColor: "#55c2bb", // 图例关闭时的颜色。
         textStyle: {
           //图例文字的样式
           color: "black",
           fontSize: this.data.windowWidth / 35,
           backgroundColor: "transparent", // 文字块背景色。
-          borderColor: "#74CEAE", // 文字块边框颜色。
+          borderColor: "#55c2bb", // 文字块边框颜色。
           borderWidth: 1, // 文字块边框宽度。
           borderRadius: 8, // 文字块的圆角。
           padding: 6, // 文字块的内边距
@@ -440,16 +437,26 @@ Page({
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady: function () {
-    // setTimeout(() => {
-    //   this.getChartData();
-    // }, 1000);
+    // 图表由 ec-canvas 在组件准备完成后初始化。
   },
 
   /**
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
+    this._pageVisible = true;
+    this.refreshRoomStatus();
+  },
+
+  refreshRoomStatus: function () {
+    if (!this._pageVisible) {
+      return;
+    }
     this.loadRoomStatus();
+    this.startRoomPolling();
+  },
+
+  startRoomPolling: function () {
     if (!this.data.refreshInterval) {
       this.data.refreshInterval = setInterval(
         () => this.loadRoomStatus(),
@@ -471,15 +478,31 @@ Page({
    * 生命周期函数--监听页面隐藏
    */
   onHide: function () {
-    var that = this;
-    that.clearTimeInterval();
+    this._pageVisible = false;
+    this.clearTimeInterval();
+    this.clearDelayedControls();
   },
 
   /**
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
+    this._pageVisible = false;
     this.clearTimeInterval();
+    this.clearDelayedControls();
+    if (barChart1) {
+      barChart1.dispose();
+      barChart1 = null;
+    }
+  },
+
+  clearDelayedControls: function () {
+    clearTimeout(this._windControlTimer);
+    clearTimeout(this._temperatureControlTimer);
+    this._windControlTimer = null;
+    this._temperatureControlTimer = null;
+    this._windOriginalValue = undefined;
+    this._temperatureOriginalValue = undefined;
   },
 
   /**
@@ -518,84 +541,172 @@ Page({
     });
   },
 
-  //点击按钮弹出指定的hiddenmodalput弹出框
+  // 修改房间名称
   modalinput: function () {
-    var that = this
-    that.clearTimeInterval();
     if (app.globalData.isvisitor) {
       wx.showToast({
         title: "访客模式不可操作",
         icon: "none",
       });
-    } else {
-      that.setData({
-        hiddenmodalput: !that.data.hiddenmodalput,
-      });
+      return;
     }
-    
-  },
-  //取消按钮
-  cancel: function () {
-    var that = this
-    that.setData({
-      hiddenmodalput: true,
-    });
-  },
-  //确认
-  confirm: function () {
-    var that = this
-    api.ctrl_modify_room_name({
-      method: "POST",
-      header: {
-        "content-type": "application/json",
-        Authorization: wx.getStorageSync("access_token"),
+    this.clearTimeInterval();
+    wx.showModal({
+      title: "修改房间名称",
+      editable: true,
+      content: this.data.roomName,
+      placeholderText: "请输入房间名称",
+      confirmText: "保存",
+      success: (result) => {
+        if (!result.confirm) {
+          this.startRoomPolling();
+          return;
+        }
+        this.renameRoom(String(result.content || "").trim());
       },
-      data: {
-        project_id: wx.getStorageSync("selected_home"),
-        room_id: that.data.roomId,
-        room_name: input_value,
+      fail: () => {
+        this.startRoomPolling();
       },
-      success: function (res) {},
     });
-    that.setData({
-      hiddenmodalput: true,
-      roomName: input_value,
-    });
-
-    that.onShow();
-
   },
 
-  modifyRoomName: function (e) {
-    console.log(e.detail.value);
-    input_value = e.detail.value;
+  renameRoom: async function (roomName) {
+    if (!roomName) {
+      wx.showToast({ title: "请输入房间名称", icon: "none" });
+      this.startRoomPolling();
+      return;
+    }
+    if (this._renamePending) {
+      return;
+    }
+    this._renamePending = true;
+    try {
+      await apiRequest(api.ctrl_modify_room_name, {
+        method: "POST",
+        header: {
+          "content-type": "application/json",
+          Authorization: wx.getStorageSync("access_token"),
+        },
+        data: {
+          project_id: wx.getStorageSync("selected_home"),
+          room_id: this.data.roomId,
+          room_name: roomName,
+        },
+      });
+      if (!isCurrentPage(this)) {
+        return;
+      }
+      this.setData({ roomName });
+      this.refreshRoomStatus();
+    } catch (error) {
+      if (isCurrentPage(this)) {
+        wx.showToast({ title: getErrorMessage(error), icon: "none" });
+        this.startRoomPolling();
+      }
+    } finally {
+      this._renamePending = false;
+    }
   },
 
   switchButton: function(e) {
-    var that = this;
     var index = Number(e.currentTarget.dataset.index); 
-    console.log(index)
-    var actualWindLevel;
-    if (index === 100) {
-      actualWindLevel = 100; // 特殊值表示自动风速
-    } else {
-        actualWindLevel = index + 1; // 将下标转换回实际风速值
-    }
-    that.setData({
-        currentButton: index
-    });
-
-    that.clearTimeInterval();
+    const actualWindLevel = index === 100 ? 100 : index + 1;
+    this.clearTimeInterval();
     if (app.globalData.isvisitor) {
       wx.showToast({
         title: "访客模式不可操作",
         icon: "none",
       });
-    } else {
-      clearTimeout(this.TimeID);
-        that.TimeID = setTimeout(() => {
-          console.log(actualWindLevel)
-          api.trans_ctrl_message({
+      this.startRoomPolling();
+      return;
+    }
+    if (this._windOriginalValue === undefined) {
+      this._windOriginalValue = this.data.currentButton;
+    }
+    this.setData({ currentButton: index });
+    clearTimeout(this._windControlTimer);
+    this._windControlTimer = setTimeout(async () => {
+      this._windControlTimer = null;
+      if (!this._pageVisible || this._windControlPending) {
+        return;
+      }
+      this._windControlPending = true;
+      try {
+        await apiRequest(api.trans_ctrl_message, {
+          method: "POST",
+          header: {
+            "content-type": "application/json",
+            Authorization: wx.getStorageSync("access_token"),
+          },
+          data: {
+            project_id: wx.getStorageSync("selected_home"),
+            body: JSON.stringify({
+              id: this.data.roomId,
+              level: actualWindLevel,
+            }),
+            message_type: 18,
+          },
+        });
+        this._windOriginalValue = undefined;
+        if (isCurrentPage(this)) {
+          this.refreshRoomStatus();
+        }
+      } catch (error) {
+        if (isCurrentPage(this)) {
+          this.setData({ currentButton: this._windOriginalValue });
+          wx.showToast({ title: getErrorMessage(error), icon: "none" });
+        }
+        this._windOriginalValue = undefined;
+      } finally {
+        this._windControlPending = false;
+      }
+    }, 500);
+  },
+
+  changeTemperature: function (step) {
+    let num = Number(this.data.showtemp);
+    const minTemperatureSet = Number(this.data.minTemperatureSet);
+    const maxTemperatureSet = Number(this.data.maxTemperatureSet);
+    this.clearTimeInterval();
+    if (app.globalData.isvisitor) {
+      wx.showToast({
+        title: "访客模式不可操作",
+        icon: "none",
+      });
+      this.startRoomPolling();
+      return;
+    }
+    if (this.data.energyMode === 1) {
+      wx.showToast({ title: "节能模式不可调节", icon: "none" });
+      this.startRoomPolling();
+      return;
+    }
+    const nextValue = Math.min(
+      maxTemperatureSet,
+      Math.max(minTemperatureSet, num + step),
+    );
+    if (nextValue === num) {
+      this.startRoomPolling();
+      return;
+    }
+    if (this._temperatureOriginalValue === undefined) {
+      this._temperatureOriginalValue = num;
+    }
+    num = nextValue;
+    this.setData({
+      showtemp: num,
+      minusStatus: num <= minTemperatureSet ? "disabled" : "normal",
+      plusStatus: num >= maxTemperatureSet ? "disabled" : "normal",
+    });
+    clearTimeout(this._temperatureControlTimer);
+    this._temperatureControlTimer = setTimeout(async () => {
+      this._temperatureControlTimer = null;
+      if (!this._pageVisible || this._temperatureControlPending) {
+        return;
+      }
+      this._temperatureControlPending = true;
+      try {
+        await apiRequest(api.ctrl_room_temp, {
             method: "POST",
             header: {
               "content-type": "application/json",
@@ -603,132 +714,77 @@ Page({
             },
             data: {
               project_id: wx.getStorageSync("selected_home"),
-              body: JSON.stringify({
-                id: that.data.roomId,
-                level: actualWindLevel, 
-            }),
-              message_type: 18,
+              room_id: this.data.roomId,
+              room_temp_mode: this.data.roomMode,
+              target_temp: num,
             },
-            success: function (res) {
-              
-            },
-            fail: function (res) {
-              
-              console.log(res);
-            },
+        });
+        this._temperatureOriginalValue = undefined;
+        if (isCurrentPage(this)) {
+          this.refreshRoomStatus();
+        }
+      } catch (error) {
+        const original = this._temperatureOriginalValue;
+        this._temperatureOriginalValue = undefined;
+        if (isCurrentPage(this)) {
+          this.setData({
+            showtemp: original,
+            minusStatus:
+              original <= minTemperatureSet ? "disabled" : "normal",
+            plusStatus:
+              original >= maxTemperatureSet ? "disabled" : "normal",
           });
-        }, 500);
-  
-    }
-    that.onShow();
+          wx.showToast({ title: getErrorMessage(error), icon: "none" });
+        }
+      } finally {
+        this._temperatureControlPending = false;
+      }
+    }, 500);
   },
 
   /* 点击减号 */
   bindMinus: function () {
-    var that = this;
-    var num = that.data.showtemp;
-    var minTemperatureSet = that.data.minTemperatureSet;
-    var maxTemperatureSet = that.data.maxTemperatureSet;
-    var energyMode = that.data.energyMode;
-    that.clearTimeInterval();
-    if (app.globalData.isvisitor) {
-      wx.showToast({
-        title: "访客模式不可操作",
-        icon: "none",
-      });
-    } else {
-      if (energyMode === 1) {
-        wx.showToast({
-          title: "节能模式不可调节",
-          icon: "none",
-        });
-      } else {
-        if (num > minTemperatureSet) {
-          num = num - 0.5;
-        }
-        var minusStatus = num <= minTemperatureSet ? "disabled" : "normal";
-        var plusStatus = num >= maxTemperatureSet ? "disabled" : "normal";
-        // 将数值与状态写回
-        that.setData({
-          showtemp: num,
-          minusStatus: minusStatus,
-          plusStatus: plusStatus,
-        });
-        clearTimeout(this.TimeID);
-        that.TimeID = setTimeout(() => {
-          api.ctrl_room_temp({
-            method: "POST",
-            header: {
-              "content-type": "application/json",
-              Authorization: wx.getStorageSync("access_token"),
-            },
-            data: {
-              project_id: wx.getStorageSync("selected_home"),
-              room_id: that.data.roomId,
-              room_temp_mode: that.data.roomMode,
-              target_temp: num,
-            },
-            success: function (res) {},
-          });
-        }, 500);
-      }
-    }
-    that.onShow();
+    this.changeTemperature(-0.5);
   },
 
   /* 点击加号 */
   bindPlus: function () {
-    var that = this;
-    var num = that.data.showtemp;
-    var minTemperatureSet = that.data.minTemperatureSet;
-    var maxTemperatureSet = that.data.maxTemperatureSet;
-    var energyMode = that.data.energyMode;
-    that.clearTimeInterval();
-    if (app.globalData.isvisitor) {
-      wx.showToast({
-        title: "访客模式不可操作",
-        icon: "none",
-      });
-    } else {
-      if (energyMode === 1) {
-        wx.showToast({
-          title: "节能模式不可调节",
-          icon: "none",
-        });
-      } else {
-        if (num < maxTemperatureSet) {
-          num = num + 0.5;
-        }
+    this.changeTemperature(0.5);
+  },
 
-        var minusStatus = num < minTemperatureSet ? "disabled" : "normal";
-        var plusStatus = num > maxTemperatureSet ? "disabled" : "normal";
-        // 将数值与状态写回
-        that.setData({
-          showtemp: num,
-          minusStatus: minusStatus,
-          plusStatus: plusStatus,
-        });
-
-        clearTimeout(this.TimeID);
-        that.TimeID = setTimeout(() => {
-          api.ctrl_room_temp({
-            method: "POST",
-            header: {
-              "content-type": "application/json",
-              Authorization: wx.getStorageSync("access_token"),
-            },
-            data: {
-              project_id: wx.getStorageSync("selected_home"),
-              room_id: that.data.roomId,
-              room_temp_mode: that.data.roomMode,
-              target_temp: num,
-            },
-            success: function (res) {},
-          });
-        }, 500);
-      }
+  runSwitchControl: async function (key, stateKey, value, messageType, body) {
+    const previousValue = this.data[stateKey];
+    if (this._switchControlPending && this._switchControlPending[key]) {
+      this.setData({ [stateKey]: previousValue });
+      return;
     }
-    that.onShow();
+    this._switchControlPending = this._switchControlPending || {};
+    this._switchControlPending[key] = true;
+    this.setData({ [stateKey]: value });
+    try {
+      await apiRequest(api.trans_ctrl_message, {
+        method: "POST",
+        header: {
+          "content-type": "application/json",
+          Authorization: wx.getStorageSync("access_token"),
+        },
+        data: {
+          project_id: wx.getStorageSync("selected_home"),
+          body: JSON.stringify(body),
+          message_type: messageType,
+        },
+      });
+      if (isCurrentPage(this)) {
+        this.refreshRoomStatus();
+      }
+    } catch (error) {
+      if (isCurrentPage(this)) {
+        this.setData({ [stateKey]: previousValue });
+        wx.showToast({ title: getErrorMessage(error), icon: "none" });
+      }
+    } finally {
+      this._switchControlPending[key] = false;
+    }
   },
 
   onChangePower(e) {
@@ -741,30 +797,17 @@ Page({
         icon: "none",
       });
     } else {
-      that.setData({
-        switch_power: e.detail.value,
-      });
-      api.trans_ctrl_message({
-        method: "POST",
-        header: {
-          "content-type": "application/json",
-          Authorization: wx.getStorageSync("access_token"),
-        },
-        data: {
-          project_id: wx.getStorageSync("selected_home"),
-          body: JSON.stringify({
+      that.runSwitchControl(
+        "power",
+        "switch_power",
+        e.detail.value,
+        16,
+        {
             id: String(that.data.roomId),
             isOn: e.detail.value,
-          }),
-          message_type: 16,
         },
-        success: function (res) {},
-        fail: function (res) {
-          console.log(res);
-        },
-      });
+      );
     }
-    that.onShow();
   },
 
   onChangeLock(e) {
@@ -777,30 +820,17 @@ Page({
         icon: "none",
       });
     } else {
-      that.setData({
-        switch_lock: e.detail.value,
-      });
-      api.trans_ctrl_message({
-        method: "POST",
-        header: {
-          "content-type": "application/json",
-          Authorization: wx.getStorageSync("access_token"),
-        },
-        data: {
-          project_id: wx.getStorageSync("selected_home"),
-          body: JSON.stringify({
+      that.runSwitchControl(
+        "lock",
+        "switch_lock",
+        e.detail.value,
+        15,
+        {
             id: String(that.data.roomId),
             isOn: e.detail.value,
-          }),
-          message_type: 15,
         },
-        success: function (res) {},
-        fail: function (res) {
-          console.log(res);
-        },
-      });
+      );
     }
-    that.onShow();
   },
 
   onChange(e) {
@@ -813,31 +843,17 @@ Page({
         icon: "none",
       });
     } else {
-      that.setData({
-        switch1: e.detail.value,
-      });
-      api.trans_ctrl_message({
-        method: "POST",
-        header: {
-          "content-type": "application/json",
-          Authorization: wx.getStorageSync("access_token"),
-        },
-        data: {
-          project_id: wx.getStorageSync("selected_home"),
-          body: JSON.stringify({
+      that.runSwitchControl(
+        "main",
+        "switch1",
+        e.detail.value,
+        300,
+        {
             id: String(that.data.roomId),
             isOff: !e.detail.value,
-          }),
-          message_type: 300,
         },
-        success: function (res) {},
-        fail: function (res) {
-          console.log(res);
-        },
-      });
+      );
     }
-    that.onShow();
-    
   },
 
 

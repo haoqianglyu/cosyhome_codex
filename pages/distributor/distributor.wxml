@@ -1,4 +1,10 @@
-<view class="padding flex flex-direction">
-    <button class="cu-btn bg-grey lg" bindtap='userLogin'>用户模式登录</button>
-    <button class="cu-btn bg-red margin-tb-sm lg" bindtap='distributorLogin'>访客模式登录</button>
+<view class="role-page">
+  <view class="role-heading"><view class="heading-eyebrow">ACCESS MODE</view><view class="heading-title">选择访问方式</view><view class="heading-copy">不同身份拥有不同的项目权限</view></view>
+  <view class="role-card user-card" aria-role="button" aria-label="用户模式登录" bindtap="userLogin">
+    <view class="card-orbit"></view><view class="role-icon cuIcon-people"></view><view class="role-content"><view class="role-name">用户模式</view><view class="role-desc">查看并控制已绑定的家庭项目</view><view class="permission-chip">完整控制权限</view></view><text class="role-arrow">›</text>
+  </view>
+  <view class="role-card visitor-card" aria-role="button" aria-label="访客模式登录" bindtap="distributorLogin">
+    <view class="role-icon cuIcon-friend"></view><view class="role-content"><view class="role-name">访客模式</view><view class="role-desc">安全查看经销商授权的项目</view><view class="permission-chip visitor-chip">仅查看权限</view></view><text class="role-arrow">›</text>
+  </view>
+  <view class="security-note"><text class="cuIcon-safe"></text><text>身份权限由系统统一管理，访客模式不可执行控制操作</text></view>
 </view>

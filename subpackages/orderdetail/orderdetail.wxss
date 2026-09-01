@@ -2,7 +2,7 @@
 page {
   height: 100vh;
   overflow: hidden;
-  background-color: #f5f5f5;
+  background: linear-gradient(180deg, #f7fbf9 0%, #eef5f3 100%);
 }
 
 /* Page Container */
@@ -15,7 +15,7 @@ page {
   z-index: 0;
   display: flex;
   flex-direction: column;
-  background-color: #f5f5f5;
+  background: transparent;
 }
 
 
@@ -32,21 +32,21 @@ page {
   }
   .card {
     background: #ffffff;
-    border: 1rpx solid #e8e8e8;
-    border-radius: 16rpx;
+    border: 1rpx solid var(--ui-border);
+    border-radius: 24rpx;
     padding: 40rpx 32rpx;
     margin-bottom: 30rpx;
-    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+    box-shadow: var(--ui-shadow-soft);
     transition: all 0.3s ease;
   }
   .submit-btn {
-    background: linear-gradient(135deg, #00bcd4, #009688);
+    background: linear-gradient(135deg, #55c2bb, #55c2bb);
     color: white;
     border: none;
     border-radius: 16rpx;
     font-size: 32rpx;
     font-weight: 600;
-    box-shadow: 0 4rpx 16rpx rgba(0, 188, 212, 0.3);
+    box-shadow: 0 12rpx 28rpx rgba(85, 194, 187, 0.22);
     margin-top: 30rpx;
     padding: 24rpx 60rpx !important;
   }
@@ -115,8 +115,8 @@ page {
   }
 
   .service-checkbox .van-checkbox__icon--checked {
-    background-color: #00bcd4 !important;
-    border-color: #00bcd4 !important;
+    background-color: var(--ui-primary) !important;
+    border-color: var(--ui-primary) !important;
   }
 
   .service-checkbox .van-checkbox__icon {
@@ -167,7 +167,7 @@ page {
     height: 24rpx;
     border-radius: 50%;
     background-color: #ffffff;
-    border: 4rpx solid #1989fa;
+    border: 4rpx solid #55c2bb;
     box-sizing: border-box;
     z-index: 1;
   }
@@ -187,7 +187,7 @@ page {
     margin-right: 10rpx;
   }
   .desc-icon {
-    color: #1989fa;
+    color: #55c2bb;
     font-size: 34rpx;
     flex-shrink: 0;
   }
@@ -285,9 +285,9 @@ page {
 }
 
 .existing-review-content {
-  background: #f8f8f8;
-  border: 1rpx solid #e8e8e8;
-  border-radius: 16rpx;
+  background: #f5faf8;
+  border: 1rpx solid var(--ui-border);
+  border-radius: 18rpx;
   padding: 20rpx;
   color: #333333;
   font-size: 28rpx;

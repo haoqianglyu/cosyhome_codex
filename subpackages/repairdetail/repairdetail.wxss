@@ -1,14 +1,15 @@
 .page-container {
     min-height: 100vh;
-    background-color: #f7f8fa;
+    background: linear-gradient(180deg, #f7fbf9 0%, #eef5f3 100%);
     padding: 20rpx;
 }
 
 .detail-card {
     background-color: #fff;
-    border-radius: 16rpx;
+    border: 1rpx solid var(--ui-border);
+    border-radius: 24rpx;
     padding: 30rpx;
-    box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+    box-shadow: var(--ui-shadow-soft);
 }
 
 .header {
@@ -38,8 +39,8 @@
 }
 
 .status-processing {
-    color: #1989fa;
-    background-color: #e3f2fd;
+    color: #55c2bb;
+    background-color: var(--ui-primary-soft);
 }
 
 .status-completed {
@@ -56,7 +57,7 @@
     font-weight: bold;
     color: #333;
     margin-bottom: 20rpx;
-    border-left: 8rpx solid #1989fa;
+    border-left: 8rpx solid #55c2bb;
     padding-left: 16rpx;
 }
 
@@ -80,9 +81,9 @@
     font-size: 28rpx;
     color: #666;
     line-height: 1.6;
-    background-color: #f9f9f9;
+    background-color: #f5faf8;
     padding: 20rpx;
-    border-radius: 8rpx;
+    border-radius: 16rpx;
 }
 
 .attachment-list {

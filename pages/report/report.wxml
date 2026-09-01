@@ -1,27 +1,48 @@
-<view class="cu-form-group">
-    <view class="title">日期选择</view>
-    <picker mode="date" fields="month" value="{{date}}" start="{{start_date}}" end="{{end_date}}" bindchange="bindDateChange">
-        <view class="picker">
-          当前选择的时间: {{date}}
+<view class="report-page">
+  <view class="report-hero">
+    <view class="hero-eyebrow">DATA INSIGHT</view>
+    <view class="hero-title">项目数据分析</view>
+    <view class="hero-copy">从环境、运行和能耗维度了解项目表现</view>
+
+    <picker class="date-picker" mode="date" fields="month" value="{{date}}" start="{{start_date}}" end="{{end_date}}" bindchange="bindDateChange">
+      <view class="date-picker-inner">
+        <view>
+          <view class="date-label">分析月份</view>
+          <view class="date-value">{{date}}</view>
         </view>
-      </picker>
+        <view class="date-action">切换月份</view>
+      </view>
+    </picker>
+  </view>
+
+  <view class="section-title">分析模块</view>
+  <view class="report-grid">
+    <navigator open-type="navigate" hover-class="card-hover" url="/subpackages/mode/mode" class="report-card mode-card">
+      <view class="card-index">01</view>
+      <view class="card-title">运行模式占比</view>
+      <view class="card-desc">查看不同运行模式的时间分布</view>
+      <view class="card-link">查看分析 <text>→</text></view>
+    </navigator>
+
+    <navigator open-type="navigate" hover-class="card-hover" url="/subpackages/roomstats/roomstats" class="report-card room-card">
+      <view class="card-index">02</view>
+      <view class="card-title">房间环境量统计</view>
+      <view class="card-desc">汇总温湿度、露点与空气质量</view>
+      <view class="card-link">查看分析 <text>→</text></view>
+    </navigator>
+
+    <navigator open-type="navigate" hover-class="card-hover" url="/subpackages/electricity/electricity" class="report-card meter-card">
+      <view class="card-index">03</view>
+      <view class="card-title">计量数据</view>
+      <view class="card-desc">对比月消耗与日均计量数据</view>
+      <view class="card-link">查看分析 <text>→</text></view>
+    </navigator>
+
+    <navigator open-type="navigate" hover-class="card-hover" url="/subpackages/building/building" class="report-card energy-card">
+      <view class="card-index">04</view>
+      <view class="card-title">建筑能耗</view>
+      <view class="card-desc">查看建筑能耗趋势与曲线汇总</view>
+      <view class="card-link">查看分析 <text>→</text></view>
+    </navigator>
+  </view>
 </view>
-
-<view class='nav-list margin-top padding text-center text-xl'>
-    <navigator open-type="navigate" hover-class='none' url="/subpackages/mode/mode" class="nav-li bg-grey">
-        <view class="padding-xl radius shadow-warp bg-grey margin-top">运行模式占比</view>
-    </navigator>
-
-    <navigator open-type="navigate" hover-class='none' url="/subpackages/roomstats/roomstats" class="nav-li bg-grey">
-        <view class="padding-xl radius shadow-warp bg-grey margin-top">房间环境量统计</view>
-    </navigator>
-
-    <navigator open-type="navigate" hover-class='none' url="/subpackages/electricity/electricity" class="nav-li bg-grey">
-        <view class="padding-xl radius shadow-warp bg-grey margin-top">计量数据</view>
-    </navigator>
-
-    <navigator open-type="navigate" hover-class='none' url="/subpackages/building/building" class="nav-li bg-grey">
-        <view class="padding-xl radius shadow-warp bg-grey margin-top">建筑能耗</view>
-    </navigator>
-</view>
-

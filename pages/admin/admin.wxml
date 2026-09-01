@@ -1,24 +1,13 @@
-<view class="cu-bar search" style="background:white">
-    <view class="search-form radius" style="margin-left:2%;margin-right:2%;position: fixed;width: 96%;">
-      <text class="cuIcon-search"></text>
-      <input type="text" placeholder="搜索经销商" confirm-type="search" name="distributor" bindinput="getDistributor"></input>
+<view class="admin-page">
+  <view class="page-heading"><view class="heading-eyebrow">DISTRIBUTOR</view><view class="heading-title">选择经销商</view><view class="heading-copy">切换后将加载该经销商下的项目</view></view>
+  <view class="search-shell"><text class="cuIcon-search search-icon"></text><input type="text" placeholder="搜索经销商名称" confirm-type="search" name="distributor" bindinput="getDistributor" /></view>
+  <view class="result-meta"><text>经销商列表</text><text>{{showList.length}} 个结果</text></view>
+  <scroll-view scroll-y class="distributor-scroll" scroll-top="{{scrollTop}}">
+    <view wx:if="{{showList.length}}" class="distributor-list">
+      <view class="distributor-item" aria-role="button" aria-label="选择经销商 {{item.name}}" wx:for="{{showList}}" wx:key="id" wx:for-index="idx" data-index="{{idx}}" bindtap="selectDistributor">
+        <view class="distributor-avatar cuIcon-group"></view><text class="distributor-name">{{item.name}}</text><text class="item-arrow">›</text>
+      </view>
     </view>
+    <view wx:else class="empty-state"><view class="empty-icon cuIcon-search"></view><view class="empty-title">没有找到经销商</view><view class="empty-copy">请尝试其他关键词</view></view>
+  </scroll-view>
 </view>
-
-<scroll-view scroll-y class="scroll-view-y"  scroll-top="{{scrollTop}}">
-			
-    <view class="table">
-        
-        <view wx:for="{{showList}}" wx:for-index="idx" data-index="{{idx}}" bindtap="selectDistributor">
-            <view class="tr bg-g" wx:if="{{idx % 2 == 0}}" >
-                {{item.name}}
-            </view>
-            <view class="tr bg-w" wx:else>
-                {{item.name}}
-            </view>
-        </view>
-        
-        
-    </view>
-    
-</scroll-view>

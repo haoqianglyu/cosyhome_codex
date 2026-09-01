@@ -7,6 +7,7 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(180deg, #f7fbf9 0%, #eef5f3 100%);
 }
 
 
@@ -32,11 +33,15 @@
 
 /* Form Section */
 .form-section {
-  padding: 40rpx;
+  margin: 0 30rpx 40rpx;
+  padding: 38rpx 34rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: transparent;
+  border: 1rpx solid var(--ui-border);
+  border-radius: 28rpx;
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow-soft);
 }
 
 .input-container {
@@ -63,7 +68,7 @@
   width: 100%;
   max-width: 500rpx;
   height: 88rpx;
-  background: linear-gradient(135deg, #1989fa 0%, #0066cc 100%);
+  background: linear-gradient(135deg, #55c2bb 0%, #55c2bb 100%);
   border: none;
   border-radius: 44rpx;
   color: #ffffff;
@@ -72,14 +77,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8rpx 24rpx rgba(25, 137, 250, 0.4);
+  box-shadow: 0 12rpx 28rpx rgba(85, 194, 187, 0.22);
   transition: all 0.3s ease;
   margin-top: 20rpx;
 }
 
 .save-btn:active {
   transform: scale(0.98);
-  box-shadow: 0 4rpx 12rpx rgba(25, 137, 250, 0.3);
+  box-shadow: 0 6rpx 16rpx rgba(85, 194, 187, 0.18);
 }
 
 /* disabled 状态的样式可以保留，以备将来可能需要 */

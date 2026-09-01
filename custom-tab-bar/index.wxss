@@ -1,38 +1,63 @@
-.tab-bar {
+.tab-bar-wrapper {
   position: fixed;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
-  height: 7vh;
-  background: white;
-  display: flex;
-  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 9999;
+  padding: 0 24rpx env(safe-area-inset-bottom);
 }
 
-.tab-bar-border {
-  background-color: rgba(0, 0, 0, 0.33);
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 2rpx;
-  transform: scaleY(0.5);
+.tab-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 130rpx;
+  margin-bottom: 16rpx;
+  border-radius: 65rpx;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.08);
 }
 
 .tab-bar-item {
-  flex: 1;
-  text-align: center;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex: 1;
+  height: 100%;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.tab-bar-item cover-image {
-  width: 54rpx;
-  height: 54rpx;
+.tab-icon-circle {
+  display: flex;
+  width: 100rpx;
+  height: 100rpx;
+  overflow: hidden;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #e8e8e8;
+  transition: all 0.25s ease;
 }
 
-.tab-bar-item cover-view {
-  font-size: 20rpx;
+.tab-icon-circle--active {
+  background: #55c2bb;
+  box-shadow: 0 4rpx 12rpx rgba(85, 194, 187, 0.3);
+}
+
+.tab-icon {
+  display: block;
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.tab-label {
+  margin-top: 2rpx;
+  color: #888;
+  font-size: 18rpx;
+  white-space: nowrap;
+}
+
+.tab-label--active {
+  color: #fff;
 }

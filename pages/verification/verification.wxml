@@ -53,18 +53,18 @@
 
   <view class="keypad-card">
     <view class="keypad">
-      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="1">1</view>
-      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="2">2</view>
-      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="3">3</view>
-      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="4">4</view>
-      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="5">5</view>
-      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="6">6</view>
-      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="7">7</view>
-      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="8">8</view>
-      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="9">9</view>
+      <view class="key" aria-role="button" aria-label="数字 1" hover-class="key-pressed" bindtap="appendNumber" data-number="1">1</view>
+      <view class="key" aria-role="button" aria-label="数字 2" hover-class="key-pressed" bindtap="appendNumber" data-number="2">2</view>
+      <view class="key" aria-role="button" aria-label="数字 3" hover-class="key-pressed" bindtap="appendNumber" data-number="3">3</view>
+      <view class="key" aria-role="button" aria-label="数字 4" hover-class="key-pressed" bindtap="appendNumber" data-number="4">4</view>
+      <view class="key" aria-role="button" aria-label="数字 5" hover-class="key-pressed" bindtap="appendNumber" data-number="5">5</view>
+      <view class="key" aria-role="button" aria-label="数字 6" hover-class="key-pressed" bindtap="appendNumber" data-number="6">6</view>
+      <view class="key" aria-role="button" aria-label="数字 7" hover-class="key-pressed" bindtap="appendNumber" data-number="7">7</view>
+      <view class="key" aria-role="button" aria-label="数字 8" hover-class="key-pressed" bindtap="appendNumber" data-number="8">8</view>
+      <view class="key" aria-role="button" aria-label="数字 9" hover-class="key-pressed" bindtap="appendNumber" data-number="9">9</view>
       <view class="key key-placeholder"></view>
-      <view class="key" hover-class="key-pressed" bindtap="appendNumber" data-number="0">0</view>
-      <view class="key delete-key" hover-class="key-pressed" bindtap="deleteNumber">
+      <view class="key" aria-role="button" aria-label="数字 0" hover-class="key-pressed" bindtap="appendNumber" data-number="0">0</view>
+      <view class="key delete-key" aria-role="button" aria-label="删除一位验证码" hover-class="key-pressed" bindtap="deleteNumber">
         <text class="iconfont icon-delete delete-icon"></text>
       </view>
     </view>

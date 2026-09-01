@@ -1,4 +1,9 @@
-<div class="main_container">
+<view class="main_container">
+    <view class="page-heading">
+        <view class="page-eyebrow">SMART SCHEDULE</view>
+        <view class="page-title">定时控制</view>
+        <view class="page-subtitle">设置设备在指定时段自动运行</view>
+    </view>
     <view class="control">
         <view class="key">定时功能:</view>
         <i-switch size="small" bind:change="onChangePower" value="{{switch_on}}">
@@ -9,10 +14,10 @@
 
 
     <view class="tabs">
-        <view class="{{currentTab == 1 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="1">模式1</view>
-        <view class="{{currentTab == 2 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="2">模式2</view>
-        <view class="{{currentTab == 3 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="3">模式3</view>
-        <view class="{{currentTab == 4 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="4">单次</view>
+        <view class="{{currentTab == 1 ? 'tab-active' : 'tab'}}" aria-role="button" aria-label="模式1" bindtap="switchTab" data-id="1">模式1</view>
+        <view class="{{currentTab == 2 ? 'tab-active' : 'tab'}}" aria-role="button" aria-label="模式2" bindtap="switchTab" data-id="2">模式2</view>
+        <view class="{{currentTab == 3 ? 'tab-active' : 'tab'}}" aria-role="button" aria-label="模式3" bindtap="switchTab" data-id="3">模式3</view>
+        <view class="{{currentTab == 4 ? 'tab-active' : 'tab'}}" aria-role="button" aria-label="单次模式" bindtap="switchTab" data-id="4">单次</view>
     </view>
 
     <view class="tab-content">
@@ -98,10 +103,10 @@
     </view>
 
     <view class="buttons">
-        <view class="cancel-btn" bindtap="cancel">取消</view>
-        <view class="confirm-btn" bindtap="confirm">确认</view>
+        <view class="cancel-btn" aria-role="button" aria-label="取消" bindtap="cancel">取消</view>
+        <view class="confirm-btn" aria-role="button" aria-label="确认" bindtap="confirm">确认</view>
     </view>
     
     
 
-</div>
+</view>

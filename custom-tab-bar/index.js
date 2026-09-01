@@ -4,30 +4,35 @@ const app  = getApp();
 Component({
   data: {
     selected: 0,
-    color: "#aaaaaa",
-    selectedColor: "#1F1F1F",
-    list: app.globalData.list
+    color: "#8a9994",
+    selectedColor: "#55c2bb",
+    list: []
   },
   attached() {
     var that = this;
-    console.log(app.globalData.list)
     this.setData({
-      // selected: app.globalData.selectedTabIndex,
-      list:app.globalData.list
+      list: app.ensureTabBarList()
     })
-    app.changeTabbarCallback = res => {
+    this._tabbarCallback = res => {
       console.log(res)
       that.setData({
         list:res
       })
     }
+    app.changeTabbarCallback = this._tabbarCallback
+  },
+  detached() {
+    if (app.changeTabbarCallback === this._tabbarCallback) {
+      app.changeTabbarCallback = null;
+    }
   },
   methods: {
     switchTab(e) {
-      console.log(e)
       const data = e.currentTarget.dataset
-      console.log(data);
       const url = data.path
+      if (!url) {
+        return;
+      }
       wx.switchTab({ url })
       this.setData({
         selected: data.index

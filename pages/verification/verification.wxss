@@ -57,13 +57,13 @@ page {
 }
 
 .shield-icon {
-  color: #21b778;
+  color: #55c2bb;
   font-size: 56rpx;
 }
 
 .verification-kicker {
   margin-top: 22rpx;
-  color: #1ba86d;
+  color: #55c2bb;
   font-size: 22rpx;
   font-weight: 600;
   letter-spacing: 5rpx;
@@ -134,7 +134,7 @@ page {
 }
 
 .input-filled {
-  border-color: #24ba7a;
+  border-color: #55c2bb;
   background: #edfaf4;
   box-shadow: 0 9rpx 20rpx rgba(32, 174, 113, 0.11);
 }

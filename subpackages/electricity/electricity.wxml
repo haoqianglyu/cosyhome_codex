@@ -6,8 +6,8 @@
       <view class="th">月消耗</view>
       <view class="th">日均值</view>
     </view>
-    
-    <block wx:for="{{listData}}" wx:key="index">
+
+    <block wx:for="{{listData}}" wx:key="column1">
         <view class="tr bg-g" wx:if="{{index % 2 == 0}}">
             <view class="td">{{ item.column1 }}</view>
             <view class="td">{{ item.column2 }}</view>
@@ -28,4 +28,4 @@
 <view class="statistics">
     <ec-canvas id="mychart1" canvas-id="mychart1" ec="{{ ec1 }}"></ec-canvas>
 </view>
-  
+

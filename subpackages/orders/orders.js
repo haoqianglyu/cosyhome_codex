@@ -7,11 +7,10 @@ const STATUS_MAP = {
 Page({
   data: {
     orderList: [],
-    // 服务类别 id->name 的映射
-    categoriesMap: new Map(),
   },
 
   onLoad(options) {
+    this.categoriesMap = new Map();
     wx.setNavigationBarTitle({
       title: '工单列表'
     });
@@ -38,7 +37,7 @@ Page({
 
     // 获取服务类别映射
     const fetchCategoriesPromise = new Promise((resolve) => {
-      if (this.data.categoriesMap.size > 0) {
+      if (this.categoriesMap.size > 0) {
         return resolve(null);
       }
       api.work_order_categories({
@@ -84,7 +83,7 @@ Page({
           categories.forEach(cat => {
             newCategoriesMap.set(cat.id, cat.name);
           });
-          this.setData({ categoriesMap: newCategoriesMap });
+          this.categoriesMap = newCategoriesMap;
         }
         
         // 处理工单数据
@@ -110,7 +109,7 @@ Page({
   handleApiResponse(res) {
     if (res && res.data && Array.isArray(res.data.entities)) {
       const orders = res.data.entities;
-      const { categoriesMap } = this.data;
+      const categoriesMap = this.categoriesMap || new Map();
 
       const formattedOrders = orders.map(item => {
         const statusInfo = STATUS_MAP[item.status] || { text: '已完成', class: 'status-completed' };

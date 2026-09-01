@@ -65,6 +65,12 @@ Page({
         }
 
       },
+      fail: function (error) {
+        wx.showToast({
+          title: (error.data && error.data.message) || "验证码发送失败",
+          icon: "none",
+        });
+      },
     });
   },
 
@@ -149,6 +155,7 @@ Page({
               success: function (res) {
                 console.log(res);
                 if (res.statusCode === 200) {
+                  wx.removeStorageSync("userPhoneNumber");
                   wx.showToast({
                     title: "绑定成功",
                     icon: "none",
@@ -168,10 +175,13 @@ Page({
                 
                 }
               },
-              fail: function (res) {
+              fail: function (error) {
                 that.setData({
                   loginStatus: true,
+                  errorCode:
+                    (error.data && error.data.message) || "验证码验证失败",
                 });
+                that.triggerErrorAnimation();
               },
             });
           } else {

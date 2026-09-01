@@ -1,7 +1,7 @@
 /* 页面级别设置 */
 page {
   height: 100vh;
-  background-color: #f5f5f5;
+  background: linear-gradient(180deg, #f7fbf9 0%, #eef5f3 100%);
 }
 
 /* Page Container */
@@ -10,7 +10,7 @@ page {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f5f5f5;
+  background: transparent;
 }
 
 
@@ -31,19 +31,19 @@ page {
   
   .order-card {
     background: #ffffff;
-    border: 1rpx solid #e8e8e8;
-    border-radius: 16rpx;
+    border: 1rpx solid var(--ui-border);
+    border-radius: 24rpx;
     padding: 30rpx;
     margin-bottom: 20rpx;
     font-size: 26rpx;
-    color: #333;
-    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+    color: var(--ui-text);
+    box-shadow: var(--ui-shadow-soft);
     transition: all 0.3s ease;
   }
 
   .order-card:active {
     transform: scale(0.98);
-    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+    box-shadow: var(--ui-shadow-card);
   }
   
   .order-card:last-child {
@@ -63,7 +63,7 @@ page {
   
   .user-name {
     font-size: 30rpx;
-    color: #333;
+    color: var(--ui-text);
     font-weight: 600;
     margin-left: 10rpx;
   }
@@ -74,7 +74,7 @@ page {
 
   .create-time {
     font-size: 24rpx;
-    color: #666;
+    color: var(--ui-text-secondary);
     font-weight: 500;
   }
   
@@ -85,7 +85,7 @@ page {
   .order-title {
     font-size: 32rpx;
     font-weight: bold;
-    color: #333;
+    color: var(--ui-text);
     word-break: break-all;
     line-height: 1.4;
   }
@@ -94,7 +94,7 @@ page {
     word-break: break-all;
     flex: 1;
     padding-right: 20rpx;
-    color: #666;
+    color: var(--ui-text-secondary);
     font-weight: 500;
   }
   

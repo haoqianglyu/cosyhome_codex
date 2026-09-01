@@ -1,11 +1,13 @@
+import { configureConsole } from "./utils/logger.js";
+
 const TAB_CONFIG = {
   1: {
     home: "/pages/home/home",
     middle: {
       pagePath: "/pages/rooms/rooms",
       text: "房间",
-      iconPath: "/icons/fangjian.png",
-      selectedIconPath: "/icons/fangjian-2.png",
+      iconPath: "/icons/room-unselected.png",
+      selectedIconPath: "/icons/room-selected.png",
     },
   },
   2: {
@@ -20,12 +22,75 @@ const TAB_CONFIG = {
 };
 
 const HOME_TAB_ICONS = {
-  iconPath: "/icons/jia.png",
-  selectedIconPath: "/icons/jia-2.png",
+  iconPath: "/icons/home-unselected.png",
+  selectedIconPath: "/icons/home-selected.png",
 };
+
+const VISITOR_MODE_KEY = "visitor_mode";
+const DISTRIBUTOR_VISITOR_MODE_KEY = "distributor_visitor_mode";
+const TAB_ROLE_KEY = "tab_role";
+const SESSION_KEYS = [
+  "userInfo",
+  "mode_list",
+  "isAdmin",
+  "access_token",
+  "isdistributor",
+  "haveProject",
+  "selected_home",
+  "selected_region",
+  "selected_homename",
+  "selected_project_info",
+  "current_mode",
+  "current_distributor",
+  "current_distributorid",
+  "selected_year",
+  "selected_month",
+  "change_distributor",
+  "clock_info",
+  "backData",
+  "mode_icon",
+  "show_mode",
+  "airConditionerModeName",
+  "is_member_login",
+  "isSingle",
+  "backfromhome1",
+  "backfromhome2",
+  "home1index",
+  "home1showlist",
+  "home2index",
+  "home2showlist",
+  VISITOR_MODE_KEY,
+  DISTRIBUTOR_VISITOR_MODE_KEY,
+  TAB_ROLE_KEY,
+  "userPhoneNumber",
+];
+
+function readBooleanStorage(key) {
+  const value = wx.getStorageSync(key);
+  return value === true || value === "true";
+}
+
+function buildTabList(role) {
+  const config = TAB_CONFIG[Number(role)];
+  if (!config) {
+    return [];
+  }
+  return [
+    { pagePath: config.home, text: "我的家", ...HOME_TAB_ICONS },
+    config.middle,
+    {
+      pagePath: "/pages/user/user",
+      text: "个人中心",
+      iconPath: "/icons/user-unselected.png",
+      selectedIconPath: "/icons/user-selected.png",
+    },
+  ];
+}
 
 App({
   onLaunch() {
+    configureConsole();
+    this.restoreSessionState();
     this.autoUpdate();
     
     wx.getSystemInfo({
@@ -134,9 +199,51 @@ App({
         color: '#ffffff'
       },
     ],
-    isvisitor:false,
+    isvisitor: false,
+    isdistributor_visitor: false,
+    list: [],
     userInfo: null,
     // selectedTabIndex: 0
+  },
+
+  restoreSessionState() {
+    const hasToken = Boolean(wx.getStorageSync("access_token"));
+    this.globalData.isvisitor =
+      hasToken && readBooleanStorage(VISITOR_MODE_KEY);
+    this.globalData.isdistributor_visitor =
+      hasToken && readBooleanStorage(DISTRIBUTOR_VISITOR_MODE_KEY);
+    if (!hasToken) {
+      wx.removeStorageSync(VISITOR_MODE_KEY);
+      wx.removeStorageSync(DISTRIBUTOR_VISITOR_MODE_KEY);
+    }
+    this.ensureTabBarList();
+  },
+
+  setVisitorMode(isVisitor, isDistributorVisitor = false) {
+    const visitor = Boolean(isVisitor);
+    const distributorVisitor = Boolean(isDistributorVisitor);
+    this.globalData.isvisitor = visitor;
+    this.globalData.isdistributor_visitor = distributorVisitor;
+    wx.setStorageSync(VISITOR_MODE_KEY, visitor);
+    wx.setStorageSync(DISTRIBUTOR_VISITOR_MODE_KEY, distributorVisitor);
+  },
+
+  clearSession() {
+    SESSION_KEYS.forEach((key) => wx.removeStorageSync(key));
+    this.globalData.isvisitor = false;
+    this.globalData.isdistributor_visitor = false;
+    this.globalData.list = [];
+    this.globalData.userInfo = null;
+  },
+
+  ensureTabBarList() {
+    if (Array.isArray(this.globalData.list) && this.globalData.list.length) {
+      return this.globalData.list;
+    }
+    const storedRole = Number(wx.getStorageSync(TAB_ROLE_KEY));
+    const fallbackRole = readBooleanStorage("isSingle") ? 2 : 1;
+    this.globalData.list = buildTabList(storedRole || fallbackRole);
+    return this.globalData.list;
   },
 
   switchTabWithRole(role) {
@@ -144,16 +251,8 @@ App({
     if (!config) {
       return;
     }
-    this.globalData.list = [
-      { pagePath: config.home, text: "我的家", ...HOME_TAB_ICONS },
-      config.middle,
-      {
-        pagePath: "/pages/user/user",
-        text: "个人中心",
-        iconPath: "/icons/gerenfill.png",
-        selectedIconPath: "/icons/gerenfill-2.png",
-      },
-    ];
+    wx.setStorageSync(TAB_ROLE_KEY, Number(role));
+    this.globalData.list = buildTabList(role);
     if (this.changeTabbarCallback) {
       this.changeTabbarCallback(this.globalData.list);
     }
@@ -215,4 +314,3 @@ App({
     })
   }
 })
-

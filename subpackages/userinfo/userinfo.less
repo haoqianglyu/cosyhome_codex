@@ -1,20 +1,130 @@
-.margin-xl.bg-white.padding-xl.radius.shadow-lg{
-  border-radius: 20rpx;
-  // width: 100%;
-  margin-top: 40%;
-  .text-content{
-    font-size: 35rpx;
-    .project_number,.customer_name,.customer_phone,.distributor_name,.distributor_phone,.warranty_rem{
-      display: flex;
-      margin-bottom: 15rpx;
-    }
-    .key{
-      flex:50%
-    }
-    .value{
-      flex:50%
-    }
-    
-  }
-  
+page {
+  min-height: 100%;
+  background: linear-gradient(180deg, #edf8f4 0, var(--ui-bg) 360rpx);
+}
+
+.userinfo-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 38rpx 28rpx calc(48rpx + env(safe-area-inset-bottom));
+}
+
+.info-hero {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 34rpx 30rpx;
+  border-radius: 30rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #55c2bb, #55c2bb);
+  box-shadow: 0 20rpx 44rpx rgba(24, 139, 112, 0.2);
+}
+
+.hero-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 92rpx;
+  height: 92rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 30rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}
+
+.hero-copy {
+  flex: 1;
+}
+
+.hero-title {
+  font-size: 40rpx;
+  font-weight: 700;
+}
+
+.hero-subtitle {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  opacity: 0.76;
+}
+
+.info-card,
+.warranty-card {
+  margin-top: 24rpx;
+  border: 1rpx solid var(--ui-border);
+  border-radius: 28rpx;
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow-soft);
+}
+
+.info-card {
+  padding: 6rpx 30rpx;
+}
+
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 24rpx;
+  min-height: 102rpx;
+  box-sizing: border-box;
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid var(--ui-border);
+}
+
+.info-row:last-child {
+  border-bottom: 0;
+}
+
+.info-label {
+  width: 150rpx;
+  flex-shrink: 0;
+  color: var(--ui-text-muted);
+  font-size: 25rpx;
+}
+
+.info-value {
+  flex: 1;
+  min-width: 0;
+  color: var(--ui-text);
+  font-size: 28rpx;
+  font-weight: 600;
+  text-align: right;
+  word-break: break-all;
+}
+
+.code-value {
+  color: var(--ui-primary-dark);
+}
+
+.warranty-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  background: linear-gradient(135deg, #f1faf7, #fff);
+}
+
+.warranty-label {
+  color: var(--ui-text);
+  font-size: 29rpx;
+  font-weight: 650;
+}
+
+.warranty-tip {
+  margin-top: 8rpx;
+  color: var(--ui-text-muted);
+  font-size: 22rpx;
+}
+
+.warranty-value {
+  color: var(--ui-primary);
+  font-size: 44rpx;
+  font-weight: 700;
+}
+
+.warranty-unit {
+  margin-left: 6rpx;
+  font-size: 23rpx;
+  font-weight: 500;
 }

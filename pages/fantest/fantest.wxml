@@ -1,0 +1,243 @@
+<view class="room-demo-page">
+  <view class="room-hero">
+    <view class="room-title-row">
+      <view class="room-name-block">
+        <text class="room-title">{{roomName}}</text>
+        <text
+          class="iconfont icon-modify room-edit-icon"
+          aria-role="button"
+          aria-label="修改房间名称"
+          hover-class="room-edit-icon--pressed"
+          bindtap="editRoomName"
+        ></text>
+      </view>
+      <view
+        class="panel-quick-control"
+        aria-role="button"
+        aria-label="{{panelEnabled ? '关闭温控面板' : '开启温控面板'}}"
+        data-key="panelEnabled"
+        bindtap="toggleMockControl"
+      >
+        <view class="panel-quick-copy">
+          <view class="panel-quick-label">温控面板</view>
+        </view>
+        <view class="mock-switch {{panelEnabled ? 'mock-switch--on' : ''}}">
+          <view class="mock-switch-knob"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="environment-card demo-card">
+    <view class="card-heading">
+      <view class="card-title">房间环境</view>
+    </view>
+
+    <view class="primary-metrics">
+      <view class="primary-metric">
+        <view class="metric-label">
+          <text class="iconfont icon-temperature metric-label-icon"></text>
+          <text>实测温度</text>
+        </view>
+        <view class="primary-value-row">
+          <text class="primary-value">23.8</text>
+          <text class="primary-unit">℃</text>
+        </view>
+      </view>
+      <view class="humidity-ring">
+        <view class="humidity-ring-inner">
+          <view class="humidity-value">49%</view>
+          <view class="humidity-label">
+            <text class="iconfont icon-humidity humidity-label-icon"></text>
+            <text>湿度</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="dew-point-row">
+      <view>
+        <view class="secondary-label">露点温度</view>
+      </view>
+      <view class="secondary-value">12.7<text>℃</text></view>
+    </view>
+  </view>
+
+  <view class="temperature-card demo-card">
+    <view class="card-heading">
+      <view class="card-title">设定温度</view>
+    </view>
+
+    <view class="temperature-gauge-wrap">
+      <canvas
+        id="temperatureGauge"
+        class="temperature-gauge"
+        type="2d"
+        disable-scroll="true"
+        bindtouchstart="temperatureTouchStart"
+        catchtouchmove="temperatureTouchMove"
+        bindtouchend="temperatureTouchEnd"
+        bindtouchcancel="temperatureTouchEnd"
+      ></canvas>
+
+      <view class="gauge-center">
+        <view class="gauge-label">设定温度</view>
+        <view class="gauge-value-row">
+          <text class="gauge-value">{{setTemperatureText}}</text>
+          <text class="gauge-unit">℃</text>
+        </view>
+        <view class="gauge-status gauge-status--{{temperatureStatusClass}}">
+          <view class="status-dot"></view>
+          <text>{{temperatureStatus}}</text>
+        </view>
+      </view>
+
+      <view class="gauge-limit gauge-limit--min">{{minTemperature}}℃</view>
+      <view class="gauge-limit gauge-limit--max">{{maxTemperature}}℃</view>
+    </view>
+
+    <view class="temperature-actions">
+      <button class="temperature-button" aria-label="降低0.5度" bindtap="decreaseTemperature">−</button>
+      <view class="temperature-hint">拖动调节</view>
+      <button class="temperature-button" aria-label="升高0.5度" bindtap="increaseTemperature">＋</button>
+    </view>
+  </view>
+
+  <view class="system-card demo-card">
+    <view class="card-heading">
+      <view class="card-title">系统控制</view>
+    </view>
+
+    <view class="control-list">
+      <view class="control-row" aria-role="button" aria-label="{{energyEnabled ? '关闭节能策略' : '开启节能策略'}}" data-key="energyEnabled" bindtap="toggleMockControl">
+        <view class="control-icon control-icon--energy">
+          <text class="cuIcon-creative"></text>
+        </view>
+        <view class="control-copy">
+          <view class="control-title">节能策略</view>
+        </view>
+        <view class="mock-switch {{energyEnabled ? 'mock-switch--on' : ''}}">
+          <view class="mock-switch-knob"></view>
+        </view>
+      </view>
+
+      <view class="control-divider"></view>
+
+      <view class="control-row" aria-role="button" aria-label="{{lockEnabled ? '解除面板锁定' : '锁定面板'}}" data-key="lockEnabled" bindtap="toggleMockControl">
+        <view class="control-icon control-icon--lock">
+          <text class="{{lockEnabled ? 'cuIcon-lock' : 'cuIcon-unlock'}}"></text>
+        </view>
+        <view class="control-copy">
+          <view class="control-title">面板锁定</view>
+        </view>
+        <view class="mock-switch {{lockEnabled ? 'mock-switch--on' : ''}}">
+          <view class="mock-switch-knob"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="fan-card demo-card">
+    <view class="card-heading">
+      <view class="card-title">风速</view>
+      <view class="rpm-label">{{rpmLabel}}</view>
+    </view>
+
+    <view class="fan-content">
+      <view class="fan-shell">
+        <view class="fan-ring fan-ring--outer"></view>
+        <view class="fan-ring fan-ring--inner"></view>
+        <view class="fan-rotor fan-rotor--{{animationClass}}">
+          <view class="fan-blade fan-blade--1"></view>
+          <view class="fan-blade fan-blade--2"></view>
+          <view class="fan-blade fan-blade--3"></view>
+          <view class="fan-blade fan-blade--4"></view>
+          <view class="fan-hub"></view>
+        </view>
+      </view>
+
+      <view class="fan-summary">
+        <view class="level-title">{{levelTitle}}</view>
+        <view class="airflow {{currentLevel === 'off' ? '' : 'airflow--active'}}">
+          <view class="air-wave air-wave--1">～</view>
+          <view class="air-wave air-wave--2">～</view>
+          <view class="air-wave air-wave--3">～</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="level-controls">
+      <button
+        wx:for="{{levels}}"
+        wx:key="key"
+        class="level-button {{currentLevel === item.key ? 'level-button--active' : ''}}"
+        aria-label="切换到{{item.label}}"
+        data-level="{{item.key}}"
+        bindtap="selectLevel"
+      >
+        {{item.label}}
+      </button>
+    </view>
+  </view>
+
+  <view class="terminal-card demo-card">
+    <view class="card-heading">
+      <view class="card-title">末端类型</view>
+    </view>
+    <view class="terminal-options">
+      <view
+        wx:for="{{terminalOptions}}"
+        wx:key="key"
+        class="terminal-option {{item.selected ? 'terminal-option--active' : ''}}"
+        aria-role="button"
+        aria-label="{{item.selected ? '取消' : '选择'}}{{item.label}}"
+        data-key="{{item.key}}"
+        bindtap="toggleTerminal"
+      >
+        {{item.label}}
+      </view>
+    </view>
+  </view>
+
+  <view class="analytics-card demo-card">
+    <view class="card-heading">
+      <view class="card-title">24小时数据</view>
+    </view>
+
+    <view class="analytics-tabs">
+      <view class="analytics-tab analytics-tab--active">温度</view>
+      <view class="analytics-tab">露点</view>
+      <view class="analytics-tab">湿度</view>
+      <view class="analytics-tab">PM2.5</view>
+      <view class="analytics-tab">CO₂</view>
+    </view>
+
+    <view class="mock-chart">
+      <view class="chart-grid chart-grid--1"></view>
+      <view class="chart-grid chart-grid--2"></view>
+      <view class="chart-grid chart-grid--3"></view>
+      <view class="chart-bars">
+        <view class="chart-bar" style="height: 34%"></view>
+        <view class="chart-bar" style="height: 42%"></view>
+        <view class="chart-bar" style="height: 55%"></view>
+        <view class="chart-bar" style="height: 48%"></view>
+        <view class="chart-bar" style="height: 68%"></view>
+        <view class="chart-bar" style="height: 78%"></view>
+        <view class="chart-bar" style="height: 62%"></view>
+        <view class="chart-bar" style="height: 52%"></view>
+        <view class="chart-bar" style="height: 44%"></view>
+        <view class="chart-bar" style="height: 38%"></view>
+        <view class="chart-bar" style="height: 46%"></view>
+        <view class="chart-bar" style="height: 58%"></view>
+      </view>
+      <view class="chart-labels">
+        <text>12时</text>
+        <text>18时</text>
+        <text>00时</text>
+        <text>06时</text>
+        <text>现在</text>
+      </view>
+    </view>
+  </view>
+
+</view>

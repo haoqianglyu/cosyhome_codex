@@ -30,7 +30,13 @@ Page({
           year: wx.getStorageSync("selected_year"),
         },
       });
-      this.setData({ content: (body && body.data) || [] });
+      const content = Array.isArray(body && body.data)
+        ? body.data.map((item, index) => ({
+            ...item,
+            _key: item.id || item.address || item.name || index,
+          }))
+        : [];
+      this.setData({ content });
     } catch (error) {
       wx.showToast({ title: "环境量数据获取失败", icon: "none" });
     } finally {

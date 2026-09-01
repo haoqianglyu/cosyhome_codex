@@ -1,22 +1,154 @@
 const HOST = "https://control.cosyhome.com.cn";
+let handlingAuthExpired = false;
+
+function requestError(message, type, response) {
+  const error = new Error(message);
+  error.errMsg = message;
+  error.type = type;
+  if (response) {
+    error.statusCode = response.statusCode;
+    error.data = response.data;
+    error.response = response;
+  }
+  return error;
+}
+
+function handleAuthExpired() {
+  if (handlingAuthExpired) {
+    return;
+  }
+  handlingAuthExpired = true;
+  const app = getApp();
+  if (app && typeof app.clearSession === "function") {
+    app.clearSession();
+  } else {
+    wx.removeStorageSync("access_token");
+  }
+  wx.showToast({ title: "登录已过期，请重新登录", icon: "none" });
+  setTimeout(() => {
+    wx.reLaunch({
+      url: "/pages/index/index",
+      complete: () => {
+        handlingAuthExpired = false;
+      },
+    });
+  }, 500);
+}
+
+function parsePayload(data) {
+  if (typeof data !== "string") {
+    return data;
+  }
+  try {
+    return JSON.parse(data);
+  } catch (error) {
+    return data;
+  }
+}
+
+function rejectBusinessCodes(codes, fallbackMessage) {
+  const rejectedCodes = new Set(codes.map(Number));
+  return (data) => {
+    const payload = parsePayload(data);
+    if (!payload || !rejectedCodes.has(Number(payload.code))) {
+      return null;
+    }
+    return payload.message || fallbackMessage;
+  };
+}
 
 function wxRequest(params = {}, url) {
-  const { method = "GET", data = {}, header = {}, success, fail, complete } =
-    params;
+  const {
+    method = "GET",
+    data = {},
+    header = {},
+    success,
+    fail,
+    complete,
+    businessValidator,
+    skipAuthRedirect = false,
+    ...requestOptions
+  } = params;
 
   return wx.request({
+    ...requestOptions,
     url,
     method,
     data,
     header,
-    success: (response) => success && success(response),
-    fail: (error) => fail && fail(error),
+    success: (response) => {
+      if (
+        typeof response.statusCode === "number" &&
+        (response.statusCode < 200 || response.statusCode >= 300)
+      ) {
+        const error = requestError(
+          `请求失败，HTTP ${response.statusCode}`,
+          "http",
+          response,
+        );
+        if (response.statusCode === 401 && !skipAuthRedirect) {
+          handleAuthExpired();
+        }
+        if (fail) {
+          fail(error);
+        }
+        return;
+      }
+
+      if (typeof businessValidator === "function") {
+        let validationResult;
+        try {
+          validationResult = businessValidator(response.data, response);
+        } catch (error) {
+          if (fail) {
+            fail(error);
+          }
+          return;
+        }
+        if (validationResult) {
+          const error =
+            validationResult instanceof Error
+              ? validationResult
+              : requestError(String(validationResult), "business", response);
+          if (fail) {
+            fail(error);
+          }
+          return;
+        }
+      }
+      if (success) {
+        success(response);
+      }
+    },
+    fail: (error) => {
+      if (!fail) {
+        return;
+      }
+      if (error instanceof Error) {
+        fail(error);
+        return;
+      }
+      const message =
+        (error && error.errMsg) || "网络连接失败，请检查网络后重试";
+      const normalizedError = requestError(message, "network");
+      normalizedError.originalError = error;
+      fail(normalizedError);
+    },
     complete: (response) => complete && complete(response),
   });
 }
 
-function endpoint(path) {
-  return (params) => wxRequest(params, `${HOST}${path}`);
+function endpoint(path, defaults = {}) {
+  return (params = {}) =>
+    wxRequest(
+      {
+        ...defaults,
+        ...params,
+        businessValidator:
+          params.businessValidator || defaults.businessValidator,
+      },
+      `${HOST}${path}`,
+    );
 }
 
 function endpointWithId(path) {
@@ -33,9 +165,20 @@ const api = {
   ctrl_home: endpoint("/v1/wx/ctrl-home"),
   trans_ctrl_message_callback: endpoint(
     "/v1/wx/trans-ctrl-message-callback",
+    {
+      businessValidator: rejectBusinessCodes(
+        [4],
+        "控制屏响应超时，请稍后重试",
+      ),
+    },
   ),
   trans_ctrl_message: endpoint("/v1/wx/trans-ctrl-message"),
-  trans_ctrl_message_sync: endpoint("/v1/wx/trans-ctrl-message-sync"),
+  trans_ctrl_message_sync: endpoint("/v1/wx/trans-ctrl-message-sync", {
+    businessValidator: rejectBusinessCodes(
+      [4],
+      "控制屏响应超时，请稍后重试",
+    ),
+  }),
   customer_info: endpoint("/v1/wx/customer-info"),
   get_house_layout: endpoint("/v1/wx/get-house-layout"),
   default_project_config: endpoint("/v1/wx/default-project-config"),
@@ -43,12 +186,17 @@ const api = {
   distributor_projects: endpoint("/v2/wx/distributor-projects"),
   distributor_visitor_projects: endpoint("/v1/wx/distributor-projects"),
   sendverify: endpoint("/v1/wx/bind-phone"),
-  mini_login: endpoint("/v1/wx/mini-login"),
+  mini_login: endpoint("/v1/wx/mini-login", {
+    skipAuthRedirect: true,
+    businessValidator: rejectBusinessCodes([3], "微信登录凭证错误"),
+  }),
   bindproject: endpoint("/v1/wx/bind-project"),
   distributors: endpoint("/v1/wx/distributors"),
   distributor_id_projects: endpoint("/v1/wx/distributor-id-projects"),
-  visitor_login: endpoint("/v1/wx/visitor-login"),
-  vistor_projects: endpoint("/v1/wx/visitor-projects"),
+  visitor_login: endpoint("/v1/wx/visitor-login", {
+    skipAuthRedirect: true,
+    businessValidator: rejectBusinessCodes([5], "访客登录失败"),
+  }),
   visitor_projects: endpoint("/v1/wx/visitor-projects"),
   get_weather: endpoint("/v1/wx/weather"),
   project_report: endpoint("/v1/wx/project-reports"),

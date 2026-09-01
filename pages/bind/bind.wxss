@@ -56,7 +56,7 @@ page {
   border: 1rpx solid rgba(255, 255, 255, 0.82);
   border-radius: 56rpx;
   background: rgba(255, 255, 255, 0.76);
-  box-shadow: 0 20rpx 50rpx rgba(28, 128, 86, 0.12);
+  box-shadow: 0 20rpx 50rpx rgba(85, 194, 187, 0.12);
 }
 
 .brand-animation {
@@ -66,7 +66,7 @@ page {
 
 .hero-kicker {
   margin-bottom: 10rpx;
-  color: #20a86f;
+  color: #55c2bb;
   font-size: 22rpx;
   font-weight: 600;
   letter-spacing: 6rpx;
@@ -120,9 +120,9 @@ page {
 }
 
 .field-active {
-  border-color: #25bd7d;
+  border-color: #55c2bb;
   background: #ffffff;
-  box-shadow: 0 0 0 7rpx rgba(37, 189, 125, 0.09);
+  box-shadow: 0 0 0 7rpx rgba(85, 194, 187, 0.09);
 }
 
 .field-error {
@@ -142,7 +142,7 @@ page {
 
 .phone-icon {
   margin-right: 10rpx;
-  color: #22b879;
+  color: #55c2bb;
   font-size: 32rpx;
 }
 
@@ -227,8 +227,8 @@ page {
   height: 104rpx;
   margin-top: 34rpx;
   border-radius: 24rpx;
-  background: linear-gradient(135deg, #2ac584 0%, #18ad70 100%);
-  box-shadow: 0 16rpx 30rpx rgba(24, 173, 112, 0.23);
+  background: linear-gradient(135deg, #55c2bb 0%, #55c2bb 100%);
+  box-shadow: 0 16rpx 30rpx rgba(85, 194, 187, 0.23);
   color: #ffffff;
   font-size: 32rpx;
   font-weight: 600;
@@ -317,7 +317,7 @@ page {
   padding: 8rpx 18rpx;
   border-radius: 20rpx;
   background: #e9f8f1;
-  color: #169f66;
+  color: #55c2bb;
   font-size: 22rpx;
   font-weight: 600;
 }
@@ -363,7 +363,7 @@ page {
 
 .privacy-link {
   padding: 8rpx 0;
-  color: #169f66;
+  color: #55c2bb;
   font-weight: 600;
 }
 
@@ -396,8 +396,8 @@ page {
 }
 
 .confirm-btn {
-  background: linear-gradient(135deg, #29c483 0%, #18ad70 100%);
-  box-shadow: 0 12rpx 25rpx rgba(24, 173, 112, 0.2);
+  background: linear-gradient(135deg, #55c2bb 0%, #55c2bb 100%);
+  box-shadow: 0 12rpx 25rpx rgba(85, 194, 187, 0.2);
   color: #ffffff;
 }
 

@@ -1,8 +1,10 @@
 .page-container {
+  --button-primary-background-color: #55c2bb;
+  --button-primary-border-color: #55c2bb;
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f7f8fa;
+  background: linear-gradient(180deg, #f7fbf9 0%, #eef5f3 100%);
 }
 
 .tabs-header {
@@ -10,7 +12,7 @@
   background-color: #fff;
   height: 88rpx;
   line-height: 88rpx;
-  border-bottom: 1rpx solid #eee;
+  border-bottom: 1rpx solid var(--ui-border);
   position: relative;
   z-index: 10;
 }
@@ -24,7 +26,7 @@
 }
 
 .tab-item.active {
-  color: #1989fa;
+  color: var(--ui-primary);
   font-weight: bold;
 }
 
@@ -35,7 +37,7 @@
   transform: translateX(-50%);
   width: 40rpx;
   height: 4rpx;
-  background-color: #1989fa;
+  background-color: var(--ui-primary);
   border-radius: 2rpx;
 }
 
@@ -55,10 +57,11 @@
 
 .card {
   background-color: #fff;
-  border-radius: 16rpx;
+  border: 1rpx solid var(--ui-border);
+  border-radius: 24rpx;
   padding: 24rpx;
   margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+  box-shadow: var(--ui-shadow-soft);
 }
 
 .card-header {
@@ -79,13 +82,15 @@
 }
 
 .header-left .title {
+  display: -webkit-box;
   font-size: 32rpx;
   font-weight: 500;
   color: #333;
   margin-left: 12rpx;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   flex: 1;
 }
 
@@ -101,8 +106,8 @@
 }
 
 .status-processing {
-  color: #1989fa;
-  background-color: #e3f2fd;
+  color: #55c2bb;
+  background-color: #e8f5f6;
 }
 
 .status-completed {
@@ -165,13 +170,13 @@
 /* Order List Specific Styles (Replicated from orders.wxss) */
 .order-card {
   background: #ffffff;
-  border: 1rpx solid #e8e8e8;
-  border-radius: 16rpx;
+  border: 1rpx solid var(--ui-border);
+  border-radius: 24rpx;
   padding: 30rpx;
   margin-bottom: 20rpx;
   font-size: 26rpx;
   color: #333;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  box-shadow: var(--ui-shadow-soft);
   transition: all 0.3s ease;
 }
 
@@ -266,6 +271,6 @@
   transform: translateX(-50%);
   width: 50%;
   z-index: 100;
-  box-shadow: 0 6rpx 20rpx rgba(25, 137, 250, 0.4);
+  box-shadow: 0 8rpx 22rpx rgba(24, 145, 119, 0.24);
   border-radius: 999px;
 }

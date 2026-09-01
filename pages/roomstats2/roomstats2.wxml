@@ -1,7 +1,7 @@
 <wxs module="numberUtil" src="../../utils/numberUtil.wxs"></wxs>
 <view class="panel">
     <view class='nav-list margin-top'>
-        <view class="nav-li" wx:for="{{content}}" wx:key="index">
+        <view class="nav-li" wx:for="{{content}}" wx:key="_key">
           
             <!-- <view class="text-center margin-bottom text-lg  text-grey">
                 {{item.name}}

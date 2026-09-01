@@ -1,4 +1,4 @@
-import { controlMessageBody } from "../../utils/controlMessage.js";
+import { legacyControlMessageBody } from "../../utils/controlMessage.js";
 
 Page({
   data: {
@@ -8,6 +8,23 @@ Page({
     index: 0,
     content: [],
     interval: null,
+    statusBarHeight: 0,
+    projectName: "",
+  },
+
+  syncPageHeader() {
+    const windowInfo =
+      typeof wx.getWindowInfo === "function"
+        ? wx.getWindowInfo()
+        : wx.getSystemInfoSync();
+    this.setData({
+      statusBarHeight: windowInfo.statusBarHeight || 0,
+      projectName: wx.getStorageSync("selected_homename") || "房间",
+    });
+  },
+
+  onLoad() {
+    this.syncPageHeader();
   },
 
   selectTap() {
@@ -16,11 +33,21 @@ Page({
 
   optionTap(event) {
     const index = Number(event.currentTarget.dataset.index) || 0;
-    this.setData({ index, show: false });
+    const selectedFloor = Array.isArray(this._floorData)
+      ? this._floorData[index] || {}
+      : {};
+    this.setData({
+      index,
+      show: false,
+      content: Array.isArray(selectedFloor.rooms)
+        ? selectedFloor.rooms
+        : this.data.content,
+    });
     this.loadFloors();
   },
 
   onShow() {
+    this.syncPageHeader();
     if (typeof this.getTabBar === "function" && this.getTabBar()) {
       this.getTabBar().setData({ selected: 1 });
     }
@@ -31,9 +58,6 @@ Page({
       return;
     }
 
-    wx.setNavigationBarTitle({
-      title: wx.getStorageSync("selected_homename"),
-    });
     this.loadFloors(true);
     this.startRefresh();
   },
@@ -48,8 +72,9 @@ Page({
     }
 
     try {
-      const body = await controlMessageBody({ messageType: 2 });
+      const body = await legacyControlMessageBody({ messageType: 2 });
       const floorData = Array.isArray(body && body.data) ? body.data : [];
+      this._floorData = floorData;
       const index = Math.min(this.data.index, Math.max(floorData.length - 1, 0));
       const selectedFloor = floorData[index] || {};
 

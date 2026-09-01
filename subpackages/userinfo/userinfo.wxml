@@ -1,32 +1,43 @@
-<view class='margin-xl bg-white padding-xl radius shadow-lg'>
-  <view class='text-center margin-bottom text-lg  text-grey'>用户信息</view>
-  <view class='text-content'>
-    
-    
-    <view class="project_number">
-      <view class="key">项目ID号:</view>
-      <view class="value">{{customer_info.project_code}}</view>
+<view class="userinfo-page">
+  <view class="info-hero">
+    <view class="hero-mark">HC</view>
+    <view class="hero-copy">
+      <view class="hero-title">用户信息</view>
+      <view class="hero-subtitle">项目与售后服务资料</view>
     </view>
-    <view class="customer_name">
-      <view class="key">用户名称:</view>
-      <view class="value">{{customer_info.customer_name}}</view>
-    </view>
-    <view class="customer_phone">
-      <view class="key">用户电话:</view>
-      <view class="value">{{customer_info.customer_phone}}</view>
-    </view>
-    <view class="distributor_name">
-      <view class="key">经销商:</view>
-      <view class="value">{{customer_info.distributor_name}}</view>
-    </view>
-    <view class="distributor_phone">
-      <view class="key">服务电话:</view>
-      <view class="value">{{phone}}</view>
-    </view>
-    <view class="warranty_rem">
-      <view class="key">剩余保修时间(天):</view>
-      <view class="value">{{customer_info.warranty_rem}}</view>
-    </view>
+  </view>
 
+  <view class="info-card">
+    <view class="info-row">
+      <view class="info-label">项目 ID</view>
+      <view class="info-value code-value">{{customer_info.project_code || '--'}}</view>
+    </view>
+    <view class="info-row">
+      <view class="info-label">用户名称</view>
+      <view class="info-value">{{customer_info.customer_name || '--'}}</view>
+    </view>
+    <view class="info-row">
+      <view class="info-label">用户电话</view>
+      <view class="info-value">{{customer_info.customer_phone || '--'}}</view>
+    </view>
+    <view class="info-row">
+      <view class="info-label">经销商</view>
+      <view class="info-value">{{customer_info.distributor_name || '--'}}</view>
+    </view>
+    <view class="info-row">
+      <view class="info-label">服务电话</view>
+      <view class="info-value">{{phone || '--'}}</view>
+    </view>
+  </view>
+
+  <view class="warranty-card">
+    <view>
+      <view class="warranty-label">剩余保修时间</view>
+      <view class="warranty-tip">具体权益以服务合同为准</view>
+    </view>
+    <view class="warranty-value">
+      <text>{{customer_info.warranty_rem || 0}}</text>
+      <text class="warranty-unit">天</text>
+    </view>
   </view>
 </view>

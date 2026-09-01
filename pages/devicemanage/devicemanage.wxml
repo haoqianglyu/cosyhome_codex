@@ -1,19 +1,13 @@
-<!-- pages/devicemanage/devicemanage.wxml -->
-<view class="container">
-    <view class="device-list" wx:if="{{devices.length > 0}}">
-        <view class="device-item" wx:for="{{devices}}" wx:key="id">
-            <view class="device-info">
-                <text class="device-name">{{item.deviceDisplay}}</text>
-                <text class="device-time">登录时间: {{item.loginTimeDisplay}}</text>
-            </view>
-            <view class="device-action">
-                <button class="logout-btn" size="mini" bindtap="handleLogout" data-id="{{item.id}}" data-name="{{item.deviceDisplay}}">
-                    下线
-                </button>
-            </view>
-        </view>
+<view class="device-page">
+  <view class="page-heading"><view class="heading-eyebrow">LOGIN SECURITY</view><view class="heading-title">登录设备</view><view class="heading-copy">管理当前账号已授权的设备</view></view>
+  <view class="security-banner"><view class="banner-icon cuIcon-safe"></view><view><view class="banner-title">账号安全保护</view><view class="banner-copy">发现陌生设备时，请及时将其下线</view></view></view>
+  <view class="list-meta" wx:if="{{devices.length}}"><text>已登录设备</text><text>{{devices.length}} 台</text></view>
+  <view class="device-list" wx:if="{{devices.length}}">
+    <view class="device-item" wx:for="{{devices}}" wx:key="id">
+      <view class="device-icon cuIcon-mobile"></view>
+      <view class="device-info"><text class="device-name">{{item.deviceDisplay}}</text><text class="device-time">最近登录 {{item.loginTimeDisplay}}</text></view>
+      <button class="logout-btn" bindtap="handleLogout" data-id="{{item.id}}" data-name="{{item.deviceDisplay}}">下线</button>
     </view>
-    <view class="empty-state" wx:else>
-        <text>暂无登录设备</text>
-    </view>
+  </view>
+  <view class="empty-state" wx:else><view class="empty-icon cuIcon-mobile"></view><view class="empty-title">暂无登录设备</view><view class="empty-copy">新的登录设备会显示在这里</view></view>
 </view>

@@ -1,7 +1,7 @@
 // pages/rooms/rooms.js
 import {
   controlDataArray,
-  controlMessageBody,
+  legacyControlMessageBody,
 } from "../../utils/controlMessage.js";
 
 Page({
@@ -43,7 +43,7 @@ Page({
   /** 获取并渲染房间环境量统计。 */
   async fetchFloorsData() {
     try {
-      const body = await controlMessageBody({
+      const body = await legacyControlMessageBody({
         messageType: 10,
         body: {
           requestId: this.data.requestId,

@@ -2,7 +2,7 @@
 import * as echarts from '../../ec-canvas/echarts';
 import {
   controlDataArray,
-  controlMessageBody,
+  legacyControlMessageBody,
 } from "../../utils/controlMessage.js";
 var app = getApp();
 let externalDataArray = [];
@@ -43,7 +43,7 @@ Page({
   async requestData() {
     wx.showLoading({ title: "数据加载中...", mask: true });
     try {
-      const body = await controlMessageBody({
+      const body = await legacyControlMessageBody({
         messageType: 9,
         body: {
           requestId: this.data.requestId,
@@ -182,11 +182,9 @@ Page({
       wx.showNavigationBarLoading();
       barChart1.showLoading({ text: '正在加载数据' });
 
-      setTimeout(() => {
-        barChart1.setOption(this.getBarOption1(chartData));
-        barChart1.hideLoading();
-        wx.hideNavigationBarLoading();
-      }, 1200);
+      barChart1.setOption(this.getBarOption1(chartData));
+      barChart1.hideLoading();
+      wx.hideNavigationBarLoading();
 
       return barChart1; 
     });
@@ -257,12 +255,12 @@ Page({
         icon:"none",
         itemWidth: 5,
         itemGap: 6,
-        inactiveColor: "#74CEAE", // 未选中项的颜色可以调深一些
+        inactiveColor: "#55c2bb", // 未选中项的颜色可以调深一些
         textStyle: { 
           color:"#333333", // 图例文字颜色改为深灰色
           fontSize: 12,
           // backgroundColor: "#f7f7f7", // 给个淡淡的背景
-          borderColor: "#74CEAE",
+          borderColor: "#55c2bb",
           borderWidth: 1,
           borderRadius: 8,
           padding: 6,
@@ -315,7 +313,12 @@ Page({
   onReady: function () {},
   onShow: function () {},
   onHide: function () {},
-  onUnload: function () {},
+  onUnload: function () {
+    if (barChart1) {
+      barChart1.dispose();
+      barChart1 = null;
+    }
+  },
   onPullDownRefresh: function () {},
   onReachBottom: function () {},
   onShareAppMessage: function () {

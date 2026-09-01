@@ -1,6 +1,6 @@
 //index.js
 //获取应用实例
-import { controlMessageBody } from "../../utils/controlMessage.js";
+import { legacyControlMessageBody } from "../../utils/controlMessage.js";
 const app = getApp()
 
 Page({
@@ -11,11 +11,11 @@ Page({
     winHeight: "",
     listData: [],
     listData2:[],
-    scrollTop:0
+    scrollTop:0,
+    loading: true,
   },
   onLoad() {
     var that = this;
-    wx.showNavigationBarLoading()
     wx.getSystemInfo({
       success: function (res) {
         console.log(res);
@@ -24,10 +24,6 @@ Page({
         });
       },
     });
-    setTimeout(function () {
-      wx.hideNavigationBarLoading()
-    }, 1000);
-    
   },
 
   /**
@@ -38,17 +34,31 @@ Page({
   },
 
   async loadMessages() {
+    const requestSequence = (this._messageRequestSequence || 0) + 1;
+    this._messageRequestSequence = requestSequence;
+    this.setData({ loading: true });
+    wx.showNavigationBarLoading();
     try {
       const [notices, announcements] = await Promise.all([
-        controlMessageBody({ messageType: 200 }),
-        controlMessageBody({ messageType: 201 }),
+        legacyControlMessageBody({ messageType: 200 }),
+        legacyControlMessageBody({ messageType: 201 }),
       ]);
+      if (requestSequence !== this._messageRequestSequence) {
+        return;
+      }
       this.setData({
         listData: this.formatMessages(notices),
         listData2: this.formatMessages(announcements),
       });
     } catch (error) {
-      wx.showToast({ title: "消息获取失败", icon: "none" });
+      if (requestSequence === this._messageRequestSequence) {
+        wx.showToast({ title: "消息获取失败", icon: "none" });
+      }
+    } finally {
+      if (requestSequence === this._messageRequestSequence) {
+        this.setData({ loading: false });
+        wx.hideNavigationBarLoading();
+      }
     }
   },
 

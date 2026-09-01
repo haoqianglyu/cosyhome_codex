@@ -1,88 +1,89 @@
-// pages/knowledge/knowledge.js
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-
+    loading: true,
+    errorMessage: "",
+    documentOpened: false,
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad: function (options) {
-    var currentStatus = wx.getStorageSync("isdistributor");
-    var str = currentStatus?"distributor":"user"
-    var ali_url = "https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/mini_"+str+".pdf"
-    console.log(ali_url) 
-    wx.downloadFile({
-      url: ali_url,
-      success: function (res) {
-        const filePath = res.tempFilePath
-        wx.openDocument({
-          filePath: filePath,
-          fileType: "pdf",
-          success: function (res) {
-            console.log('打开文档成功')
+  onLoad() {
+    this._destroyed = false;
+    this.loadDocument();
+  },
+
+  getDocumentUrl() {
+    const role = wx.getStorageSync("isdistributor") ? "distributor" : "user";
+    return `https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/mini_${role}.pdf`;
+  },
+
+  downloadDocument(url) {
+    return new Promise((resolve, reject) => {
+      this._downloadTask = wx.downloadFile({
+        url,
+        success: (response) => {
+          if (
+            response.statusCode !== 200 ||
+            !response.tempFilePath
+          ) {
+            reject(new Error(`文档下载失败（${response.statusCode || "未知状态"}）`));
+            return;
           }
-        })
+          resolve(response.tempFilePath);
+        },
+        fail: reject,
+      });
+    });
+  },
+
+  openDocument(filePath) {
+    return new Promise((resolve, reject) => {
+      wx.openDocument({ filePath, fileType: "pdf", success: resolve, fail: reject });
+    });
+  },
+
+  async loadDocument() {
+    if (this._documentLoading) return;
+    const requestVersion = (this._requestVersion || 0) + 1;
+    this._requestVersion = requestVersion;
+    this._documentLoading = true;
+    this.setData({ loading: true, errorMessage: "" });
+    wx.showNavigationBarLoading();
+    try {
+      const filePath = await this.downloadDocument(this.getDocumentUrl());
+      if (this._destroyed || requestVersion !== this._requestVersion) return;
+      await this.openDocument(filePath);
+      if (this._destroyed || requestVersion !== this._requestVersion) return;
+      this.setData({ loading: false, documentOpened: true });
+    } catch (error) {
+      if (!this._destroyed && requestVersion === this._requestVersion) {
+        console.error("知识文档打开失败", error);
+        this.setData({
+          loading: false,
+          errorMessage: "文档打开失败，请检查网络后重试",
+        });
       }
-    })
+    } finally {
+      if (requestVersion === this._requestVersion) {
+        this._documentLoading = false;
+        this._downloadTask = null;
+        wx.hideNavigationBarLoading();
+      }
+    }
   },
 
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-
+  retryLoad() {
+    this.loadDocument();
   },
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-
+  onUnload() {
+    this._destroyed = true;
+    this._requestVersion = (this._requestVersion || 0) + 1;
+    if (this._downloadTask && typeof this._downloadTask.abort === "function") {
+      this._downloadTask.abort();
+    }
+    wx.hideNavigationBarLoading();
   },
 
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-
+  onShareAppMessage() {
+    return { title: "HC健康舒适家", path: "/pages/index/index" };
   },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: function () {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-    return {
-      // 这里的 title 会显示在分享卡片上
-      title: "HC健康舒适家",
-
-      // 关键：把路径固定为你的 index 登录页
-      path: "/pages/index/index",
-    };
-  },
-})
+});

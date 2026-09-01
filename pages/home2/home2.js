@@ -1,12 +1,18 @@
-let first_homeid = "";
-let first_homename = "";
-let current_home = "";
-let current_id = null;
 var app = getApp();
 import api from "../../api/api.js";
-import { controlMessageBody } from "../../utils/controlMessage.js";
+import { legacyControlMessageBody } from "../../utils/controlMessage.js";
 import { calculateDewPoint } from "../../utils/environment.js";
-import { getProjectEntities } from "../../utils/projects.js";
+import {
+  apiRequest,
+  getErrorMessage,
+  isCurrentPage,
+} from "../../utils/request.js";
+import {
+  applyHomeProjects,
+  fetchHomeProjects,
+  filterProjects,
+  restoreHomeProjects,
+} from "../../utils/homeProjects.js";
 Page({
   /**
    * 页面的初始数据
@@ -51,10 +57,19 @@ Page({
     let that = this;
     let searchedIndex = e.currentTarget.dataset.index;
     let selectedItem = that.data.searchedList[searchedIndex];
-    let originalIndex = that.data.showList.findIndex(item => item.name === selectedItem.name);
+    if (!selectedItem) {
+      wx.showToast({ title: "项目不存在，请刷新列表", icon: "none" });
+      return;
+    }
+    let originalIndex = that.data.showList.findIndex(
+      (item) => item.id === selectedItem.id,
+    );
+    if (originalIndex < 0) {
+      wx.showToast({ title: "项目不存在，请刷新列表", icon: "none" });
+      return;
+    }
 
-    if (that.data.searchedList[searchedIndex].app_name != "单机版") {
-      console.log("11111");
+    if (selectedItem.app_name !== "单机版") {
       that.setData({ show: !that.data.show });
       wx.setStorageSync("isSingle", false);
       wx.setStorageSync("backfromhome2", true);
@@ -63,40 +78,13 @@ Page({
       app.globalData.userInfo = { userName: "role1", role: 1 };
       app.switchTabWithRole(1);
     } else {
-      console.log("22222");
       wx.setStorageSync("isSingle", true);
-      current_home = that.data.showList[originalIndex].name;
-      current_id = that.data.showList[originalIndex].id;
-      console.log(current_home);
-
-      that.setData({
-        index: searchedIndex,
-        show: !that.data.show,
-        showname: current_home,
-      });
-
-      wx.setStorageSync("selected_project_info", {
-                name:           that.data.showList[originalIndex].name,          // 项目名称
-                code:           that.data.showList[originalIndex].code,          // 项目 ID（代码）
-                level:          that.data.showList[originalIndex].level,         // 项目等级
-                building_type:  that.data.showList[originalIndex].building_type, // 建筑类型
-                building_area:  that.data.showList[originalIndex].building_area, // 建筑面积
-                energy_level:   that.data.showList[originalIndex].energy_level,  // 节能水平
-                customer_region:that.data.showList[originalIndex].customer_region,// 省市区
-                delivery_time:  that.data.showList[originalIndex].delivery_time  // 交付时间
-              });
-      wx.setStorageSync("selected_home", current_id);
-      wx.setStorageSync("selected_homename", current_home);
-
-      that.healthCheck();
-      that.getDataFromScreen();
-
-      var obj = wx.createSelectorQuery();
-      obj.selectAll(".select_text").boundingClientRect(function (rect) {
-        console.log(rect[0].height);
-        console.log(rect[0].width);
-      });
-      obj.exec();
+      const project = applyHomeProjects(
+        that,
+        that.data.showList,
+        originalIndex,
+      );
+      that.selectCurrentProject(project);
     }
   },
 
@@ -122,6 +110,10 @@ Page({
           });
         }
       },
+      fail(error) {
+        that.setData({ offline: true });
+        console.error("控制屏健康检查失败", error);
+      },
     });
   },
 
@@ -135,7 +127,7 @@ Page({
     }
     this._screenRequestPending = true;
     try {
-      const body = await controlMessageBody({
+      const body = await legacyControlMessageBody({
         messageType: 100,
         projectId,
       });
@@ -173,564 +165,128 @@ Page({
     }
   },
 
-    //当前界面拿到页面输入的值
-    getProject:function(project){   
-      var that = this 
-      // console.log(project)
-      if(project.detail.value===""){
-        that.setData({
-          searchedList: that.data.homes
-        })
-      }else{
-        that.setData({
-          searchedList: that.searchStr(project.detail.value, that.data.homes)
-        })
-      
-      }
-      
-      
-      // console.log(that.data.showList)
-    },
-  
+  getProject(event) {
+    const value = event.detail.value;
+    this.setData({
+      searchedList:
+        value === "" ? this.data.homes : filterProjects(value, this.data.homes),
+    });
+  },
 
-  // 数组中匹配单个字符串的方法，传入数组支持格式[{},{}],
-  searchStr: function (value, list) {
-    var str = value.trim();
-    // value:要查询的字符串
-    // list:这里匹配，lis必须是个数组
-    if (str) {
-      let arr = [];
-      list.forEach((el) => {
-        if (el.name.indexOf(str) >= 0) {
-          arr.push(el);
-        }
-      });
-      return arr;
-    } else {
-      return [];
+  searchStr(value, list) {
+    return filterProjects(value, list);
+  },
+
+  selectCurrentProject(project, refresh = true) {
+    if (!project) {
+      return;
+    }
+    if (refresh) {
+      this.healthCheck();
+      this.getDataFromScreen();
     }
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad: function (options) {
-    var that = this;
-    console.log("iiiiiiii")
-    that.setData({
-      isvisitor: app.globalData.isvisitor,
-    });
-
-    if (wx.getStorageSync("backfromhome1")) {
-      console.log(that.data.show);
-      that.setData({
-        show: false,
+  async loadProjects(index = 0) {
+    if (this._projectRequestPending) {
+      return;
+    }
+    this._projectRequestPending = true;
+    try {
+      const projects = await fetchHomeProjects();
+      const selectedProject = applyHomeProjects(this, projects, index);
+      if (selectedProject) {
+        this.selectCurrentProject(selectedProject);
+      }
+      if (wx.getStorageSync("isAdmin")) {
+        wx.setStorageSync("change_distributor", false);
+      }
+    } catch (error) {
+      console.error("单机版首页项目列表获取失败", error);
+      wx.showToast({
+        title: (error && error.message) || "项目列表获取失败",
+        icon: "none",
       });
-      var Index = wx.getStorageSync("home1index");
-      var new_showlist = wx.getStorageSync("home1showlist");
-      current_home = new_showlist[Index].name;
-      current_id = new_showlist[Index].id;
-      console.log(current_home);
+    } finally {
+      this._projectRequestPending = false;
+    }
+  },
 
-      that.setData({
-        index: Index,
-        showname: current_home,
-        homes:wx.getStorageSync("home1showlist"),
-        showList: wx.getStorageSync("home1showlist"),
-        searchedList: wx.getStorageSync("home1showlist"),
+  restoreFromHome1() {
+    const selectedProject = restoreHomeProjects(
+      this,
+      "home1showlist",
+      "home1index",
+    );
+    wx.setStorageSync("backfromhome1", false);
+    if (selectedProject) {
+      this.selectCurrentProject(selectedProject);
+      return true;
+    }
+    return false;
+  },
+
+  onLoad() {
+    this.setData({ isvisitor: app.globalData.isvisitor });
+    if (
+      !wx.getStorageSync("backfromhome1") ||
+      !this.restoreFromHome1()
+    ) {
+      this.loadProjects();
+    }
+  },
+
+  async changePowerMode(isOn) {
+    if (this._powerModePending) {
+      return;
+    }
+    this.clearTimeInterval();
+    if (app.globalData.isvisitor) {
+      wx.showToast({
+        title: "访客模式不可操作",
+        icon: "none",
       });
+      this.startStatusPolling();
+      return;
+    }
 
-      wx.setStorageSync("selected_project_info", {
-                name:           new_showlist[Index].name,          // 项目名称
-                code:           new_showlist[Index].code,          // 项目 ID（代码）
-                level:          new_showlist[Index].level,         // 项目等级
-                building_type:  new_showlist[Index].building_type, // 建筑类型
-                building_area:  new_showlist[Index].building_area, // 建筑面积
-                energy_level:   new_showlist[Index].energy_level,  // 节能水平
-                customer_region:new_showlist[Index].customer_region,// 省市区
-                delivery_time:  new_showlist[Index].delivery_time  // 交付时间
-              });
-      wx.setStorageSync("selected_home", current_id);
-      wx.setStorageSync("selected_homename", current_home);
-
-      that.healthCheck();
-      that.getDataFromScreen();
-      console.log("55555");
-
-      var obj = wx.createSelectorQuery();
-      obj.selectAll(".select_text").boundingClientRect(function (rect) {
-        console.log(rect[0].height);
-        console.log(rect[0].width);
+    this._powerModePending = true;
+    try {
+      await apiRequest(api.ctrl_mode, {
+        method: "POST",
+        header: {
+          "content-type": "application/json",
+          Authorization: wx.getStorageSync("access_token"),
+        },
+        data: {
+          project_id: wx.getStorageSync("selected_home"),
+          target_mode: isOn ? 1000 : -1,
+          target_mode_desc: isOn ? "开机" : "关机",
+        },
       });
-      obj.exec();
-      console.log(that.data.homes)
-    } else {
-      if (app.globalData.isvisitor&&!app.globalData.isdistributor_visitor) {
-        api.distributor_projects({
-          method: "POST",
-          data: {},
-          header: {
-            "content-type": "application/json",
-            Authorization: wx.getStorageSync("access_token"),
-          },
-          success: function (res) {
-            if (getProjectEntities(res.data).length === 0) {
-              wx.showToast({
-                title: "无项目可查看",
-                icon: "none",
-              });
-              that.setData({
-                show_mode: "",
-                mode_icon: 1000,
-                deviceData: "",
-                home_mode: 1,
-                homes: [],
-                homes_id: [],
-                showList: [],
-                searchedList:[],
-              });
-
-              wx.setStorageSync("haveProject", false);
-            } else {
-              wx.setStorageSync("haveProject", true);
-
-              that.setData({
-                homes: [],
-                showList: [],
-                searchedList:[],
-                showname: "",
-              });
-              // 先对 project_entities 进行排序
-              res.data.project_entities.sort(function (a, b) {
-                if (a.app_name === "通用版") {
-                  return -1;
-                } else if (b.app_name === "通用版") {
-                  return 1;
-                } else {
-                  return 0;
-                }
-              });
-              for (var i = 0; i < res.data.project_entities.length; i++) {
-                const p = res.data.project_entities[i];
-                var obj = {
-                 name: p.name,                   // 项目名称
-                  id: p.id,
-                   app_name: p.app_name,
-                  code: p.code,                   // 项目 ID（代码）
-                  level: p.level,                 // 项目等级
-                  building_type: p.building_type, // 建筑类型
-                  building_area: p.building_area, // 建筑面积
-                  energy_level: p.energy_level,   // 节能水平
-                  customer_region: p.customer_region, // 省市区
-                  delivery_time: p.delivery_time, // 交付时间
-                };
-                that.data.homes.push(obj);
-              }
-              var index = wx.getStorageSync("backfromhome1")
-                  ? wx.getStorageSync("home1index")
-                  : 0;
-                console.log(that.data.homes);
-                that.setData({
-                  homes: that.data.homes,
-                  index: index,
-                  showList: wx.getStorageSync("backfromhome1")
-                    ? wx.getStorageSync("home1showlist")
-                    : that.data.homes,
-                    searchedList:wx.getStorageSync("backfromhome1")
-                    ? wx.getStorageSync("home1showlist")
-                    : that.data.homes,
-                });
-
-                console.log(that.data.showList);
-                first_homeid = that.data.showList[index].id;
-                first_homename = that.data.showList[index].name;
-
-                current_home = first_homename;
-                current_id = first_homeid;
-
-                that.setData({
-                  showname: current_home,
-                });
-
-                wx.setStorageSync("selected_project_info", {
-                name:           that.data.showList[index].name,          // 项目名称
-                code:           that.data.showList[index].code,          // 项目 ID（代码）
-                level:          that.data.showList[index].level,         // 项目等级
-                building_type:  that.data.showList[index].building_type, // 建筑类型
-                building_area:  that.data.showList[index].building_area, // 建筑面积
-                energy_level:   that.data.showList[index].energy_level,  // 节能水平
-                customer_region:that.data.showList[index].customer_region,// 省市区
-                delivery_time:  that.data.showList[index].delivery_time  // 交付时间
-              });
-                wx.setStorageSync("selected_home", current_id);
-                wx.setStorageSync("selected_homename", current_home);
-                console.log(wx.getStorageSync("selected_homename"));
-                that.healthCheck();
-                that.getDataFromScreen();
-            }
-          },
-        });
-      }else if(app.globalData.isvisitor&&app.globalData.isdistributor_visitor){
-        api.visitor_projects({
-          method: "POST",
-          data: {},
-          header: {
-            "content-type": "application/json",
-            Authorization: wx.getStorageSync("access_token"),
-          },
-          success: function (res) {
-            if (getProjectEntities(res.data).length === 0) {
-              wx.showToast({
-                title: "无项目可查看",
-                icon: "none",
-              });
-              that.setData({
-                show_mode: "",
-                mode_icon: 1000,
-                deviceData: "",
-                home_mode: 1,
-                homes: [],
-                homes_id: [],
-                showList: [],
-                searchedList:[],
-              });
-
-              wx.setStorageSync("haveProject", false);
-            } else {
-              wx.setStorageSync("haveProject", true);
-
-              that.setData({
-                homes: [],
-                showList: [],
-                searchedList:[],
-                showname: "",
-              });
-              // 先对 project_entities 进行排序
-              res.data.project_entities.sort(function (a, b) {
-                if (a.app_name === "通用版") {
-                  return -1;
-                } else if (b.app_name === "通用版") {
-                  return 1;
-                } else {
-                  return 0;
-                }
-              });
-              for (var i = 0; i < res.data.project_entities.length; i++) {
-                const p = res.data.project_entities[i];
-                var obj = {
-                 name: p.name,                   // 项目名称
-                  id: p.id,
-                   app_name: p.app_name,
-                  code: p.code,                   // 项目 ID（代码）
-                  level: p.level,                 // 项目等级
-                  building_type: p.building_type, // 建筑类型
-                  building_area: p.building_area, // 建筑面积
-                  energy_level: p.energy_level,   // 节能水平
-                  customer_region: p.customer_region, // 省市区
-                  delivery_time: p.delivery_time, // 交付时间
-                };
-                that.data.homes.push(obj);
-              }
-              var index = wx.getStorageSync("backfromhome1")
-                  ? wx.getStorageSync("home1index")
-                  : 0;
-                console.log(that.data.homes);
-                that.setData({
-                  homes: that.data.homes,
-                  index: index,
-                  showList: wx.getStorageSync("backfromhome1")
-                    ? wx.getStorageSync("home1showlist")
-                    : that.data.homes,
-                    searchedList:wx.getStorageSync("backfromhome1")
-                    ? wx.getStorageSync("home1showlist")
-                    : that.data.homes,
-                });
-
-                console.log(that.data.showList);
-                first_homeid = that.data.showList[index].id;
-                first_homename = that.data.showList[index].name;
-
-                current_home = first_homename;
-                current_id = first_homeid;
-
-                that.setData({
-                  showname: current_home,
-                });
-
-                wx.setStorageSync("selected_project_info", {
-                name:           that.data.showList[index].name,          // 项目名称
-                code:           that.data.showList[index].code,          // 项目 ID（代码）
-                level:          that.data.showList[index].level,         // 项目等级
-                building_type:  that.data.showList[index].building_type, // 建筑类型
-                building_area:  that.data.showList[index].building_area, // 建筑面积
-                energy_level:   that.data.showList[index].energy_level,  // 节能水平
-                customer_region:that.data.showList[index].customer_region,// 省市区
-                delivery_time:  that.data.showList[index].delivery_time  // 交付时间
-              });
-                wx.setStorageSync("selected_home", current_id);
-                wx.setStorageSync("selected_homename", current_home);
-                console.log(wx.getStorageSync("selected_homename"));
-                that.healthCheck();
-                that.getDataFromScreen();
-            }
-          },
-        });
-      } else {
-        if (wx.getStorageSync("isAdmin")) {
-          wx.setStorageSync("haveProject", true);
-          api.distributor_id_projects({
-            method: "POST",
-            data: {
-              page_options: {
-                page: 1,
-                limit: 10000,
-              },
-              distributor_id: wx.getStorageSync("current_distributorid"),
-            },
-            header: {
-              "content-type": "application/json",
-              Authorization: wx.getStorageSync("access_token"),
-            },
-            success: function (res) {
-              console.log(res);
-              that.setData({
-                homes: [],
-                showList: [],
-                searchedList:[],
-                showname: "",
-              });
-              // 先对 project_entities 进行排序
-              res.data.project_entities.sort(function (a, b) {
-                if (a.app_name === "通用版") {
-                  return -1;
-                } else if (b.app_name === "通用版") {
-                  return 1;
-                } else {
-                  return 0;
-                }
-              });
-              for (var i = 0; i < res.data.project_entities.length; i++) {
-                const p = res.data.project_entities[i];
-                var obj = {
-                 name: p.name,                   // 项目名称
-                  id: p.id,
-                   app_name: p.app_name,
-                  code: p.code,                   // 项目 ID（代码）
-                  level: p.level,                 // 项目等级
-                  building_type: p.building_type, // 建筑类型
-                  building_area: p.building_area, // 建筑面积
-                  energy_level: p.energy_level,   // 节能水平
-                  customer_region: p.customer_region, // 省市区
-                  delivery_time: p.delivery_time, // 交付时间
-                };
-                that.data.homes.push(obj);
-              }
-              var index = wx.getStorageSync("backfromhome1")
-                ? wx.getStorageSync("home1index")
-                : 0;
-              console.log(that.data.homes);
-              that.setData({
-                homes: that.data.homes,
-                index: index,
-                showList: wx.getStorageSync("backfromhome1")
-                  ? wx.getStorageSync("home1showlist")
-                  : that.data.homes,
-                  searchedList:wx.getStorageSync("backfromhome1")
-                  ? wx.getStorageSync("home1showlist")
-                  : that.data.homes,
-              });
-
-              console.log(that.data.showList);
-              first_homeid = that.data.showList[index].id;
-              first_homename = that.data.showList[index].name;
-
-              current_home = first_homename;
-              current_id = first_homeid;
-
-              that.setData({
-                showname: current_home,
-              });
-
-              wx.setStorageSync("selected_project_info", {
-                name:           that.data.showList[index].name,          // 项目名称
-                code:           that.data.showList[index].code,          // 项目 ID（代码）
-                level:          that.data.showList[index].level,         // 项目等级
-                building_type:  that.data.showList[index].building_type, // 建筑类型
-                building_area:  that.data.showList[index].building_area, // 建筑面积
-                energy_level:   that.data.showList[index].energy_level,  // 节能水平
-                customer_region:that.data.showList[index].customer_region,// 省市区
-                delivery_time:  that.data.showList[index].delivery_time  // 交付时间
-              });
-              wx.setStorageSync("selected_home", current_id);
-              wx.setStorageSync("selected_homename", current_home);
-              console.log(wx.getStorageSync("selected_homename"));
-              that.healthCheck();
-              that.getDataFromScreen();
-              wx.setStorageSync("change_distributor", false);
-            },
-          });
-        } else {
-          api.user_projects({
-            method: "POST",
-            data: {},
-            header: {
-              "content-type": "application/json",
-              Authorization: wx.getStorageSync("access_token"),
-            },
-            success: function (res) {
-              if (getProjectEntities(res.data).length === 0) {
-                wx.showToast({
-                  title: "无项目可查看",
-                  icon: "none",
-                });
-                that.setData({
-                  show_mode: "",
-                  mode_icon: 1000,
-                  deviceData: "",
-                  home_mode: 1,
-                  homes: [],
-                  homes_id: [],
-                  showList: [],
-                  searchedList:[]
-                });
-
-                wx.setStorageSync("haveProject", false);
-              } else {
-                wx.setStorageSync("haveProject", true);
-
-                that.setData({
-                  homes: [],
-                  showList: [],
-                  searchedList:[],
-                  showname: "",
-                });
-                for (var i = 0; i < res.data.project_entities.length; i++) {
-                  const p = res.data.project_entities[i];
-                var obj = {
-                 name: p.name,                   // 项目名称
-                  id: p.id,
-                   app_name: p.app_name,
-                  code: p.code,                   // 项目 ID（代码）
-                  level: p.level,                 // 项目等级
-                  building_type: p.building_type, // 建筑类型
-                  building_area: p.building_area, // 建筑面积
-                  energy_level: p.energy_level,   // 节能水平
-                  customer_region: p.customer_region, // 省市区
-                  delivery_time: p.delivery_time, // 交付时间
-                };
-                  that.data.homes.push(obj);
-                }
-                var index = wx.getStorageSync("backfromhome1")
-                  ? wx.getStorageSync("home1index")
-                  : 0;
-                console.log(that.data.homes);
-                that.setData({
-                  homes: that.data.homes,
-                  index: index,
-                  showList: wx.getStorageSync("backfromhome1")
-                    ? wx.getStorageSync("home1showlist")
-                    : that.data.homes,
-                    searchedList:wx.getStorageSync("backfromhome1")
-                    ? wx.getStorageSync("home1showlist")
-                    : that.data.homes,
-                });
-
-                console.log(that.data.showList);
-                first_homeid = that.data.showList[index].id;
-                first_homename = that.data.showList[index].name;
-
-                current_home = first_homename;
-                current_id = first_homeid;
-
-                that.setData({
-                  showname: current_home,
-                });
-
-                wx.setStorageSync("selected_project_info", {
-                name:           that.data.showList[index].name,          // 项目名称
-                code:           that.data.showList[index].code,          // 项目 ID（代码）
-                level:          that.data.showList[index].level,         // 项目等级
-                building_type:  that.data.showList[index].building_type, // 建筑类型
-                building_area:  that.data.showList[index].building_area, // 建筑面积
-                energy_level:   that.data.showList[index].energy_level,  // 节能水平
-                customer_region:that.data.showList[index].customer_region,// 省市区
-                delivery_time:  that.data.showList[index].delivery_time  // 交付时间
-              });
-                wx.setStorageSync("selected_home", current_id);
-                wx.setStorageSync("selected_homename", current_home);
-                console.log(wx.getStorageSync("selected_homename"));
-                that.healthCheck();
-                that.getDataFromScreen();
-              }
-            },
-          });
-        }
+      if (!isCurrentPage(this)) {
+        return;
+      }
+      this.setData({ home_mode: isOn ? 1 : 0 });
+      this.getDataFromScreen();
+    } catch (error) {
+      if (isCurrentPage(this)) {
+        wx.showToast({ title: getErrorMessage(error), icon: "none" });
+      }
+    } finally {
+      this._powerModePending = false;
+      if (this._pageVisible) {
+        this.scheduleStatusRefresh();
       }
     }
   },
 
   backhome() {
-    let that = this;
-    that.clearTimeInterval();
-    if (app.globalData.isvisitor) {
-      wx.showToast({
-        title: "访客模式不可操作",
-        icon: "none",
-      });
-    } else {
-      api.ctrl_mode({
-        method: "POST",
-        header: {
-          "content-type": "application/json",
-          Authorization: wx.getStorageSync("access_token"),
-        },
-        data: {
-          project_id: wx.getStorageSync("selected_home"),
-          target_mode: 1000,
-          target_mode_desc: "开机",
-        },
-        success: function () {
-          that.setData({ home_mode: 1 });
-          that.getDataFromScreen();
-        },
-      });
-    }
-    setTimeout(() => {
-      that.onShow();
-    }, 5000);
+    return this.changePowerMode(true);
   },
 
   leavehome() {
-    let that = this;
-    that.clearTimeInterval();
-    if (app.globalData.isvisitor) {
-      wx.showToast({
-        title: "访客模式不可操作",
-        icon: "none",
-      });
-    } else {
-      api.ctrl_mode({
-        method: "POST",
-        header: {
-          "content-type": "application/json",
-          Authorization: wx.getStorageSync("access_token"),
-        },
-        data: {
-          project_id: wx.getStorageSync("selected_home"),
-          target_mode: -1,
-          target_mode_desc: "关机",
-        },
-        success: function () {
-          that.setData({
-            home_mode: 0,
-          });
-          that.getDataFromScreen();
-        },
-      });
-    }
-    setTimeout(() => {
-      that.onShow();
-    }, 5000);
+    return this.changePowerMode(false);
   },
   /**
    * 生命周期函数--监听页面初次渲染完成
@@ -740,347 +296,69 @@ Page({
   /**
    * 生命周期函数--监听页面显示
    */
-  onShow: function () {
-    var that = this;
-    console.log(that.getTabBar());
-    wx.setNavigationBarTitle({
-      title: "我的家",
-    });
+  onShow() {
+    this._pageVisible = true;
+    wx.setNavigationBarTitle({ title: "我的家" });
 
-    if (wx.getStorageSync("backfromhome1")) {
-      console.log("aaa");
-      console.log(that.data.show);
-      that.setData({
-        show: false,
-      });
-      var Index = wx.getStorageSync("home1index");
-      var new_showlist = wx.getStorageSync("home1showlist");
-      current_home = new_showlist[Index].name;
-      current_id = new_showlist[Index].id;
-      console.log(current_home);
-
-      that.setData({
-        index: Index,
-        showname: current_home,
-        homes:wx.getStorageSync("home1showlist"),
-      });
-
-      wx.setStorageSync("selected_project_info", {
-                name:           new_showlist[Index].name,          // 项目名称
-                code:           new_showlist[Index].code,          // 项目 ID（代码）
-                level:          new_showlist[Index].level,         // 项目等级
-                building_type:  new_showlist[Index].building_type, // 建筑类型
-                building_area:  new_showlist[Index].building_area, // 建筑面积
-                energy_level:   new_showlist[Index].energy_level,  // 节能水平
-                customer_region:new_showlist[Index].customer_region,// 省市区
-                delivery_time:  new_showlist[Index].delivery_time  // 交付时间
-              });
-      wx.setStorageSync("selected_home", current_id);
-      wx.setStorageSync("selected_homename", current_home);
-
-      that.healthCheck();
-      that.getDataFromScreen();
-      console.log("55555");
-
-      var obj = wx.createSelectorQuery();
-      obj.selectAll(".select_text").boundingClientRect(function (rect) {
-        console.log(rect[0].height);
-        console.log(rect[0].width);
-      });
-      obj.exec();
-      console.log(that.data.homes)
-      wx.setStorageSync("backfromhome1", false);
+    if (typeof this.getTabBar === "function" && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 0 });
     }
 
-    if (typeof that.getTabBar === "function" && that.getTabBar()) {
-      that.getTabBar().setData({
-        selected: 0,
-      });
-    }
-
-    let backData = wx.getStorageSync("backData");
+    const backData = wx.getStorageSync("backData");
     if (backData) {
-      that.setData({
+      this.setData({
         mode_icon: wx.getStorageSync("mode_icon"),
         show_mode: wx.getStorageSync("show_mode"),
       });
-
       wx.removeStorageSync("backData");
-      // wx.removeStorageSync("changeModeName");
     }
 
-    if (
+    if (wx.getStorageSync("backfromhome1")) {
+      this.restoreFromHome1();
+    } else if (
       wx.getStorageSync("isAdmin") &&
       wx.getStorageSync("change_distributor")
     ) {
-      wx.setStorageSync("haveProject", true);
-      api.distributor_id_projects({
-        method: "POST",
-        data: {
-          page_options: {
-            page: 1,
-            limit: 10000,
-          },
-          distributor_id: wx.getStorageSync("current_distributorid"),
-        },
-        header: {
-          "content-type": "application/json",
-          Authorization: wx.getStorageSync("access_token"),
-        },
-        success: function (res) {
-          console.log(res);
-          if (getProjectEntities(res.data).length === 0) {
-            wx.setStorageSync("haveProject", false);
-            that.setData({
-              homes: [],
-              showList: [],
-              searchedList: [],
-              showname: "",
-            });
-            wx.showToast({ title: "无项目可查看", icon: "none" });
-            return;
-          }
-          that.setData({
-            homes: [],
-            showList: [],
-            searchedList:[],
-            showname: "",
-          });
-          // 先对 project_entities 进行排序
-          res.data.project_entities.sort(function (a, b) {
-            if (a.app_name === "通用版") {
-              return -1;
-            } else if (b.app_name === "通用版") {
-              return 1;
-            } else {
-              return 0;
-            }
-          });
-          for (var i = 0; i < res.data.project_entities.length; i++) {
-            const p = res.data.project_entities[i];
-                var obj = {
-                 name: p.name,                   // 项目名称
-                  id: p.id,
-                   app_name: p.app_name,
-                  code: p.code,                   // 项目 ID（代码）
-                  level: p.level,                 // 项目等级
-                  building_type: p.building_type, // 建筑类型
-                  building_area: p.building_area, // 建筑面积
-                  energy_level: p.energy_level,   // 节能水平
-                  customer_region: p.customer_region, // 省市区
-                  delivery_time: p.delivery_time, // 交付时间
-                };
-            that.data.homes.push(obj);
-          }
-          that.setData({
-            homes: that.data.homes,
-            index: 0,
-          });
-          that.setData({
-            showList: that.data.homes,
-            searchedList:that.data.homes,
-          });
-          console.log(that.data.showList);
-          first_homeid = that.data.homes[0].id;
-          first_homename = that.data.homes[0].name;
-
-          current_home = first_homename;
-          current_id = first_homeid;
-
-          that.setData({
-            showname: current_home,
-          });
-
-          wx.setStorageSync("selected_project_info", {
-                name:           that.data.showList[0].name,          // 项目名称
-                code:           that.data.showList[0].code,          // 项目 ID（代码）
-                level:          that.data.showList[0].level,         // 项目等级
-                building_type:  that.data.showList[0].building_type, // 建筑类型
-                building_area:  that.data.showList[0].building_area, // 建筑面积
-                energy_level:   that.data.showList[0].energy_level,  // 节能水平
-                customer_region:that.data.showList[0].customer_region,// 省市区
-                delivery_time:  that.data.showList[0].delivery_time  // 交付时间
-              });
-          wx.setStorageSync("selected_home", current_id);
-          wx.setStorageSync("selected_homename", current_home);
-
-          that.healthCheck();
-          that.getDataFromScreen();
-        },
-      });
-    } else if (
-      wx.getStorageSync("isAdmin") &&
-      !wx.getStorageSync("change_distributor") &&
-      !wx.getStorageSync("backfromhome1")
-    ) {
-      console.log("管理员切换房间");
-      api.distributor_id_projects({
-        method: "POST",
-        data: {
-          page_options: {
-            page: 1,
-            limit: 10000,
-          },
-          distributor_id: wx.getStorageSync("current_distributorid"),
-        },
-        header: {
-          "content-type": "application/json",
-          Authorization: wx.getStorageSync("access_token"),
-        },
-        success: function (res) {
-          wx.setStorageSync("haveProject", true);
-          that.healthCheck();
-          that.getDataFromScreen();
-        },
-      });
+      this.loadProjects();
     }
 
+    this.startStatusPolling();
+  },
 
+  startStatusPolling: function () {
+    const that = this;
     if (that.data.refreshInterval) {
-      // 如果已经有一个刷新定时器在运行，就不再设置新的定时器
       return;
     }
-
     that.data.refreshInterval = setInterval(function () {
-      console.log(app.globalData.isvisitor);
-      if (that.data.skipRefresh) {
+      if (
+        that.data.skipRefresh ||
+        wx.getStorageSync("haveProject") === false
+      ) {
         return;
       }
-      if (app.globalData.isvisitor&&!app.globalData.isdistributor_visitor) {
-        api.distributor_projects({
-          method: "POST",
-          data: {},
-          header: {
-            "content-type": "application/json",
-            Authorization: wx.getStorageSync("access_token"),
-          },
-          success: function (res) {
-            console.log(res);
-            if (getProjectEntities(res.data).length === 0) {
-              wx.showToast({
-                title: "无项目可查看",
-                icon: "none",
-              });
 
-              that.setData({
-                show_mode: "",
-                mode_icon: 1000,
-                deviceData: "",
-                home_mode: 1,
-                homes: [],
-                showList: [],
-                searchedList:[]
-              });
-
-              wx.setStorageSync("haveProject", false);
-            } else {
-              wx.setStorageSync("haveProject", true);
-
-              that.healthCheck();
-              that.getDataFromScreen();
-              console.log("88888");
-            }
-          },
-        });
-      }else if(app.globalData.isvisitor&&app.globalData.isdistributor_visitor){
-        api.visitor_projects({
-          method: "POST",
-          data: {},
-          header: {
-            "content-type": "application/json",
-            Authorization: wx.getStorageSync("access_token"),
-          },
-          success: function (res) {
-            console.log(res);
-            if (getProjectEntities(res.data).length === 0) {
-              wx.showToast({
-                title: "无项目可查看",
-                icon: "none",
-              });
-
-              that.setData({
-                show_mode: "",
-                mode_icon: 1000,
-                deviceData: "",
-                home_mode: 1,
-                homes: [],
-                showList: [],
-                searchedList:[]
-              });
-
-              wx.setStorageSync("haveProject", false);
-            } else {
-              wx.setStorageSync("haveProject", true);
-
-              that.healthCheck();
-              that.getDataFromScreen();
-              console.log("88888");
-            }
-          },
-        });
-      } else {
-        if (wx.getStorageSync("isAdmin")) {
-          console.log("1111");
-          api.distributor_id_projects({
-            method: "POST",
-            data: {
-              page_options: {
-                page: 1,
-                limit: 10000,
-              },
-              distributor_id: wx.getStorageSync("current_distributorid"),
-            },
-            header: {
-              "content-type": "application/json",
-              Authorization: wx.getStorageSync("access_token"),
-            },
-            success: function (res) {
-              wx.setStorageSync("haveProject", true);
-
-              that.healthCheck();
-              that.getDataFromScreen();
-            },
-          });
-        } else {
-          api.user_projects({
-            method: "POST",
-            data: {},
-            header: {
-              "content-type": "application/json",
-              Authorization: wx.getStorageSync("access_token"),
-            },
-            success: function (res) {
-              console.log("xxxxxxxxxxxxxxxxx");
-              console.log(res);
-              if (getProjectEntities(res.data).length === 0) {
-                wx.showToast({
-                  title: "无项目可查看",
-                  icon: "none",
-                });
-                that.setData({
-                  show_mode: "",
-                  mode_icon: 1000,
-                  deviceData: "",
-                  home_mode: 1,
-                  homes: [],
-                  showList: [],
-                  searchedList:[],
-                });
-                wx.setStorageSync("haveProject", false);
-              } else {
-                wx.setStorageSync("haveProject", true);
-                that.healthCheck();
-                that.getDataFromScreen();
-                console.log("00000");
-              }
-            },
-          });
-        }
-      }
+      that.healthCheck();
+      that.getDataFromScreen();
     }, 5000);
-    // that.setData({
-    //   interval: interval,
-    // });
+  },
+
+  scheduleStatusRefresh: function (delay = 5000) {
+    clearTimeout(this._statusRefreshTimer);
+    this._statusRefreshTimer = setTimeout(() => {
+      this._statusRefreshTimer = null;
+      if (!this._pageVisible) {
+        return;
+      }
+      this.healthCheck();
+      this.getDataFromScreen();
+      this.startStatusPolling();
+    }, delay);
+  },
+
+  clearStatusRefreshTimer: function () {
+    clearTimeout(this._statusRefreshTimer);
+    this._statusRefreshTimer = null;
   },
 
   /**
@@ -1096,16 +374,18 @@ Page({
    * 生命周期函数--监听页面隐藏
    */
   onHide: function () {
-    var that = this;
-    that.clearTimeInterval();
+    this._pageVisible = false;
+    this.clearTimeInterval();
+    this.clearStatusRefreshTimer();
   },
 
   /**
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
-    var that = this;
-    that.clearTimeInterval();
+    this._pageVisible = false;
+    this.clearTimeInterval();
+    this.clearStatusRefreshTimer();
   },
 
   /**

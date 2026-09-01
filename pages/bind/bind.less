@@ -1,219 +1,412 @@
-.main_container {
-    position: relative; /* 给予main_container相对定位 */
-    height: 100vh; /* 这可以确保整个容器占据整个屏幕 */
+page {
+  min-height: 100%;
+  background: #f4f8f6;
+  color: #16231d;
 }
 
-.upper_container {
-    height: 50vh; 
-    background-color: #68DD89;
+.bind-page {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding: 64rpx 32rpx calc(48rpx + env(safe-area-inset-bottom));
+  background: linear-gradient(160deg, #e9f8f1 0%, #f7faf8 46%, #f4f7f5 100%);
 }
 
-.margin-lg.bg-white.padding-xl.radius.shadow-lg {
-    position: absolute;
-    height: 50vh; 
-    border-radius: 20rpx;
-    bottom: 2vh; 
-    left: 3%; 
-    right: 3%; 
-    display: flex; 
-    flex-direction: column;  
-    justify-content: flex-start; /* 将子元素向上推 */
-    align-items: center; 
-    padding-top: 100rpx; /* 上部空间留出一些 */
-    padding-bottom: 100rpx; /* 下部空间留出一些 */
+.ambient {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(4rpx);
 }
 
-.input-container {
-    position: relative;
-    width: 480rpx;
-    background-color: #ffffff;
-    margin-bottom: 30rpx;
+.ambient-left {
+  top: -180rpx;
+  left: -220rpx;
+  width: 520rpx;
+  height: 520rpx;
+  background: rgba(70, 211, 151, 0.19);
 }
 
-.icon {
-    position: absolute;
-    left: 30rpx; /* Adjust based on your icon size and preference */
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 3;
-    font-size:50rpx;
+.ambient-right {
+  top: 190rpx;
+  right: -250rpx;
+  width: 480rpx;
+  height: 480rpx;
+  background: rgba(133, 223, 185, 0.14);
 }
 
-.input-field {
-    width: 100%;
-    border: 2rpx solid gray;
-    padding: 20rpx 30rpx 20rpx 80rpx; /* Adjust left padding based on icon's width and your preference */
-    border-radius: 8rpx;
-    font-size: 36rpx;
-    background: transparent;
-    outline: none;
-    height: 120rpx; 
-    z-index: 1;
+.hero-section {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 6rpx;
+  text-align: center;
 }
 
-.label {
-    position: absolute;
-    left: 80rpx;
-    top: 20rpx;  
-    transition: all 0.2s ease, font-size 0.2s ease, color 0.2s ease;
-    color: ffffff;
-    pointer-events: none;
-    z-index: 2;
-    background-color: #ffffff;
-    padding-left: 10rpx;
-    padding-right: 10rpx;
+.brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 184rpx;
+  height: 184rpx;
+  margin-bottom: 18rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.82);
+  border-radius: 56rpx;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 20rpx 50rpx rgba(85, 194, 187, 0.12);
 }
 
-.input-container:before {
-    content: '';
-    position: absolute;
-    top: 2rpx;
-    left: 24rpx; 
-    width: 12rpx;
-    height: 2rpx;
-    background-color: #f7f7f7;
-    z-index: 0;
+.brand-animation {
+  width: 160rpx;
+  height: 160rpx;
 }
 
-.textbox {
-    font-size: 36rpx; 
-    margin-top: 20rpx; 
-    margin-bottom: 30rpx;
-    line-height: 68rpx;
-    color: #666; 
-    width: 480rpx; 
-    text-align: left; 
+.hero-kicker {
+  margin-bottom: 10rpx;
+  color: #55c2bb;
+  font-size: 22rpx;
+  font-weight: 600;
+  letter-spacing: 6rpx;
 }
 
-.custom-button {
-    display: flex; 
-    justify-content: space-between;  
-    align-items: center; 
-    padding: 30rpx 40rpx;  /* 增大了内边距来增加按钮的高度 */
-    background-color: #68DD89;
-    border-radius: 16rpx;  
-    width: 480rpx;  
-    margin-top: auto; 
-    height: 120rpx; /* 设定一个固定的高度 */
+.hero-title {
+  color: #152a21;
+  font-size: 46rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  line-height: 1.35;
 }
 
-.btn-text {
-    color: #FFFFFF;  
-    font-size: 36rpx;  /* 设置了与.textbox相同的字体大小 */
-    margin-right: 0;
+.hero-subtitle {
+  margin-top: 12rpx;
+  color: #718079;
+  font-size: 27rpx;
+  line-height: 1.6;
 }
 
-.btn-arrow {
-    color: #FFFFFF; 
-    font-size: 44rpx;  /* 稍微增大了箭头大小 */
-    margin-left: auto;
-    font-weight: bold; 
-    animation: moveRight 1s infinite;
+.bind-card {
+  position: relative;
+  z-index: 2;
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 42rpx;
+  padding: 42rpx 36rpx 34rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.9);
+  border-radius: 36rpx;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24rpx 70rpx rgba(28, 73, 54, 0.1);
+}
+
+.section-label {
+  margin-bottom: 16rpx;
+  color: #31473e;
+  font-size: 27rpx;
+  font-weight: 600;
+}
+
+.phone-field {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 108rpx;
+  overflow: hidden;
+  border: 2rpx solid #dce7e1;
+  border-radius: 22rpx;
+  background: #f8fbf9;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.field-active {
+  border-color: #55c2bb;
+  background: #ffffff;
+  box-shadow: 0 0 0 7rpx rgba(85, 194, 187, 0.09);
+}
+
+.field-error {
+  border-color: #e76868;
+  background: #fffafa;
+  box-shadow: 0 0 0 7rpx rgba(231, 104, 104, 0.08);
+}
+
+.phone-prefix {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  height: 48rpx;
+  padding: 0 24rpx;
+  border-right: 1rpx solid #dce5e0;
+}
+
+.phone-icon {
+  margin-right: 10rpx;
+  color: #55c2bb;
+  font-size: 32rpx;
+}
+
+.country-code {
+  color: #42564d;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.phone-input {
+  box-sizing: border-box;
+  flex: 1;
+  height: 108rpx;
+  padding: 0 24rpx;
+  color: #15271f;
+  font-size: 32rpx;
+  font-weight: 500;
+}
+
+.phone-placeholder {
+  color: #a3afa9;
+  font-weight: 400;
+}
+
+.field-message {
+  min-height: 34rpx;
+  margin: 13rpx 4rpx 28rpx;
+  color: #8a9891;
+  font-size: 23rpx;
+  line-height: 1.5;
+}
+
+.error-message {
+  color: #dc5b5b;
+}
+
+.guest-group {
+  display: block;
+}
+
+.guest-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  min-height: 108rpx;
+  padding: 22rpx 22rpx 22rpx 26rpx;
+  border: 1rpx solid #e3ebe7;
+  border-radius: 20rpx;
+  background: #f8faf9;
+}
+
+.guest-copy {
+  flex: 1;
+  min-width: 0;
+  padding-right: 20rpx;
+}
+
+.guest-title {
+  color: #293d34;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.guest-description {
+  margin-top: 7rpx;
+  color: #8a9891;
+  font-size: 22rpx;
+  line-height: 1.4;
+}
+
+.guest-checkbox,
+.agreement-checkbox {
+  flex-shrink: 0;
+  transform: scale(0.82);
+}
+
+.next-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 104rpx;
+  margin-top: 34rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(135deg, #55c2bb 0%, #55c2bb 100%);
+  box-shadow: 0 16rpx 30rpx rgba(85, 194, 187, 0.23);
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.next-button-pressed {
+  opacity: 0.88;
+  transform: scale(0.985);
+}
+
+.button-arrow {
+  margin-left: 16rpx;
+  font-size: 48rpx;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.security-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 25rpx;
+  color: #96a29c;
+  font-size: 21rpx;
+}
+
+.security-icon {
+  margin-right: 8rpx;
+  color: #78a18f;
+  font-size: 23rpx;
+}
+
+.drawer-mask {
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  visibility: hidden;
+  background: rgba(14, 29, 23, 0.48);
+  opacity: 0;
+  transition: opacity 0.28s, visibility 0.28s;
+}
+
+.drawer-mask-visible {
+  visibility: visible;
+  opacity: 1;
 }
 
 .drawer-container {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: #ffffff;
-    transition: bottom 0.3s;
-    z-index: 1000;
-    border-radius: 20rpx;
-    border-top: 2rpx solid #d1d1d1; /* 浅灰色上边框 */
-    box-shadow: 0 -4rpx 10rpx rgba(0, 0, 0, 0.1); /* 向上的阴影效果 */
+  position: fixed;
+  z-index: 1001;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  box-sizing: border-box;
+  padding-bottom: env(safe-area-inset-bottom);
+  border-radius: 38rpx 38rpx 0 0;
+  background: #ffffff;
+  box-shadow: 0 -24rpx 70rpx rgba(15, 46, 33, 0.18);
+  transform: translateY(105%);
+  transition: transform 0.3s ease-out;
+}
+
+.drawer-visible {
+  transform: translateY(0);
+}
+
+.drawer-handle {
+  width: 78rpx;
+  height: 8rpx;
+  margin: 18rpx auto 4rpx;
+  border-radius: 8rpx;
+  background: #dce4e0;
 }
 
 .drawer-content {
-    padding: 40rpx;
-    // box-shadow: 0px -2px 8px rgba(0, 0, 0, 0.1);
-    border-top-left-radius: 100rpx;
-    border-top-right-radius: 100rpx;
+  padding: 32rpx 36rpx 38rpx;
 }
 
-.drawer-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 40rpx;
-    margin-bottom: 40rpx;
-}
-
-.cancel-btn, .confirm-btn {
-    padding: 20rpx 50rpx;  /* Adjusting button width */
-    margin: 0 60rpx;     /* Adjusting button distance from the sides */
-    border: 2rpx solid #E6E6E6;
-    border-radius: 10rpx;
-}
-
-.cancel-btn {
-    background-color: #cccccc;
-}
-
-.confirm-btn {
-    background-color: #68DD89;
-    color: #ffffff;
+.drawer-badge {
+  display: inline-flex;
+  padding: 8rpx 18rpx;
+  border-radius: 20rpx;
+  background: #e9f8f1;
+  color: #55c2bb;
+  font-size: 22rpx;
+  font-weight: 600;
 }
 
 .welcome-text {
-    font-size: 44rpx;  /* 根据需要调整大小 */
-    font-weight: bold;
-    margin-bottom: 50rpx;
+  margin-top: 18rpx;
+  color: #172a21;
+  font-size: 40rpx;
+  font-weight: 700;
 }
 
 .user-notice {
-    font-size: 36rpx;
-    margin-bottom: 40rpx;
+  margin-top: 18rpx;
+  color: #718078;
+  font-size: 27rpx;
+  line-height: 1.75;
+}
+
+.agreement-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 94rpx;
+  margin-top: 30rpx;
+  padding: 18rpx 20rpx;
+  border: 1rpx solid #e1eae5;
+  border-radius: 18rpx;
+  background: #f7faf8;
+  color: #52625a;
+  font-size: 25rpx;
+}
+
+.agreement-group,
+.agreement-label {
+  display: flex;
+  align-items: center;
 }
 
 .agreement-checkbox {
-    margin-right: 20rpx;
-    vertical-align: middle;
+  margin-right: 4rpx;
 }
 
-// .privacy {
-//     font-size: 14px;
-//     color: #007BFF;
-//     margin-bottom: 20px;
-// }
-
-.checkbox-container {
-    display: flex;
-    align-items: center;  // 确保所有子元素在垂直方向上居中对齐
-    margin-bottom: 40rpx;
-    
+.privacy-link {
+  padding: 8rpx 0;
+  color: #55c2bb;
+  font-weight: 600;
 }
 
-.round {
-    border-radius: 0 !important; /* 将圆角设为0，使其成为方形 */
-    vertical-align: middle; /* 使checkbox与旁边的文本垂直对齐 */
+.privacy-link-pressed {
+  opacity: 0.65;
 }
 
-// .checkbox-label {
-//     display: flex;
-//     align-items: center;  // 确保复选框与文本垂直对齐
-// }
-
-.guest-checkbox {
-    margin-right: 20rpx;  // 复选框与文本之间的间隔
+.drawer-buttons {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 34rpx;
 }
 
-.left-align {
-    align-items: flex-start;  // 使内容靠左对齐
-    width: 100%;  // 确保容器宽度适应父容器
-    margin-left: 50rpx;
+.drawer-button {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  height: 96rpx;
+  border-radius: 22rpx;
+  font-size: 29rpx;
+  font-weight: 600;
+  transition: opacity 0.15s, transform 0.15s;
 }
 
-
-
-
-
-@keyframes moveRight {
-    0%, 100% {
-        transform: translateX(0);
-    }
-    50% {
-        transform: translateX(20rpx);
-    }
+.cancel-btn {
+  border: 1rpx solid #dfe7e3;
+  background: #f5f8f6;
+  color: #617068;
 }
 
+.confirm-btn {
+  background: linear-gradient(135deg, #55c2bb 0%, #55c2bb 100%);
+  box-shadow: 0 12rpx 25rpx rgba(85, 194, 187, 0.2);
+  color: #ffffff;
+}
 
+.confirm-disabled {
+  box-shadow: none;
+  opacity: 0.48;
+}
+
+.drawer-button-pressed {
+  opacity: 0.82;
+  transform: scale(0.985);
+}

@@ -11,8 +11,6 @@ Page({
     checkedServiceContent: [],
     completionDescription: '',
     fileList: [],
-    // 服务类别 id->name 的映射
-    categoriesMap: new Map(),
     // 评价相关数据
     rating: 5,
     review: '',
@@ -114,7 +112,8 @@ Page({
                 reviewTime = latestReviewLog.date || '未知';
                 reviewComments = latestReviewLog.desc || '无';
               }
-              timelineSteps = logs.map(log => ({
+              timelineSteps = logs.map((log, index) => ({
+                key: `${log.date || "unknown"}-${index}`,
                 text: `${log.operator} ${log.operation}`, date: log.date, desc: log.desc || ''
               }));
             }

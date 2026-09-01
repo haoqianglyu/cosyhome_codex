@@ -1,149 +1,16 @@
-/* pages/membership/membership.wxss */
-
-/* Page Container */
-.page-container {
-  height: 100vh;
-  width: 100vw;
-  padding: 30rpx;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  background-color: #f5f5f5;
-}
-
-
-/* Member Count Section */
-.member-count-section {
-  background: #ffffff;
-  border: 1rpx solid #e8e8e8;
-  border-radius: 20rpx;
-  padding: 40rpx;
-  margin-bottom: 40rpx;
-  text-align: left;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
-}
-
-.member-count {
-  font-size: 48rpx;
-  font-weight: bold;
-  color: #333333;
-  margin-bottom: 10rpx;
-}
-
-.member-count-label {
-  font-size: 28rpx;
-  color: #666666;
-}
-
-/* Member List Container (Scrollable) */
-.member-list-container {
-  flex: 1;
-  height: 0; /* 关键：强制flex子元素计算高度 */
-  margin-bottom: 20rpx;
-}
-
-/* --- MODIFIED & FINAL STYLES START --- */
-
-/* Member List */
-.member-list {
-  padding-bottom: 20rpx;
-  /* 使用 Flexbox 和 gap 属性来创建间距 */
-  display: flex;
-  flex-direction: column;
-  gap: 30rpx;
-}
-
-/* Swipe Cell Styles */
-.member-swipe-cell {
-  border-radius: 16rpx;
-  overflow: hidden;
-}
-
-/* 移除了之前尝试的 margin 方案 */
-
-.delete-button {
-  width: 80px;
-  height: 100%;
-  background-color: #ff3b30;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  font-size: 32rpx;
-}
-
-.delete-button:active {
-  background-color: #d93025;
-}
-
-.member-item {
-  background: #ffffff;
-  border: 1rpx solid #e8e8e8;
-  border-radius: 16rpx;
-  padding: 30rpx;
-  margin-bottom: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-/* --- MODIFIED & FINAL STYLES END --- */
-
-.member-item:hover {
-  transform: translateY(-2rpx);
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
-}
-
-.member-info {
-  flex: 1;
-}
-
-.member-name {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #333333;
-  margin-bottom: 8rpx;
-}
-
-.member-phone {
-  font-size: 26rpx;
-  color: #666666;
-}
-
-
-/* Add Member Section */
-.add-member-section {
-  flex-shrink: 0;
-  padding: 20rpx 0 40rpx;
-  position: sticky;
-  bottom: 0;
-  background-color: #f5f5f5;
-}
-
-.add-member-btn {
-  width: 100%;
-  height: 88rpx;
-  background: linear-gradient(135deg, #1989fa 0%, #0066cc 100%);
-  border: none;
-  border-radius: 44rpx;
-  color: #ffffff;
-  font-size: 32rpx;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8rpx 24rpx rgba(25, 137, 250, 0.4);
-  transition: all 0.3s ease;
-}
-
-.add-member-btn:active {
-  transform: scale(0.98);
-  box-shadow: 0 4rpx 12rpx rgba(25, 137, 250, 0.3);
-}
-
-.add-member-btn::after {
-  border: none;
-}
+page { height: 100%; background: linear-gradient(180deg,#f7fbf9,#eef5f3); }
+.page-container { display: flex; box-sizing: border-box; width: 100vw; height: 100vh; flex-direction: column; padding: 28rpx; background: transparent; }
+.member-count-section { position: relative; flex-shrink: 0; margin-bottom: 24rpx; padding: 30rpx; overflow: hidden; border: 0; border-radius: 28rpx; color: #fff; background: linear-gradient(135deg,#55c2bb,#55c2bb 58%,#55c2bb); box-shadow: 0 15rpx 34rpx rgba(24,128,106,.2); }
+.member-count-section::after { content: ""; position: absolute; top: -80rpx; right: -40rpx; width: 220rpx; height: 220rpx; border: 1rpx solid rgba(255,255,255,.17); border-radius: 50%; box-shadow: 0 0 0 38rpx rgba(255,255,255,.04); }
+.member-count { position: relative; font-size: 47rpx; font-weight: 680; }
+.member-count-label { position: relative; margin-top: 7rpx; color: rgba(255,255,255,.7); font-size: 22rpx; }
+.member-list-container { flex: 1; height: 0; margin-bottom: 18rpx; }
+.member-list { display: flex; flex-direction: column; gap: 16rpx; padding-bottom: 18rpx; }
+.member-swipe-cell { overflow: hidden; border-radius: 23rpx; }
+.delete-button { display: flex; width: 80px; height: 100%; align-items: center; justify-content: center; color: #fff; background: #dc6868; font-size: 28rpx; }
+.member-item { display: flex; min-height: 104rpx; align-items: center; justify-content: space-between; margin: 0; padding: 22rpx 25rpx; border: 1rpx solid var(--ui-border); border-radius: 23rpx; background: #fff; box-shadow: var(--ui-shadow-soft); }
+.member-info { flex: 1; }
+.member-name { color: var(--ui-text); font-size: 29rpx; font-weight: 630; }
+.member-phone { margin-top: 7rpx; color: var(--ui-text-muted); font-size: 22rpx; }
+.add-member-section { position: sticky; bottom: 0; flex-shrink: 0; padding: 16rpx 0 calc(18rpx + env(safe-area-inset-bottom)); background: transparent; }
+.add-member-btn { display: flex; width: 100%; height: 86rpx; align-items: center; justify-content: center; border-radius: 43rpx; color: #fff; background: linear-gradient(135deg,#55c2bb,#55c2bb); box-shadow: 0 11rpx 24rpx rgba(85,194,187,.22); font-size: 29rpx; font-weight: 600; }

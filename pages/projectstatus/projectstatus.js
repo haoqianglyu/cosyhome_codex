@@ -353,8 +353,9 @@ Page({
     }
 
     if (warn.date !== undefined && warn.date !== null) {
-      const date = new Date(Number(warn.date));
-      if (!Number.isNaN(date.getTime())) {
+      const timestamp = this.getWarningTimestamp(warn);
+      const date = new Date(timestamp);
+      if (timestamp !== null && !Number.isNaN(date.getTime())) {
         const pad = (value) => (value < 10 ? "0" + value : String(value));
         return (
           date.getFullYear() +

@@ -2,7 +2,7 @@
 import * as echarts from "../../ec-canvas/echarts";
 import {
   controlDataArray,
-  controlMessageBody,
+  legacyControlMessageBody,
 } from "../../utils/controlMessage.js";
 var app = getApp();
 let barChart1 = null;
@@ -64,7 +64,7 @@ Page({
   /** 获取并渲染建筑能效数据。 */
   async requestData() {
     try {
-      const body = await controlMessageBody({
+      const body = await legacyControlMessageBody({
         messageType: 19,
         body: {
           requestId: this.data.requestId,
@@ -204,27 +204,23 @@ Page({
       wx.showNavigationBarLoading();
       barChart1.showLoading({ text: "正在加载数据" });
 
-      setTimeout(() => {
-        barChart1.setOption(that.getBarOption1(chartData));
-        barChart1.hideLoading();
-        wx.hideNavigationBarLoading();
+      barChart1.setOption(that.getBarOption1(chartData));
+      barChart1.hideLoading();
+      wx.hideNavigationBarLoading();
 
-        // 1) 图表加载完后，默认显示第一条曲线总和
-        let allSeries = barChart1.getOption().series;
-        if (allSeries && allSeries.length > 0) {
-          let defaultDataArr = allSeries[0].data || [];
-          let defaultSum = 0;
-          defaultDataArr.forEach((val) => {
-            if (typeof val === "number") {
-              defaultSum += val;
-            }
-          });
-          defaultSum = parseFloat(defaultSum.toFixed(2));
-          that.setData({
-            selectedSeriesSum: defaultSum,
-          });
-        }
-      }, 1200);
+      // 图表加载完后，默认显示第一条曲线总和
+      let allSeries = barChart1.getOption().series;
+      if (allSeries && allSeries.length > 0) {
+        let defaultDataArr = allSeries[0].data || [];
+        let defaultSum = 0;
+        defaultDataArr.forEach((val) => {
+          if (typeof val === "number") {
+            defaultSum += val;
+          }
+        });
+        defaultSum = parseFloat(defaultSum.toFixed(2));
+        that.setData({ selectedSeriesSum: defaultSum });
+      }
 
       // 2) 监听图例点击 => 更新总和
       barChart1.on("legendselectchanged", (e) => {
@@ -294,12 +290,12 @@ Page({
         icon: "none",
         itemWidth: 5,
         itemGap: 6,
-        inactiveColor: "#74CEAE",
+        inactiveColor: "#55c2bb",
         textStyle: {
           color: "black",
           fontSize: this.data.windowWidth / 35,
           backgroundColor: "transparent",
-          borderColor: "#74CEAE",
+          borderColor: "#55c2bb",
           borderWidth: 1,
           borderRadius: 8,
           padding: 6,
@@ -327,6 +323,13 @@ Page({
       series: chartData.seriesData,
     };
     return option;
+  },
+
+  onUnload: function () {
+    if (barChart1) {
+      barChart1.dispose();
+      barChart1 = null;
+    }
   },
 
   onShareAppMessage: function () {

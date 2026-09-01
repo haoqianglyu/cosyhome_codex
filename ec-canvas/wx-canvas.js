@@ -18,6 +18,9 @@ export default class WxCanvas {
   // 新增空函数，修复调用 echarts.init 时报错
   addEventListener() {}
 
+  // ECharts 销毁实例时会解绑 DOM 事件，小程序 Canvas 无需实际处理。
+  removeEventListener() {}
+
   getContext(contextType) {
     if (contextType === '2d') {
       return this.ctx;

@@ -1,45 +1,67 @@
-<view class="panel">
-    <view class='select_box'>
-        <view class='select' catchtap='selectTap'>
-          <text class='select_text'>{{floors[index]}}</text>
-          <image class='select_img {{show&&"select_img_rotate"}}' src='/icons/gobottom.png'></image>   
-        </view>
-        
-        <view class='option_box' style='height:{{show?(floors.length>5?300:floors.length*60):0}}rpx;'>
-            <view class='option' style='{{index==floors.length-1&&"border:0;"}}' wx:for='{{floors}}' wx:key='this' data-index='{{index}}' catchtap='optionTap'>{{item}}</view>
-        </view>
+<view class="rooms-page">
+  <view style="height: {{statusBarHeight}}px;"></view>
+  <view class="custom-nav-bar">
+    <view class="nav-title">{{projectName}}</view>
+  </view>
+
+  <view class="floor-header">
+    <view class="floor-name">楼层</view>
+    <view wx:if="{{floors.length > 3}}" class="floor-toggle" aria-role="button" aria-label="{{show ? '收起楼层' : '展开全部楼层'}}" catchtap="selectTap">
+      <text>{{show ? '收起' : '展开全部'}}</text>
+      <text class="floor-toggle-arrow {{show ? 'floor-toggle-arrow--open' : ''}}">›</text>
     </view>
+    <view wx:else class="current-floor-name">当前：{{floors[index] || '--'}}</view>
+  </view>
 
+  <view class="floor-dropdown {{show ? 'floor-dropdown--open' : ''}}" wx:if="{{floors.length}}">
+    <view
+      class="floor-chip {{index === floorIndex ? 'floor-chip--active' : ''}} {{floors.length > 3 && !show && index !== floorIndex ? 'floor-chip--hidden' : ''}}"
+      aria-role="button"
+      aria-label="切换到{{item}}"
+      wx:for="{{floors}}"
+      wx:key="*this"
+      wx:for-index="floorIndex"
+      data-index="{{floorIndex}}"
+      catchtap="optionTap"
+    >{{item}}</view>
+  </view>
 
-    <view class='nav-list margin-top'>
-    <navigator open-type="navigate" hover-class='none' url="/pages/roomdetail/roomdetail?roomID={{item.id}}&roomName={{item.roomName}}" class="nav-li" wx:for="{{content}}" wx:key="index" style='background-image: url(https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/bg_{{item.panelState===0?"0":"1"}}.png);'>
-      
-        <view class="room_name">
-            <view class="room_name_info">
-                {{item.roomName}}
-            </view>
+  <view wx:if="{{content.length}}" class="room-list">
+    <navigator
+      open-type="navigate"
+      hover-class="none"
+      url="/pages/roomdetail/roomdetail?roomID={{item.id}}&roomName={{item.roomName}}"
+      class="room-card {{item.panelState === 0 ? 'room-card--off' : 'room-card--on'}}"
+      wx:for="{{content}}"
+      wx:key="id"
+    >
+      <view class="room-card-name">{{item.roomName}}</view>
+      <view class="room-card-data">
+        <view class="room-data-col">
+          <view class="room-data-row">
+            <text class="room-data-label">温度状态</text>
+            <text class="room-data-value room-data-value--status">{{item.valveState === 0 ? '关' : '开'}}</text>
+          </view>
+          <view class="room-data-row">
+            <text class="room-data-label">露点温度</text>
+            <text class="room-data-value">{{item.roomDewTemp !== '' && item.roomDewTemp !== null && item.roomDewTemp !== undefined ? item.roomDewTemp : '--'}}℃</text>
+          </view>
         </view>
-
-        <view class="room_key">
-            <view class="temperature_key" style="line-height:{{!item.roomTemp && !item.roomDewTemp ? 120 : (item.roomTemp && !item.roomDewTemp ? 70 : 45)}}rpx">温度状态:</view>
-            <view class="humidity_key" wx:if="{{item.roomTemp}}" style="line-height:{{item.roomDewTemp?45:70}}rpx">实测温度:</view>
-            <view class="CO2_key" wx:if="{{item.roomDewTemp !== '' && item.roomDewTemp !== null && item.roomDewTemp !== undefined}}" >露点温度:</view>
-            <view class="PM2_5_key" wx:if="{{item.roomHumidity}}">相对湿度:</view>
+        <view class="room-data-col">
+          <view class="room-data-row">
+            <text class="room-data-label">实测温度</text>
+            <text class="room-data-value">{{item.roomTemp !== '' && item.roomTemp !== null && item.roomTemp !== undefined ? item.roomTemp : '--'}}℃</text>
+          </view>
+          <view class="room-data-row">
+            <text class="room-data-label">相对湿度</text>
+            <text class="room-data-value">{{item.roomHumidity !== '' && item.roomHumidity !== null && item.roomHumidity !== undefined ? item.roomHumidity : '--'}}%</text>
+          </view>
         </view>
-
-        <view class="room_value">
-            <view class="temperature_key" style="line-height:{{!item.roomTemp && !item.roomDewTemp ? 120 : (item.roomTemp && !item.roomDewTemp ? 70 : 45)}}rpx">{{item.valveState===0?"关":"开"}}</view>
-            <view class="humidity_value" wx:if="{{item.roomTemp}}" style="line-height:{{item.roomDewTemp?45:70}}rpx">{{item.roomTemp}}℃</view>
-            <view class="CO2_value" wx:if="{{item.roomDewTemp !== '' && item.roomDewTemp !== null && item.roomDewTemp !== undefined}}">{{item.roomDewTemp}}℃</view>
-            <view class="PM2_5_value" wx:if="{{item.roomHumidity}}">{{item.roomHumidity}}%</view>    
-        </view>
-        
+      </view>
     </navigator>
-</view>
-      
-      
+  </view>
 
-    
-      
+  <view wx:else class="empty-state">
+    <view class="empty-title">当前楼层暂无房间</view>
+  </view>
 </view>
-  

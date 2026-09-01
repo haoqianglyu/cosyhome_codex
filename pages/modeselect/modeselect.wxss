@@ -1,24 +1,115 @@
-.button_container {
+page {
+  min-height: 100vh;
+  background-image: url("https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/senjia_modebg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.custom-nav-bar {
   display: flex;
-  margin-top: 50%;
+  align-items: center;
+  justify-content: space-between;
+  height: 88rpx;
+  padding: 0 30rpx;
+}
+
+.nav-back {
+  display: flex;
+  align-items: center;
+  width: 120rpx;
+  color: #333;
+  font-size: 32rpx;
+}
+
+.nav-back-icon {
+  margin-right: 4rpx;
+  font-size: 36rpx;
+}
+
+.nav-title {
+  flex: 1;
+  color: #111;
+  font-size: 32rpx;
+  font-weight: 500;
+  text-align: center;
+}
+
+.nav-placeholder {
+  width: 120rpx;
+}
+
+.button-container {
+  display: flex;
   flex-wrap: wrap;
-  flex-direction: row;
-  justify-content: space-around;
+  justify-content: space-between;
+  margin-top: 200rpx;
+  padding: 0 60rpx;
 }
-.button_container .button_group.normal_button {
-  margin: 20rpx;
-  width: 36%;
-  border: 2px solid grey;
+
+.mode-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46%;
+  height: 110rpx;
+  margin: 0 0 40rpx;
+  padding: 0 34rpx;
+  border-radius: 60rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  line-height: normal;
+  transition: all 0.2s ease;
 }
-.button_container .button_group.checked_button {
-  background: grey;
-  color: white;
-  margin: 20rpx;
-  width: 36%;
+
+.mode-button::after {
+  border: none;
 }
-/* 修改.last_button的宽度为86% */
-.button_container .button_group.last_button {
-  margin: 20rpx;
-  width: 86%;
-  border: 2px solid grey;
+
+.mode-button--normal {
+  color: #333;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 10rpx 30rpx rgba(85, 194, 187, 0.06);
+}
+
+.mode-button--checked {
+  color: #fff;
+  background: #55c2bb;
+  box-shadow: 0 8rpx 24rpx rgba(85, 194, 187, 0.3);
+}
+
+.mode-button--wide {
+  width: 100%;
+}
+
+.mode-icon {
+  margin-right: 12rpx;
+  flex-shrink: 0;
+  font-size: 36rpx;
+  font-weight: 400;
+}
+
+.mode-text {
+  max-width: 190rpx;
+  overflow: hidden;
+  font-size: 30rpx;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mode-button--wide .mode-text {
+  max-width: 470rpx;
+}
+
+.mode-empty {
+  margin: 220rpx 60rpx 0;
+  padding: 34rpx;
+  border-radius: 28rpx;
+  color: #75817e;
+  background: rgba(255, 255, 255, 0.72);
+  font-size: 28rpx;
+  text-align: center;
 }

@@ -8,6 +8,7 @@
     "pages/privacy/privacy",
     "pages/roomstats2/roomstats2",
     "pages/modeselect/modeselect",
+    "pages/fantest/fantest",
     "pages/bind/bind",
     "pages/distributor/distributor",
     "pages/roomdetail/roomdetail",
@@ -104,39 +105,39 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#f7f7f7",
+    "navigationBarBackgroundColor": "#f7fbf9",
     "navigationBarTitleText": "HC健康舒适家",
     "navigationBarTextStyle": "black"
   },
   "tabBar": {
     "custom": true,
     "color": "#aaaaaa",
-    "selectedColor": "#1F1F1F",
-    "backgroundColor": "#e6e6e6",
+    "selectedColor": "#0d7266",
+    "backgroundColor": "#ffffff",
     "list": [
       {
         "pagePath": "pages/home/home",
         "text": "我的家",
-        "iconPath": "icons/jia.png",
-        "selectedIconPath": "icons/jia-2.png"
+        "iconPath": "icons/home-unselected.png",
+        "selectedIconPath": "icons/home-selected.png"
       },
       {
         "pagePath": "pages/rooms/rooms",
         "text": "房间",
-        "iconPath": "icons/fangjian.png",
-        "selectedIconPath": "icons/fangjian-2.png"
+        "iconPath": "icons/room-unselected.png",
+        "selectedIconPath": "icons/room-selected.png"
       },
       {
         "pagePath": "pages/user/user",
         "text": "个人中心",
-        "iconPath": "icons/gerenfill.png",
-        "selectedIconPath": "icons/gerenfill-2.png"
+        "iconPath": "icons/user-unselected.png",
+        "selectedIconPath": "icons/user-selected.png"
       },
       {
         "pagePath": "pages/home2/home2",
         "text": "我的家",
-        "iconPath": "icons/jia.png",
-        "selectedIconPath": "icons/jia-2.png"
+        "iconPath": "icons/home-unselected.png",
+        "selectedIconPath": "icons/home-selected.png"
       },
       {
         "pagePath": "pages/envir/envir",
@@ -145,11 +146,6 @@
         "selectedIconPath": "icons/huanjingjiance-2.png"
       }
     ]
-  },
-  "permission": {
-    "scope.userLocation": {
-      "desc": "你的位置信息将用于小程序位置接口的效果展示"
-    }
   },
   "usingComponents": {
     "iconfont": "/iconfont/iconfont"

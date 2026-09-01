@@ -28,16 +28,16 @@
     </view>
   </view>
     
-  
+
     <!-- Tab切换：每天 / 节假日 / 工作日 / 单次 -->
     <view class="tabs">
-        <view class="{{currentTab == 1 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="1">每天</view>
-        <view class="{{currentTab == 2 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="2">节假日</view>
-        <view class="{{currentTab == 3 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="3">工作日</view>
-        <view class="{{currentTab == 4 ? 'tab-active' : 'tab'}}" bindtap="switchTab" data-id="4">单次</view>
+        <view class="{{currentTab == 1 ? 'tab-active' : 'tab'}}" aria-role="button" aria-label="每天" bindtap="switchTab" data-id="1">每天</view>
+        <view class="{{currentTab == 2 ? 'tab-active' : 'tab'}}" aria-role="button" aria-label="节假日" bindtap="switchTab" data-id="2">节假日</view>
+        <view class="{{currentTab == 3 ? 'tab-active' : 'tab'}}" aria-role="button" aria-label="工作日" bindtap="switchTab" data-id="3">工作日</view>
+        <view class="{{currentTab == 4 ? 'tab-active' : 'tab'}}" aria-role="button" aria-label="单次" bindtap="switchTab" data-id="4">单次</view>
       </view>
       
-  
+
    <!-- 对应tab的内容区域 -->
 <view class="tab-content">
     <!-- 每天 -->
@@ -88,7 +88,7 @@
         其余时间段(含工作日)均为 {{mode === 'away' ? '在家' : '离家'}}
       </view>
   </view>
-  
+
     <!-- 工作日 -->
     <view wx:if="{{currentTab == 3}}" class="time-picker-blocks">
       <view class="cu-form-group">
@@ -143,8 +143,7 @@
   
     <!-- 底部按钮 -->
     <view class="buttons">
-      <view class="cancel-btn" bindtap="cancel">取消</view>
-      <view class="confirm-btn" bindtap="confirm">确认</view>
+      <view class="cancel-btn" aria-role="button" aria-label="取消" bindtap="cancel">取消</view>
+      <view class="confirm-btn" aria-role="button" aria-label="确认" bindtap="confirm">确认</view>
     </view>
   </view>
-  

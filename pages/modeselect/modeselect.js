@@ -1,4 +1,9 @@
 import api from "../../api/api.js";
+import {
+  apiRequest,
+  getErrorMessage,
+  isCurrentPage,
+} from "../../utils/request.js";
 var app = getApp();
 Page({
   /**
@@ -8,6 +13,7 @@ Page({
     CustomBar: app.globalData.CustomBar,
     buttons: [],
     msg: "",
+    statusBarHeight: 0,
   },
 
   /**
@@ -15,9 +21,17 @@ Page({
    */
   onLoad: function (options) {
     let that = this;
+    const windowInfo =
+      typeof wx.getWindowInfo === "function"
+        ? wx.getWindowInfo()
+        : wx.getSystemInfoSync();
     let mode_id = wx.getStorageSync("current_mode");
-    let mode_list = wx.getStorageSync("mode_list")
-    console.log(mode_list)
+    let mode_list = wx.getStorageSync("mode_list");
+    console.log(mode_list);
+
+    if (!Array.isArray(mode_list)) {
+      mode_list = [];
+    }
 
     // 将mode_list的mode字段映射为id字段，并赋值给buttons
     let buttons = mode_list.map(item => {
@@ -29,6 +43,7 @@ Page({
 
     that.setData({
       buttons: buttons,
+      statusBarHeight: windowInfo.statusBarHeight || 0,
     });
 
     for (var i = 0; i < that.data.buttons.length; i++) {
@@ -52,17 +67,20 @@ Page({
   /**
    * 生命周期函数--监听页面显示
    */
-  onShow: function () {},
+  onShow: function () {
+    this._pageVisible = true;
+  },
 
   /**
    * 生命周期函数--监听页面隐藏
    */
-  onHide: function () {},
+  onHide: function () {
+    this._pageVisible = false;
+  },
 
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {},
+  onUnload: function () {
+    this._pageVisible = false;
+  },
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作
@@ -85,6 +103,10 @@ Page({
       // 关键：把路径固定为你的 index 登录页
       path: "/pages/index/index",
     };
+  },
+
+  goBack: function () {
+    wx.navigateBack({ delta: 1 });
   },
 
   /**
@@ -117,50 +139,49 @@ Page({
         cancelText: "取消",
         confirmText: "确认",
         content: message,
-        success: (res) => {
+        success: async (res) => {
           if (res.confirm) {
-            console.log("用户点击确定"), console.log(e);
-
-            console.log(id);
-            for (let i = 0; i < this.data.buttons.length; i++) {
-              if (this.data.buttons[i].id == id) {
-                //当前点击的位置为true即选中
-                this.data.buttons[i].checked = true;
-              } else {
-                //其他的位置为false
-                this.data.buttons[i].checked = false;
-              }
+            if (this._modePending) {
+              return;
             }
-            this.setData({
-              buttons: this.data.buttons,
-              msg: "id:" + id,
-            });
-
-            api.ctrl_mode({
-              method: "POST",
-              header: {
-                "content-type": "application/json",
-                Authorization: wx.getStorageSync("access_token"),
-              },
-              data: {
-                project_id: wx.getStorageSync("selected_home"),
-                target_mode: id,
-                target_mode_desc: click_mode,
-              },
-              success: function (res) {
-                console.log(res);
-
-                wx.setStorageSync("backData", id);
-                wx.setStorageSync("mode_icon", id + 1);
-                wx.setStorageSync("current_mode", id);
-                wx.setStorageSync(
-                  "show_mode",
-                  wx.getStorageSync("isSingle")
-                    ? "模式: " + click_mode
-                    : click_mode,
-                );
-              },
-            });
+            this._modePending = true;
+            try {
+              await apiRequest(api.ctrl_mode, {
+                method: "POST",
+                header: {
+                  "content-type": "application/json",
+                  Authorization: wx.getStorageSync("access_token"),
+                },
+                data: {
+                  project_id: wx.getStorageSync("selected_home"),
+                  target_mode: id,
+                  target_mode_desc: click_mode,
+                },
+              });
+              if (!isCurrentPage(this)) {
+                return;
+              }
+              const buttons = this.data.buttons.map((button) => ({
+                ...button,
+                checked: button.id == id,
+              }));
+              this.setData({ buttons, msg: "id:" + id });
+              wx.setStorageSync("backData", id);
+              wx.setStorageSync("mode_icon", Number(id) + 1);
+              wx.setStorageSync("current_mode", id);
+              wx.setStorageSync(
+                "show_mode",
+                wx.getStorageSync("isSingle")
+                  ? "模式: " + click_mode
+                  : click_mode,
+              );
+            } catch (error) {
+              if (isCurrentPage(this)) {
+                wx.showToast({ title: getErrorMessage(error), icon: "none" });
+              }
+            } finally {
+              this._modePending = false;
+            }
           } else if (res.cancel) {
             console.log("用户点击取消");
           }

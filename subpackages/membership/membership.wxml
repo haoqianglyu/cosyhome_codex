@@ -17,13 +17,13 @@
         bind:close="onSwipeCellClose"
         data-index="{{index}}"
       >
-        <view class="member-item" catchtap="onMemberItemTap">
+        <view class="member-item" aria-role="button" aria-label="查看成员 {{item.name}}" catchtap="onMemberItemTap">
           <view class="member-info">
             <view class="member-name">{{item.name}}</view>
             <view class="member-phone">手机号：{{item.phone}}</view>
           </view>
         </view>
-        <view slot="right" class="delete-button" bindtap="onDeleteMember" data-index="{{index}}" data-id="{{item.id}}" data-name="{{item.name}}">
+        <view slot="right" class="delete-button" aria-role="button" aria-label="删除成员 {{item.name}}" bindtap="onDeleteMember" data-index="{{index}}" data-id="{{item.id}}" data-name="{{item.name}}">
           删除
         </view>
       </van-swipe-cell>

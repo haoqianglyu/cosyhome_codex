@@ -1,6 +1,27 @@
-<view class='button_container'>
-    <block wx:for="{{buttons}}" wx:key="buttons">
-        <button wx:if="{{index < buttons.length - 1 || (index === buttons.length - 1 && buttons.length % 2 === 0)}}" class='{{item.checked?"button_group checked_button":"button_group normal_button"}}' data-id='{{item.id}}' bindtap='radioButtonTap'>{{item.name}}</button>
-    </block>
-    <button wx:if="{{buttons.length % 2 === 1}}" class='{{buttons[buttons.length - 1].checked?"button_group checked_button last_button":"button_group normal_button last_button"}}' data-id='{{buttons[buttons.length - 1].id}}' bindtap='radioButtonTap'>{{buttons[buttons.length - 1].name}}</button>
+<view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
+<view class="custom-nav-bar">
+  <view class="nav-back" aria-role="button" aria-label="返回" bindtap="goBack">
+    <text class="iconfont icon-back nav-back-icon"></text>
+    <text>返回</text>
+  </view>
+  <view class="nav-title">HC健康舒适家</view>
+  <view class="nav-placeholder"></view>
+</view>
+
+<view class="button-container">
+  <button
+    wx:for="{{buttons}}"
+    wx:key="id"
+    class="mode-button {{item.checked ? 'mode-button--checked' : 'mode-button--normal'}} {{buttons.length % 2 === 1 && index === buttons.length - 1 ? 'mode-button--wide' : ''}}"
+    aria-label="{{item.checked ? '当前模式' : '切换到'}} {{item.name}}"
+    data-id="{{item.id}}"
+    bindtap="radioButtonTap"
+  >
+    <text wx:if="{{item.name !== '关闭'}}" class="iconfont icon-mode{{item.id + 1}} mode-icon"></text>
+    <text class="mode-text">{{item.name}}</text>
+  </button>
+</view>
+
+<view class="mode-empty" wx:if="{{buttons.length === 0}}">
+  暂无可用模式
 </view>

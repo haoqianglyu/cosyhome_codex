@@ -2,20 +2,20 @@
 
 <view class="panel">
     <view class='select_box'>
-        <view class='select' catchtap='selectTap'>
+        <view class='select' aria-role="button" aria-label="选择楼层" catchtap='selectTap'>
           <text class='select_text'>{{floors[index]}}</text>
-          <image class='select_img {{show&&"select_img_rotate"}}' src='/icons/gobottom.png'></image>   
+          <image class='select_img {{show&&"select_img_rotate"}}' src='/icons/gobottom.png'></image>
         </view>
-        
+
         <view class='option_box' style='height:{{show?(floors.length>5?300:floors.length*60):0}}rpx;'>
-            <text class='option' style='{{index==floors.length-1&&"border:0;"}}' wx:for='{{floors}}' wx:key='this' data-index='{{index}}' catchtap='optionTap'>{{item}}</text>
+            <text class='option' aria-role="button" aria-label="选择 {{item}}" style='{{index==floors.length-1&&"border:0;"}}' wx:for='{{floors}}' wx:key='*this' data-index='{{index}}' catchtap='optionTap'>{{item}}</text>
         </view>
     </view>
 
 
     <view class='nav-list margin-top'>
-        <view class="nav-li" wx:for="{{content}}" wx:key="index">
-          
+        <view class="nav-li" wx:for="{{content}}" wx:key="name">
+
             <view class="text-center margin-bottom text-lg  text-grey">
                 {{item.name}}
             </view>
@@ -37,7 +37,7 @@
                   <view class="th">μg/m³</view>
                   <view class="th">ppm</view>
                 </view>
-                
+
                   <view class="tr">
                     <view class="td">均值</view>
                     <view class="td">{{item.avgTemperature?numberUtil.toFix(item.avgTemperature):"-"}}</view>
@@ -54,15 +54,14 @@
                     <view class="td">{{item.sdPm?2*numberUtil.toFix(item.sdPm):"-"}}</view>
                     <view class="td">{{item.sdCO2?2*numberUtil.toFix(item.sdCO2):"-"}}</view>
                   </view>
-                
+
               </view>
-            
+
         </view>
     </view>
-      
-      
 
-    
-      
+
+
+
+
 </view>
-  

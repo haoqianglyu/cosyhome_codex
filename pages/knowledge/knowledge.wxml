@@ -1,1 +1,19 @@
-<!-- <view class="message">该功能暂未开放，敬请期待!</view> -->
+<view class="document-state">
+  <block wx:if="{{loading}}">
+    <view class="spinner"></view>
+    <text class="state-title">知识手册加载中</text>
+    <text class="state-description">正在下载并打开 PDF 文档</text>
+  </block>
+
+  <block wx:elif="{{errorMessage}}">
+    <text class="state-title">暂时无法打开</text>
+    <text class="state-description">{{errorMessage}}</text>
+    <button class="retry-button" bindtap="retryLoad">重新尝试</button>
+  </block>
+
+  <block wx:else>
+    <text class="state-title">知识手册已打开</text>
+    <text class="state-description">如需再次查看，可点击下方按钮</text>
+    <button class="retry-button" bindtap="retryLoad">重新打开</button>
+  </block>
+</view>

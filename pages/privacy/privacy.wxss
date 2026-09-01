@@ -28,7 +28,7 @@ page {
   display: block;
   margin: 44rpx 0 20rpx;
   padding-left: 18rpx;
-  border-left: 7rpx solid #22b879;
+  border-left: 7rpx solid #55c2bb;
   color: #203c30;
   font-size: 32rpx;
   font-weight: 700;

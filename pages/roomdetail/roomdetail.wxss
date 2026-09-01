@@ -1,165 +1,415 @@
-.roompage .realtime .room_name {
-  font-size: 50rpx;
-  position: relative;
+page {
+  min-height: 100vh;
+  background-color: #eef5f2;
+  background-image: url("https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/senjia_roombg.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
 }
-.roompage .realtime .room_name .roomName {
-  position: relative;
-  text-align: center;
-  width: fit-content;
-  margin: 0 auto;
+
+.room-hero {
+  display: flex;
+  min-height: 116rpx;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18rpx 28rpx 10rpx;
 }
-.roompage .realtime .room_name .roomName .modifybutton {
-  position: relative;
-  display: inline-block;
-  vertical-align: middle;
+
+.room-name-block {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+}
+
+.room-title {
+  min-width: 0;
+  max-width: 330rpx;
+  overflow: hidden;
+  color: #17372f;
+  font-size: 46rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.room-edit-icon {
+  flex-shrink: 0;
   margin-left: 10rpx;
-  background: transparent;
-  border: none;
-  padding: 0;
+  color: #8a8a8a;
+  font-size: 38rpx;
 }
-.roompage .realtime .room_name .switch_container {
-  top: 0.1vh;
-  position: absolute;
-  right: 6vw;
-}
-.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg {
-  border-radius: 20rpx;
-  padding: 30rpx 50rpx;
-}
-.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content {
-  font-size: 35rpx;
-}
-.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .realdew,
-.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .realenergy,
-.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .lock,
-.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .windcontrol {
+
+.panel-quick-control {
   display: flex;
-  margin-bottom: 15rpx;
+  flex-shrink: 0;
+  align-items: center;
+  margin-left: 18rpx;
+  padding: 10rpx 12rpx 10rpx 18rpx;
+  border: 1rpx solid rgba(85, 194, 187, 0.09);
+  border-radius: 34rpx;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8rpx 22rpx rgba(31, 96, 82, 0.08);
 }
-.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .key {
-  flex: 1%;
+
+.panel-quick-label {
+  margin-right: 12rpx;
+  color: #35544c;
+  font-size: 20rpx;
+  font-weight: 600;
+  white-space: nowrap;
 }
-.roompage .realtime .margin-xl.bg-white.padding-xl.radius.shadow-lg .text-content .value {
-  flex: 50%;
+
+.roompage {
+  box-sizing: border-box;
+  padding: 8rpx 28rpx 190rpx;
 }
-.roompage .wrapper {
-  height: 100%;
+
+.data-card,
+.control-card {
+  box-sizing: border-box;
+  border: 1rpx solid rgba(85, 194, 187, 0.08);
+  border-radius: 36rpx;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14rpx 36rpx rgba(31, 96, 82, 0.09);
+  backdrop-filter: blur(10px);
+}
+
+.data-card {
   display: flex;
+  min-height: 300rpx;
+  align-items: stretch;
+  justify-content: space-between;
+  padding: 38rpx 36rpx 34rpx;
 }
-.roompage .wrapper .left {
-  flex: 3;
+
+.card-half {
   display: flex;
-  flex-flow: column;
-  padding: 5rpx 0;
-  border-right: 1rpx solid #74CEAE;
-}
-.roompage .wrapper .left .cl1 {
-  margin: 15rpx 0 0 0;
-  text-align: center;
+  min-width: 0;
   flex: 1;
-  font-size: 35rpx;
+  flex-direction: column;
 }
-.roompage .wrapper .left .cl2 {
-  flex: 1;
+
+.left-half {
+  align-items: flex-start;
 }
-.roompage .wrapper .left .cl3 {
-  flex: 1;
+
+.right-half {
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-left: 24rpx;
 }
-.roompage .wrapper .right {
-  flex: 2;
-  display: flex;
-  flex-flow: column;
-  padding: 5rpx 0;
-  margin-left: 20rpx;
-  text-align: center;
+
+.card-label {
+  color: #2d3f3a;
+  font-size: 29rpx;
+  font-weight: 650;
 }
-.roompage .wrapper .right .cl {
-  margin: 15rpx 0;
-  flex: 1;
-  font-size: 35rpx;
+
+.current-temperature {
+  margin-top: 26rpx;
+  color: #55c2bb;
+  font-size: 78rpx;
+  font-weight: 450;
+  line-height: 1;
 }
-.roompage .wrapper .right .num {
-  margin: 15rpx 0;
-  flex: 1;
-  font-size: 50rpx;
+
+.target-temperature {
+  margin-top: 22rpx;
+  color: #172c27;
+  font-size: 62rpx;
+  font-weight: 450;
+  line-height: 1;
 }
-.roompage .wrapper .right .iconfont.icon-plus {
-  margin: 15rpx 0;
-  border-radius: 5rpx;
-  flex: 1;
+
+.unit {
+  margin-left: 4rpx;
+  font-size: 30rpx;
+  font-weight: 500;
 }
-.roompage .wrapper .right .iconfont.icon-minus {
-  margin: 15rpx 0;
-  border-radius: 5rpx;
-  flex: 1;
-}
-ec-canvas {
-  margin-top: 5px;
-  width: 100%;
-  height: 50%;
-  background-color: white;
-}
-#mychart1 {
-  width: 87%;
-  height: 500rpx;
-  margin: 50rpx;
-  border-radius: 20rpx;
-  display: block;
-}
-.btn-group {
-  display: flex;
-}
-.btn-group button {
-  width: 190rpx;
-  padding: 6rpx 4rpx;
-  background-color: #ddd;
-  border-radius: 5px;
-  margin-left: 0;
-  margin-right: 10px;
-  font-size: 28rpx;
-}
-.btn-group button:first-child {
-  margin-left: 0px;
-}
-.btn-group button.selected {
-  background-color: #74CEAE;
-  color: #fff;
-}
-wx-slider .wx-slider-handle-wrapper {
-  height: 20rpx;
-}
-.windcontrol {
+
+.humidity-row {
   display: flex;
   align-items: center;
-  /* 确保垂直居中 */
+  margin-top: 32rpx;
+  color: #63736f;
+  font-size: 25rpx;
 }
-.button-bar {
+
+.humidity-row .iconfont {
+  margin-right: 9rpx;
+  color: #667773;
+  font-size: 28rpx;
+}
+
+.humidity-value {
+  margin-left: 10rpx;
+  color: #344943;
+  font-size: 29rpx;
+  font-weight: 600;
+}
+
+.temperature-stepper {
   display: flex;
-  border-radius: 10px;
-  /* 设置圆角 */
-  margin-left: 8rpx;
-  /* 减小左边距，根据实际需要调整 */
-  background-color: #f2f2f2;
-  /* 整个按钮组的灰色背景 */
+  margin-top: 30rpx;
 }
-.button {
-  flex-grow: 1;
+
+.step-button {
+  display: flex;
+  width: 70rpx;
+  height: 70rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #fff;
+  background: #55c2bb;
+  box-shadow: 0 6rpx 14rpx rgba(85, 194, 187, 0.2);
+  font-size: 42rpx;
+  line-height: 1;
+}
+
+.step-button + .step-button {
+  margin-left: 26rpx;
+}
+
+.step-button:active {
+  opacity: 0.72;
+  transform: scale(0.96);
+}
+
+.step-button--disabled {
+  opacity: 0.35;
+}
+
+.control-card {
+  margin-top: 28rpx;
+  padding: 22rpx 36rpx;
+}
+
+.control-row {
+  display: flex;
+  min-height: 108rpx;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.control-label {
+  display: flex;
+  width: 180rpx;
+  flex-shrink: 0;
+  align-items: center;
+  color: #52635f;
+  font-size: 29rpx;
+  font-weight: 500;
+}
+
+.control-label-icon {
+  display: flex;
+  width: 52rpx;
+  height: 52rpx;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  margin-right: 13rpx;
+  border-radius: 16rpx;
+  font-size: 29rpx;
+}
+
+.control-label-icon--energy,
+.control-label-icon--lock,
+.control-label-icon--wind,
+.control-label-icon--terminal {
+  color: #55c2bb;
+  background: rgba(85, 194, 187, 0.12);
+}
+
+.mini-fan {
+  position: relative;
+  width: 34rpx;
+  height: 34rpx;
+}
+
+.mini-fan-blade {
+  position: absolute;
+  top: 1rpx;
+  left: 11rpx;
+  width: 12rpx;
+  height: 17rpx;
+  border-radius: 70% 70% 52% 52%;
+  background: currentColor;
+  transform-origin: 6rpx 16rpx;
+}
+
+.mini-fan-blade--2 {
+  transform: rotate(90deg);
+}
+
+.mini-fan-blade--3 {
+  transform: rotate(180deg);
+}
+
+.mini-fan-blade--4 {
+  transform: rotate(270deg);
+}
+
+.mini-fan-hub {
+  position: absolute;
+  top: 12rpx;
+  left: 12rpx;
+  width: 10rpx;
+  height: 10rpx;
+  box-sizing: border-box;
+  border: 2rpx solid currentColor;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.segmented-control {
+  display: flex;
+  min-width: 0;
+  max-width: 470rpx;
+  flex: 1;
+  align-items: center;
+  padding: 5rpx;
+  border-radius: 36rpx;
+  background: #eef1f0;
+}
+
+.segment-item {
+  min-width: 0;
+  height: 58rpx;
+  flex: 1;
+  padding: 0 4rpx;
+  border-radius: 30rpx;
+  color: #6f7c79;
+  font-size: 23rpx;
+  line-height: 58rpx;
   text-align: center;
-  padding: 8rpx 0;
-  border-left: 1px solid #ddd;
-  /* 按钮之间的分隔线 */
-  background-color: #ddd;
-  /* 未选中按钮的灰色背景 */
-  color: black;
-  /* 未选中按钮的黑色文字 */
+  white-space: nowrap;
 }
-.button:first-child {
-  border-left: none;
-  /* 第一个按钮没有左边界 */
+
+.segment-item--active {
+  color: #fff;
+  background: #55c2bb;
+  box-shadow: 0 5rpx 12rpx rgba(85, 194, 187, 0.2);
 }
-.button-active {
-  background-color: #74CEAE;
-  /* 选中按钮的背景色 */
-  color: white;
-  /* 选中按钮的白色文字 */
+
+.control-row--terminal {
+  align-items: flex-start;
+  padding: 22rpx 0;
+}
+
+.control-row--terminal .control-label {
+  padding-top: 14rpx;
+}
+
+.terminal-options {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin: 0 -5rpx -10rpx;
+}
+
+.terminal-option {
+  margin: 0 5rpx 10rpx;
+  padding: 14rpx 26rpx;
+  border-radius: 30rpx;
+  color: #6f7c79;
+  background: #eceeed;
+  font-size: 24rpx;
+  white-space: nowrap;
+}
+
+.terminal-option--active {
+  color: #fff;
+  background: #55c2bb;
+  box-shadow: 0 5rpx 12rpx rgba(85, 194, 187, 0.18);
+}
+
+.terminal-option--disabled {
+  opacity: 0.55;
+}
+
+.chart-header {
+  margin-top: 50rpx;
+  margin-bottom: 10rpx;
+  margin-left: 20rpx;
+  color: #666;
+  font-size: 28rpx;
+}
+
+.statistics {
+  width: 100%;
+  height: 500rpx;
+}
+
+ec-canvas,
+#mychart1 {
+  width: 100%;
+  height: 100%;
+}
+
+#mychart1 {
+  display: block;
+  background-color: transparent !important;
+}
+
+@media (max-width: 350px) {
+  .room-hero {
+    padding-right: 20rpx;
+    padding-left: 20rpx;
+  }
+
+  .room-title {
+    max-width: 250rpx;
+    font-size: 40rpx;
+  }
+
+  .panel-quick-control {
+    margin-left: 10rpx;
+  }
+
+  .panel-quick-label {
+    display: none;
+  }
+
+  .roompage {
+    padding-right: 20rpx;
+    padding-left: 20rpx;
+  }
+
+  .data-card,
+  .control-card {
+    padding-right: 26rpx;
+    padding-left: 26rpx;
+  }
+
+  .current-temperature {
+    font-size: 68rpx;
+  }
+
+  .target-temperature {
+    font-size: 54rpx;
+  }
+
+  .control-label {
+    width: 150rpx;
+    font-size: 27rpx;
+  }
+
+  .control-label-icon {
+    width: 46rpx;
+    height: 46rpx;
+    margin-right: 9rpx;
+    font-size: 26rpx;
+  }
+
+  .segment-item {
+    font-size: 21rpx;
+  }
 }

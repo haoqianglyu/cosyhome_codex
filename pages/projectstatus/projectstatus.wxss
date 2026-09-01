@@ -1,7 +1,7 @@
 page {
   min-height: 100%;
-  background: #f4f6f8;
-  color: #252a34;
+  background: linear-gradient(180deg, #f7fbf9 0%, #eef5f3 100%);
+  color: var(--ui-text);
 }
 
 .page-container {
@@ -13,9 +13,10 @@ page {
 .warning-card {
   margin-bottom: 24rpx;
   padding: 30rpx;
-  border-radius: 20rpx;
+  border: 1rpx solid var(--ui-border);
+  border-radius: 26rpx;
   background: #fff;
-  box-shadow: 0 4rpx 18rpx rgba(31, 45, 61, 0.05);
+  box-shadow: var(--ui-shadow-soft);
 }
 
 .title-row,
@@ -28,7 +29,7 @@ page {
 }
 
 .page-title {
-  color: #1f2937;
+  color: var(--ui-text);
   font-size: 38rpx;
   font-weight: 600;
 }
@@ -36,8 +37,8 @@ page {
 .status-text {
   padding: 7rpx 16rpx;
   border-radius: 18rpx;
-  color: #2f855a;
-  background: #eaf7f0;
+  color: var(--ui-primary-dark);
+  background: var(--ui-primary-soft);
   font-size: 22rpx;
 }
 
@@ -70,7 +71,7 @@ page {
 
 .info-value {
   margin-left: 30rpx;
-  color: #252a34;
+  color: var(--ui-text);
   font-size: 28rpx;
   text-align: right;
   word-break: break-all;
@@ -81,7 +82,7 @@ page {
 }
 
 .section-title {
-  color: #1f2937;
+  color: var(--ui-text);
   font-size: 32rpx;
   font-weight: 600;
 }
@@ -172,8 +173,8 @@ page {
   border: 0;
   border-radius: 44rpx;
   color: #fff;
-  background: linear-gradient(135deg, #3e7ee8, #3268cf);
-  box-shadow: 0 8rpx 20rpx rgba(50, 104, 207, 0.25);
+  background: linear-gradient(135deg, #55c2bb, #55c2bb);
+  box-shadow: 0 10rpx 22rpx rgba(24, 140, 118, 0.24);
   font-size: 30rpx;
   font-weight: 500;
   line-height: 88rpx;
@@ -185,6 +186,6 @@ page {
 
 .refresh-button[disabled] {
   color: rgba(255, 255, 255, 0.85);
-  background: #8eb1ec;
+  background: #9ccdc0;
   box-shadow: none;
 }

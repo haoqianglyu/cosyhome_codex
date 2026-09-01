@@ -1,69 +1,65 @@
-/* pages/rooms/rooms.wxss */
 page {
-  height: 100vh;
-  /* 设置为视口高度，确保填充整个屏幕 */
-  display: flex;
-  /* 使用 Flexbox 布局 */
-  align-items: center;
-  /* 垂直居中子元素 */
-  justify-content: center;
-  /* 水平居中子元素 */
+  min-height: 100%;
+  background: linear-gradient(180deg, #edf8f4 0, var(--ui-bg) 340rpx);
 }
+
 .panel {
-  width: 100%;
-  /* 占据所有可用空间 */
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 38rpx 28rpx;
 }
-.panel .nav-list {
+
+.nav-list {
   display: flex;
-  flex-wrap: wrap;
-  padding: 0px 30rpx 0px;
-  justify-content: space-between;
-  width: 100%;
-  /* 可选，如果你想要 `.nav-list` 占据所有可用空间 */
+  flex-direction: column;
+  gap: 24rpx;
 }
-.panel .nav-li {
-  border-radius: 25rpx;
-  width: 100%;
-  margin: 0 1vw 40rpx;
-  z-index: 1;
-  background-color: white;
-  box-shadow: 2px 2px 10px #dcdcdc;
-}
-.panel .text-center {
-  margin-top: 15rpx;
-  margin-bottom: 15rpx;
-}
-.panel .table {
-  border: 0px solid darkgray;
-  border-radius: 25rpx;
+
+.nav-li {
   overflow: hidden;
-  /* 确保内部元素不会超出圆角边界 */
+  border: 1rpx solid var(--ui-border);
+  border-radius: 26rpx;
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow-card);
 }
-.panel .tr {
+
+.table {
+  overflow: hidden;
+}
+
+.tr {
   display: flex;
   width: 100%;
-  justify-content: center;
-  height: 3rem;
-  align-items: center;
+  min-height: 96rpx;
+  align-items: stretch;
 }
-.panel .td {
-  width: 40%;
+
+.td,
+.th,
+.th_first {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  padding: 14rpx 5rpx;
   text-align: center;
+  font-size: 23rpx;
 }
-.panel .th_first {
-  width: 40%;
-  justify-content: center;
-  background: #7cbfbf;
+
+.td {
+  color: var(--ui-text-secondary);
+  border-top: 1rpx solid var(--ui-border);
+}
+
+.th {
+  color: var(--ui-text-secondary);
+  background: #f2faf7;
+}
+
+.th_first {
   color: #fff;
-  display: flex;
-  height: 3rem;
-  align-items: center;
-}
-.panel .th {
-  width: 40%;
-  justify-content: center;
-  display: flex;
-  height: 3rem;
-  align-items: center;
+  background: linear-gradient(180deg, #55c2bb, #55c2bb);
+  font-weight: 600;
 }

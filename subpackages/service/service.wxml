@@ -1,10 +1,10 @@
 <view class="page-container">
     <view class="tabs-header">
-        <view class="tab-item {{currentTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">
+        <view class="tab-item {{currentTab === 0 ? 'active' : ''}}" aria-role="button" aria-label="报修记录" bindtap="switchTab" data-index="0">
             <text>我的报修</text>
             <view class="indicator" wx:if="{{currentTab === 0}}"></view>
         </view>
-        <view class="tab-item {{currentTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">
+        <view class="tab-item {{currentTab === 1 ? 'active' : ''}}" aria-role="button" aria-label="服务工单" bindtap="switchTab" data-index="1">
             <text>我的工单</text>
             <view class="indicator" wx:if="{{currentTab === 1}}"></view>
         </view>
@@ -15,7 +15,7 @@
             <scroll-view scroll-y class="scroll-view" refresher-enabled bindrefresherrefresh="onPullDownRefreshRepair" refresher-triggered="{{isRepairRefreshing}}">
                 <view class="list-container">
                     <view wx:if="{{ repairList.length > 0 }}">
-                        <view class="card" wx:for="{{ repairList }}" wx:key="id" bindtap="navigateToRepairDetail" data-item="{{item}}">
+                        <view class="card" aria-role="button" aria-label="查看报修详情" wx:for="{{ repairList }}" wx:key="id" bindtap="navigateToRepairDetail" data-item="{{item}}">
                             <view class="card-header">
                                 <view class="header-left">
                                     <van-icon name="label-o" size="20px" color="{{ item.statusColor }}" />
@@ -51,10 +51,10 @@
             <scroll-view scroll-y class="scroll-view" refresher-enabled bindrefresherrefresh="onPullDownRefreshOrder" refresher-triggered="{{isOrderRefreshing}}">
                 <view class="list-container">
                     <view wx:if="{{ orderList.length > 0 }}">
-                        <view class="order-card" wx:for="{{ orderList }}" wx:key="id" bindtap="navigateToOrderDetail" data-id="{{item.id}}">
+                        <view class="order-card" aria-role="button" aria-label="查看工单详情" wx:for="{{ orderList }}" wx:key="id" bindtap="navigateToOrderDetail" data-id="{{item.id}}">
                             <view class="card-header">
                                 <view class="user-info">
-                                    <van-icon name="orders-o" size="20px" color="#1989fa" />
+                                    <van-icon name="orders-o" size="20px" color="#55c2bb" />
                                     <text class="user-name">{{ item.name }}</text>
                                 </view>
                             </view>

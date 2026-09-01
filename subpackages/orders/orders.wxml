@@ -6,7 +6,7 @@
         <view class="order-card" wx:for="{{ orderList }}" wx:key="id" bind:tap="navigateToDetail" data-id="{{item.id}}">
           <view class="card-header">
             <view class="user-info">
-              <van-icon name="user-circle-o" size="20px" color="#1989fa" />
+              <van-icon name="user-circle-o" size="20px" color="#55c2bb" />
               <text class="user-name">{{ item.name }}</text>
             </view>
           </view>

@@ -43,12 +43,12 @@
           value="guestMode"
           checked="{{isGuestModeEnabled}}"
           class="guest-checkbox"
-          color="#20B979"
+          color="#55c2bb"
         />
       </label>
     </checkbox-group>
 
-    <view class="next-button" hover-class="next-button-pressed" bindtap="validateAndNavigate">
+    <view class="next-button" aria-role="button" aria-label="下一步" hover-class="next-button-pressed" bindtap="validateAndNavigate">
       <text>下一步</text>
       <view class="button-arrow">›</view>
     </view>
@@ -61,6 +61,8 @@
 
   <view
     class="drawer-mask {{showDrawer ? 'drawer-mask-visible' : ''}}"
+    aria-role="button"
+    aria-label="关闭用户协议"
     bindtap="closeDrawer"
   ></view>
   <view class="drawer-container {{showDrawer ? 'drawer-visible' : ''}}">
@@ -79,7 +81,7 @@
               value="true"
               checked="{{isCheckboxChecked}}"
               class="agreement-checkbox"
-              color="#20B979"
+              color="#55c2bb"
             />
             <text>我已阅读并接受</text>
           </label>
@@ -90,9 +92,11 @@
       </view>
 
       <view class="drawer-buttons">
-        <view class="drawer-button cancel-btn" hover-class="drawer-button-pressed" bindtap="closeDrawer">暂不使用</view>
+        <view class="drawer-button cancel-btn" aria-role="button" aria-label="暂不使用" hover-class="drawer-button-pressed" bindtap="closeDrawer">暂不使用</view>
         <view
           class="drawer-button confirm-btn {{isCheckboxChecked ? '' : 'confirm-disabled'}}"
+          aria-role="button"
+          aria-label="同意并继续"
           hover-class="drawer-button-pressed"
           bindtap="confirmDrawer"
         >同意并继续</view>

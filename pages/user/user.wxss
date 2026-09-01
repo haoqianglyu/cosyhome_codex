@@ -1,133 +1,56 @@
-/* pages/user/user.wxss */
-.main_container {
-  height: 100%;
-  margin-bottom: 15vh;
+page,
+.user-page-shell {
+  min-height: 100%;
+  background-color: #edf5f3;
+  background-image: url("https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/senjia_userbg.jpg");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
-.user_info_wrap {
-  height: 25vh;
-  margin: 30rpx 30rpx 15rpx 30rpx;
-  border-radius: 20rpx;
-  overflow: hidden;
-}
-.user_info_wrap .user_img_wrap {
-  position: relative;
-}
-.user_info_wrap .user_img_wrap .user_bg {
-  width: 100%;
-  object-fit: cover;
-  filter: blur(4rpx);
-  height: 25vh;
-}
-.user_info_wrap .user_img_wrap .user_info {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-.user_info_wrap .user_img_wrap .user_info .user_icon {
-  z-index: 100;
-  overflow: hidden;
-  display: block;
-  width: 8vh;
-  height: 8vh;
-  margin: 0 auto;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
-}
-.user_info_wrap .user_img_wrap .user_info .user_nickname {
-  margin-top: 1vh;
-  margin-left: 0;
-  color: #fff;
-  font-size: 28rpx;
-}
-.user_info_wrap .user_btn {
-  padding: 1.5vh;
-}
-.user_info_wrap .user_btn button {
-  width: 60%;
-}
-.padding.flex.text-center.text-grey.bg-white.shadow {
-  margin-top: 2.8vh;
-  margin-left: 2.5vh;
-  margin-right: 2.5vh;
-  border-radius: 1.5vh;
-}
-.padding.flex.text-center.text-grey.bg-white.shadow text {
-  font-size: 70rpx;
-}
-.cu-list.menu > .cu-item {
-  min-height: 100rpx;
-}
-/* 适应页面的全局边距 */
-.transfer {
-  margin-left: 15rpx;
-  /* 假设值，需要根据你的实际布局来调整 */
-  margin-right: 15rpx;
-}
-/* 保持按钮之间的间距 */
-.button-group {
-  display: flex;
-  justify-content: space-between;
-  padding: 0;
-  /* 确保没有内边距干扰对齐 */
-}
-.button-left {
-  margin-right: 10px;
-  /* 可以根据需要调整间距大小 */
-}
-.button-right {
-  margin-left: 10px;
-  /* 保持与 button-left 相同的间距以对称 */
-}
-/* 网格菜单样式 */
-.menu-grid-container {
-  padding: 0 40rpx;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-.menu-grid-item {
-  width: 48%;
-  height: 120rpx;
-  background-color: #fff;
-  border-radius: 20rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 30rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1), 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-}
-
-.menu-grid-item:active {
-  transform: translateY(2rpx);
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.15), 0 1rpx 4rpx rgba(0, 0, 0, 0.1);
-}
-
-.menu-item-content {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  text-decoration: none;
-}
-
-.menu-icon {
-  font-size: 40rpx !important;
-  margin-right: 20rpx;
-}
-
-.menu-text {
-  font-size: 28rpx;
-  color: #666 !important;
-}
-
-page {
-  background-image: url("https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/bg.png");
-  background-size: 100% 130%;
-}
+.user-page-shell { box-sizing: border-box; min-height: 100vh; }
+.status-bar { width: 100%; }
+.custom-nav-bar { display: flex; height: 88rpx; align-items: center; justify-content: center; background: transparent; }
+.nav-title { max-width: 420rpx; overflow: hidden; color: var(--ui-text); font-size: 32rpx; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.profile-page { box-sizing: border-box; padding: 30rpx 28rpx calc(190rpx + env(safe-area-inset-bottom)); }
+.profile-page--with-account-action { padding-bottom: calc(286rpx + env(safe-area-inset-bottom)); }
+.profile-hero { position: relative; height: 232rpx; overflow: hidden; border-radius: 38rpx; background: #55c2bb; box-shadow: 0 18rpx 44rpx rgba(85,194,187,.22); }
+.hero-texture,.hero-overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero-texture { opacity: .13; filter: saturate(.55); }
+.hero-overlay { background: linear-gradient(125deg,rgba(50,164,157,.98),rgba(85,194,187,.9) 60%,rgba(112,207,196,.84)); }
+.hero-orbit { position: absolute; top: -142rpx; right: -66rpx; width: 350rpx; height: 350rpx; border: 1rpx solid rgba(255,255,255,.2); border-radius: 50%; box-shadow: 0 0 0 50rpx rgba(255,255,255,.055),0 0 0 104rpx rgba(255,255,255,.025); }
+.profile-content { position: relative; display: flex; align-items: center; height: 100%; padding: 0 38rpx; }
+.avatar-shell { position: relative; flex-shrink: 0; width: 116rpx; height: 116rpx; padding: 6rpx; border: 1rpx solid rgba(255,255,255,.32); border-radius: 38rpx; background: rgba(255,255,255,.16); }
+.avatar { width: 100%; height: 100%; border-radius: 33rpx; }
+.online-dot { position: absolute; right: 0; bottom: 2rpx; width: 20rpx; height: 20rpx; border: 5rpx solid #55c2bb; border-radius: 50%; background: #bdf3d8; }
+.profile-copy { min-width: 0; margin-left: 28rpx; color: #fff; }
+.welcome { color: rgba(255,255,255,.76); font-size: 22rpx; }
+.username { max-width: 420rpx; margin-top: 8rpx; overflow: hidden; font-size: 38rpx; font-weight: 680; text-overflow: ellipsis; white-space: nowrap; }
+.profile-caption { margin-top: 11rpx; color: rgba(255,255,255,.68); font-size: 17rpx; font-weight: 600; letter-spacing: 3rpx; }
+.quick-actions { position: relative; z-index: 2; display: flex; margin-top: 22rpx; padding: 24rpx 8rpx; border: 1rpx solid rgba(220,233,229,.9); border-radius: 32rpx; background: rgba(255,255,255,.98); box-shadow: 0 14rpx 36rpx rgba(44,91,80,.08); }
+.quick-item { display: flex; min-width: 0; min-height: 118rpx; box-sizing: border-box; flex: 1; flex-direction: column; align-items: center; justify-content: center; padding: 0 12rpx; color: var(--ui-text-secondary); font-size: 24rpx; font-weight: 600; }
+.quick-item + .quick-item { border-left: 1rpx solid #e9f0ee; }
+.quick-icon { display: flex; align-items: center; justify-content: center; width: 78rpx; height: 78rpx; margin-bottom: 13rpx; border-radius: 27rpx; color: #55c2bb; background: rgba(85,194,187,.12); font-size: 36rpx; }
+.quick-icon--blue { color: #4f7fe8; background: rgba(79,127,232,.12); }
+.quick-icon--green { color: #49ab88; background: rgba(73,171,136,.13); }
+.quick-icon--amber { color: #d99a37; background: rgba(217,154,55,.13); }
+.quick-icon--rose { color: #d95b5b; background: rgba(217,91,91,.12); }
+.quick-pressed { opacity: .7; transform: scale(.97); }
+.service-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14rpx; box-sizing: border-box; margin-top: 22rpx; }
+.service-item { position: relative; display: flex; box-sizing: border-box; width: 100%; min-width: 0; min-height: 126rpx; align-items: center; margin: 0; padding: 18rpx 14rpx; overflow: hidden; border: 1rpx solid rgba(220,233,229,.82); border-radius: 24rpx; background: rgba(255,255,255,.92); box-shadow: 0 10rpx 28rpx rgba(44,91,80,.07); text-align: left; line-height: normal; }
+.service-item::after { border: 0; }
+.feedback-item { width: 100%; }
+.service-icon { display: flex; flex-shrink: 0; align-items: center; justify-content: center; width: 66rpx; height: 66rpx; margin-right: 18rpx; border-radius: 22rpx; font-size: 31rpx; }
+.icon-green { color: #49ab88; background: rgba(73,171,136,.13); }
+.icon-blue { color: #4f7fe8; background: rgba(79,127,232,.12); }
+.icon-cyan { color: #55b8c2; background: rgba(85,184,194,.13); }
+.icon-amber { color: #dfa33b; background: rgba(223,163,59,.14); }
+.icon-rose { color: #d95b5b; background: rgba(217,91,91,.12); }
+.icon-violet { color: #71809a; background: rgba(113,128,154,.12); }
+.service-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; }
+.service-name { max-width: 100%; overflow: hidden; color: #17243c; font-size: 25rpx; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.service-caption { max-width: 100%; margin-top: 8rpx; overflow: hidden; color: var(--ui-text-muted); font-size: 18rpx; text-overflow: ellipsis; white-space: nowrap; }
+.service-arrow { flex-shrink: 0; margin-left: 8rpx; color: #a8b2bd; font-size: 32rpx; font-weight: 300; }
+.service-pressed { background: rgba(85,194,187,.06); }
+.account-actions { position: fixed; right: 26rpx; bottom: calc(166rpx + env(safe-area-inset-bottom)); left: 26rpx; z-index: 9998; display: flex; gap: 16rpx; }
+.secondary-button { display: flex; flex: 1; align-items: center; justify-content: center; box-sizing: border-box; min-height: 78rpx; margin: 0; padding: 0 20rpx; border: 1rpx solid rgba(85,194,187,.32); border-radius: 39rpx; color: #3aa9a2; background: rgba(255,255,255,.96); box-shadow: 0 10rpx 28rpx rgba(44,91,80,.1); font-size: 24rpx; font-weight: 600; line-height: 78rpx; }

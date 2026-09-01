@@ -7,39 +7,13 @@ import {
 
 const app = getApp();
 const ADMIN_PHONES = ["15006181214", "18888888888"];
-const SESSION_KEYS = [
-  "userInfo",
-  "mode_list",
-  "isAdmin",
-  "access_token",
-  "isdistributor",
-  "haveProject",
-  "selected_home",
-  "selected_region",
-  "selected_homename",
-  "current_mode",
-  "current_distributor",
-  "current_distributorid",
-  "selected_year",
-  "selected_month",
-  "isSingle",
-  "backfromhome2",
-  "home2index",
-  "home2showlist",
-  "backfromhome1",
-  "home1index",
-  "home1showlist",
-  "clock_info",
-  "selected_project_info",
-  "change_distributor",
-];
-
 function miniLogin(data) {
   return new Promise((resolve, reject) => {
     api.mini_login({
       method: "POST",
       data,
       header: { "content-type": "application/json" },
+      skipAuthRedirect: true,
       success: (response) => resolve(response.data || {}),
       fail: reject,
     });
@@ -68,10 +42,8 @@ Page({
   },
 
   resetSession() {
-    SESSION_KEYS.forEach((key) => wx.removeStorageSync(key));
+    app.clearSession();
     wx.setStorageSync("isSingle", false);
-    app.globalData.isvisitor = false;
-    app.globalData.isdistributor_visitor = false;
   },
 
   saveWindowSize() {
@@ -89,10 +61,6 @@ Page({
         device: deviceInfo.model || "",
       });
 
-      if (loginData.code === 3) {
-        wx.showToast({ title: "微信登录凭证错误", icon: "none" });
-        return;
-      }
       if (!loginData.access_token) {
         throw new Error("登录结果缺少 access_token");
       }
@@ -124,7 +92,7 @@ Page({
     if (ADMIN_PHONES.includes(loginData.customer_phone)) {
       wx.setStorageSync("isdistributor", true);
       wx.setStorageSync("isAdmin", true);
-      app.globalData.isvisitor = false;
+      app.setVisitorMode(false, false);
       setTimeout(() => wx.navigateTo({ url: "../admin/admin" }), 1000);
       return;
     }
@@ -133,10 +101,11 @@ Page({
     const userProjects = normalizeProjects(userProjectData);
 
     if (!userProjects.length) {
-      app.globalData.isvisitor = true;
-      wx.setStorageSync("isdistributor", false);
       const distributorData = await apiRequest(api.distributor_projects);
-      this.enterProjects(normalizeProjects(distributorData, true));
+      const distributorProjects = normalizeProjects(distributorData, true);
+      app.setVisitorMode(true, false);
+      wx.setStorageSync("isdistributor", false);
+      this.enterProjects(distributorProjects);
       return;
     }
 
@@ -152,21 +121,21 @@ Page({
 
     wx.setStorageSync("isdistributor", true);
     if (loginRole === "user") {
-      app.globalData.isvisitor = false;
+      app.setVisitorMode(false, false);
       this.enterProjects(userProjects, 1000);
     } else {
-      app.globalData.isvisitor = true;
       const distributorData = await apiRequest(api.distributor_projects);
+      app.setVisitorMode(true, false);
       this.enterProjects(normalizeProjects(distributorData, true));
     }
     wx.showToast({ title: "登录成功", icon: "none", duration: 1500 });
   },
 
   async loginUser() {
-    app.globalData.isvisitor = false;
     wx.showToast({ title: "登录成功", icon: "none", duration: 1500 });
     const projectData = await apiRequest(api.user_projects);
     const projects = normalizeProjects(projectData);
+    app.setVisitorMode(false, false);
     wx.setStorageSync("isdistributor", false);
     this.enterProjects(projects, 1000, true);
   },

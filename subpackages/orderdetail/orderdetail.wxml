@@ -105,7 +105,7 @@
         <view 
           class="timeline-item" 
           wx:for="{{ orderInfo.timeline }}" 
-          wx:key="index"
+          wx:key="key"
         >
           <view class="timeline-item-content">
             <view class="content-line-1">
@@ -182,7 +182,7 @@
             size="large"
             bind:click="submitRating"
             loading="{{ submitting }}"
-            custom-style="background: linear-gradient(135deg, #00bcd4, #009688); border: none; border-radius: 24rpx; color: white; font-weight: 600;"
+            custom-style="background: #55c2bb; border: none; border-radius: 24rpx; color: white; font-weight: 600;"
           >
             {{ submitting ? '提交中...' : '提交评价' }}
           </van-button>

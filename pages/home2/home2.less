@@ -1,200 +1,161 @@
-page{
-    height: 100%;
-    
+page {
+  height: 100%;
 }
-sup{
-    font-size: 18rpx;
-    vertical-align:text-top;
-    margin-left: 5rpx;
+sup {
+  font-size: 18rpx;
+  vertical-align: text-top;
+  margin-left: 5rpx;
 }
-.panel{
-    background-position: center;
-    // background-size: cover;
-    background-size:100% 100%;
-    height:100%;
-    // margin-bottom: 15vh;
-    .select_box{
-        background: #fff;
-        // width: 60%;
-        // margin-bottom: 30rpx;
-        z-index: 10;
-        position: relative;
-        height:5.4vh;
-        .select{
-          box-sizing: border-box;
-          width: 100%;
-          height: 5.4vh;
-          border:1px solid #efefef;
-          border-radius: 8rpx;
-          display: flex;
-          align-items: center;
-          padding: 0 20rpx;
-          .select_text{
-            font-size: 30rpx;
-            flex: 1;
-          }
-          .select_img{
-            width: 60rpx;
-            height: 100%;
-            display: block;
-            margin-right: -20rpx;
-            transition:transform 0.3s;
-          }
-          .select_img_rotate {
-            transform: rotate(90deg);
-          }
-        }
-        .option_box{
-          position: absolute;
-          top: 5.4vh;
-          width: 100%;
-          border:1px solid #efefef;
-          box-sizing: border-box;
-          height: 0;
-          overflow-y: auto;
-          border-top: 0;
-          background: #fff;
-          padding-left: 20rpx;
-          transition: height 0.3s;
-        }
-        .option{
-          display: block;
-          line-height: 3vh;
-          font-size: 30rpx;
-          border-bottom: 1px solid #efefef;
-          padding: 0.76vh;
-        }
-      }
-    .top{
-        
-        .mode{
-            
-            
-        }
-        .flex.justify-start {
-            margin-top: 4vh;
-            margin-left: 70rpx;
-            color: #55c2bb;
-            font-size: 40rpx;
-        }
-        .halflogo{
-            margin-top: 4.6vh;
-            margin-bottom: 3vh;
-            padding-left: 20%;
-            padding-right: 20%;
-            display: flex;
-            justify-content: center;
-            align-items: center; 
-        }
-        .deviceData{
-            height: 34vh;
-            // .wx-swiper-dots.wx-swiper-dots-horizontal {
-            //     top: 95%;
-            // }
-            .large-sup {
-                font-size:30rpx; /* 你可以根据需求调整这个值 */
-            }
-            
-    
-            .deviceName{
-                opacity: 0.7e;
-                font-weight:350;
-                text-align: center;
-                font-size: 35rpx;
-                margin-top:20rpx;
-                margin-bottom: 30rpx;
-                color:#aaa
-            }
-            .center{
-                opacity: 0.7e;
-                display: flex;
-                margin: auto;
-                // height: 200rpx;
-                // margin-bottom: 50rpx;
-                width:78%;
-                font-weight:310;
-                text-align: center;
-                font-size: 32rpx;
-                // border-left: 6rpx solid #55C2BB;
-                // border-right: 6rpx solid #55C2BB;
-                .txt{
-                    font-size: 45rpx;
-                    font-weight: 310;
-                }
-                .humidity{
-                    flex: 33%;
-                    // padding: 0 0rpx;  
-                }
-                .PM2_5{
-                    flex: 33%;
-                    // border-left: 6rpx solid #55C2BB;
-                    // border-right: 6rpx solid #55C2BB;
-                    // padding: 0 0rpx;
-                }
-                .CO{
-                    flex: 33%;
-                    // padding: 0 0 0 0rpx;        
-                }
-            }
-        }
-        
-        .home_mode{
-            display: flex;
-            margin: 5vh auto 0 auto;
-            padding: 0 30rpx;
-            .athome{
-                margin: 0 auto;
-                padding:20rpx;
-                text-align: center;
-                // background-color: yellow;
-                color:grey;
-                width: 180rpx;
-                height: 180rpx;
-                border-radius: 50px;
-
-                display: flex;
-                justify-content: center;
-                align-items: center;
-
-            }
-            .leavehome{
-                padding:20rpx;
-                color:grey;
-                text-align: center;
-                margin: 0 auto;
-                // background-color: yellow;
-                width: 180rpx;
-                height: 180rpx;
-                border-radius: 50px;
-
-                display: flex;
-                justify-content: center;
-                align-items: center;
-        
-            }
-            text{
-                font-size: 90rpx;
-                color:grey
-            }
-        }
-        
-    }
-
-    .filter{
-        margin-top: 4vh;
-        // background-color: red;
-        text-align: center;
-        color:black;
-        font-weight:310;
-        text-align: center;
-        font-size: 32rpx;
-    }
-
-
+.panel {
+  background-position: center;
+  background-size: 100% 100%;
+  height: 100%;
 }
-
+.panel .select_box {
+  background: #fff;
+  z-index: 10;
+  position: relative;
+  height: 5.4vh;
+}
+.panel .select_box .select {
+  box-sizing: border-box;
+  width: 100%;
+  height: 5.4vh;
+  border: 1px solid #efefef;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  padding: 0 20rpx;
+}
+.panel .select_box .select .select_text {
+  font-size: 30rpx;
+  flex: 1;
+}
+.panel .select_box .select .select_img {
+  width: 60rpx;
+  height: 100%;
+  display: block;
+  margin-right: -20rpx;
+  transition: transform 0.3s;
+}
+.panel .select_box .select .select_img_rotate {
+  transform: rotate(90deg);
+}
+.panel .select_box .option_box {
+  position: absolute;
+  top: 5.4vh;
+  width: 100%;
+  border: 1px solid #efefef;
+  box-sizing: border-box;
+  height: 0;
+  overflow-y: auto;
+  border-top: 0;
+  background: #fff;
+  padding-left: 20rpx;
+  transition: height 0.3s;
+}
+.panel .select_box .option {
+  display: block;
+  line-height: 3vh;
+  font-size: 30rpx;
+  border-bottom: 1px solid #efefef;
+  padding: 0.76vh;
+}
+.panel .top .flex.justify-start {
+  margin-top: 4vh;
+  margin-left: 70rpx;
+  color: #55c2bb;
+  font-size: 40rpx;
+}
+.panel .top .halflogo {
+  margin-top: 4.6vh;
+  margin-bottom: 3vh;
+  padding-left: 20%;
+  padding-right: 20%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.panel .top .deviceData {
+  height: 34vh;
+}
+.panel .top .deviceData .large-sup {
+  font-size: 30rpx;
+  /* 你可以根据需求调整这个值 */
+}
+.panel .top .deviceData .deviceName {
+  opacity: 0.7e;
+  font-weight: 350;
+  text-align: center;
+  font-size: 35rpx;
+  margin-top: 20rpx;
+  margin-bottom: 30rpx;
+  color: #aaa;
+}
+.panel .top .deviceData .center {
+  opacity: 0.7e;
+  display: flex;
+  margin: auto;
+  width: 78%;
+  font-weight: 310;
+  text-align: center;
+  font-size: 32rpx;
+}
+.panel .top .deviceData .center .txt {
+  font-size: 45rpx;
+  font-weight: 310;
+}
+.panel .top .deviceData .center .humidity {
+  flex: 33%;
+}
+.panel .top .deviceData .center .PM2_5 {
+  flex: 33%;
+}
+.panel .top .deviceData .center .CO {
+  flex: 33%;
+}
+.panel .top .home_mode {
+  display: flex;
+  margin: 5vh auto 0 auto;
+  padding: 0 30rpx;
+}
+.panel .top .home_mode .athome {
+  margin: 0 auto;
+  padding: 20rpx;
+  text-align: center;
+  color: grey;
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.panel .top .home_mode .leavehome {
+  padding: 20rpx;
+  color: grey;
+  text-align: center;
+  margin: 0 auto;
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.panel .top .home_mode text {
+  font-size: 90rpx;
+  color: grey;
+}
+.panel .filter {
+  margin-top: 4vh;
+  color: black;
+  font-weight: 310;
+  text-align: center;
+  font-size: 32rpx;
+}
 .divider {
-    width: 6rpx;
-    background-color: #55C2BB;
-    /* 根据需要调整高度和其他样式 */
-  }
+  width: 6rpx;
+  background-color: #55C2BB;
+  /* 根据需要调整高度和其他样式 */
+}

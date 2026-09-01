@@ -1,5 +1,57 @@
-.message {
-  margin-top: 40vh;
-  font-size: 35rpx;
+page {
+  background: linear-gradient(180deg, #f7fbf9 0%, #eef5f3 100%);
+}
+
+.document-state {
+  min-height: 70vh;
+  padding: 80rpx 48rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   text-align: center;
+}
+
+.spinner {
+  width: 52rpx;
+  height: 52rpx;
+  margin-bottom: 30rpx;
+  border: 5rpx solid rgba(85, 194, 187, 0.2);
+  border-top-color: #55c2bb;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+.state-title {
+  color: #263238;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.state-description {
+  margin-top: 18rpx;
+  color: #8a9499;
+  font-size: 26rpx;
+  line-height: 1.6;
+}
+
+.retry-button {
+  min-width: 220rpx;
+  margin-top: 36rpx;
+  border: 0;
+  border-radius: 40rpx;
+  color: #fff;
+  background: #55c2bb;
+  font-size: 28rpx;
+}
+
+.retry-button::after {
+  border: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

@@ -1,17 +1,31 @@
-<!-- 报告列表 -->
-<view class="report-list">
-  <view class="report-item" wx:for="{{reports}}" wx:key="id"
-        data-index="{{index}}" bindtap="onReportTap">
-    <view class="row">
-      <text class="name">{{item.name}}</text>
-      <text class="score">{{item.score}}</text>
-    </view>
-    <view class="row">
-      <text class="period">{{item.period}}</text>
-      <text class="created">{{item.created_at}}</text>
-    </view>
+<view class="report-page">
+  <view class="report-header">
+    <view class="header-orbit"></view>
+    <view class="header-eyebrow">COMFORT INSIGHT</view>
+    <view class="header-title">项目运行报告</view>
+    <view class="header-copy">持续记录系统运行与舒适度表现</view>
   </view>
 
-  <!-- 空状态 -->
-  <view wx:if="{{!reports.length}}" class="empty">暂无报告</view>
+  <view wx:if="{{loading}}" class="state-card">
+    <view class="loading-ring"></view><view class="state-title">报告加载中</view><view class="state-copy">正在整理项目数据</view>
+  </view>
+  <view wx:elif="{{loadError}}" class="state-card">
+    <view class="state-icon error-icon cuIcon-warn"></view><view class="state-title">暂时无法加载</view><view class="state-copy">{{loadError}}</view><button class="retry-button" bindtap="retryLoad">重新加载</button>
+  </view>
+  <view wx:elif="{{!reports.length}}" class="state-card">
+    <view class="state-icon cuIcon-news"></view><view class="state-title">暂无报告</view><view class="state-copy">报告生成后会显示在这里</view>
+  </view>
+
+  <view wx:else class="report-list">
+    <view class="list-heading"><text>全部报告</text><text>{{reports.length}} 份</text></view>
+    <view class="report-item" aria-role="button" aria-label="查看报告 {{item.name}}" wx:for="{{reports}}" wx:key="id" data-index="{{index}}" bindtap="onReportTap">
+      <view class="report-icon cuIcon-form"></view>
+      <view class="report-content">
+        <view class="report-title-row"><text class="report-name">{{item.name}}</text><text class="report-score">{{item.score}}</text></view>
+        <view class="report-period">{{item.period}}</view>
+        <view class="report-created">生成时间 {{item.created_at}}</view>
+      </view>
+      <view class="report-arrow">›</view>
+    </view>
+  </view>
 </view>

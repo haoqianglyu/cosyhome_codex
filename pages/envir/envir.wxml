@@ -1,54 +1,62 @@
-<view class="roompage">
-    <view class="realtime">
-     
-        <view class="wrapper">
-            <view class="left">
-                <view class="cl1">实测温湿度</view>
-                <view class="cl2" style="text-align:{{sliderable?'left':'center'}};margin:{{sliderable?'0 0 45rpx 20%;':'0 0 45rpx 0;'}}"><text class="iconfont icon-temperature" style="font-size:80rpx;margin-right: 10rpx;color:#8a8a8a;"></text><text style="font-size:70rpx">{{realtemp}}℃</text></view>
-                <view class="cl3" style="text-align:{{sliderable?'left':'center'}};margin-left:{{sliderable?'20%;':'0;'}}"><text class="iconfont icon-humidity" style="font-size:60rpx;margin-right: 10rpx;color:#8a8a8a"></text><text style="font-size:70rpx"> {{realhumidity}}%</text></view>
-                <view class="cl4" style="text-align:{{sliderable?'left':'center'}};margin-left:{{sliderable?'20%;':'0;'}}"><text class="iconfont icon-dewpoint" style="font-size:60rpx;margin-right: 10rpx;color:#8a8a8a"></text><text style="font-size:70rpx"> {{dewPoint}}℃</text></view>
-            </view>
-            
-            <view class="right" wx:if="{{sliderable}}">
-                <view class="cl">{{setwords}}</view>
-                <text class="iconfont icon-plus" style="font-size:70rpx;margin-right: 10rpx;color:#8a8a8a" bindtap="bindPlus"></text>
-                <text class="num">{{shownum}}{{chushiway == '相对湿度' ? '%' : (chushiway == '露点温度' ? '℃' : '')}}</text>
-                <text class="iconfont icon-minus" style="font-size:70rpx;margin-right: 10rpx;color:#8a8a8a" bindtap="bindMinus"></text>
-            </view>            
-        </view>
-        
-        <view class="'margin-xl bg-white padding-xl radius shadow-lg'">
-            <view class='text-content'>
-    
-                <view class="mode">
-                    <view class="key">当前模式:</view>
-                    <view class="value">{{show_mode}}</view> 
-                  </view>
-                <view class="dewPoint">
-                  <view class="key">除湿方式:</view>
-                  <view class="value">{{chushiway}}</view> 
-                </view>
-                <view class="wind">
-                    <view class="key">除湿出风:</view>
-                    <view class="value">{{wind}}</view> 
-                  </view>
-                
-                
-            
-              </view>
-        </view>
-          
+<view class="environment-page">
+  <view class="environment-hero">
+    <view class="hero-orbit"></view>
+    <view class="hero-topline">
+      <view>
+        <view class="hero-eyebrow">WHOLE-HOME CLIMATE</view>
+        <view class="hero-title">全屋环境</view>
+        <view class="hero-subtitle">实时感知室内温湿度状态</view>
+      </view>
+      <view class="live-badge"><view class="live-dot"></view>实时</view>
     </view>
-    
-    <view class="statistics">
-        <ec-canvas id="mychart1" canvas-id="mychart1" ec="{{ ec1 }}"></ec-canvas>
+    <view class="hero-metrics">
+      <view class="hero-metric">
+        <view class="metric-icon iconfont icon-temperature"></view>
+        <view class="metric-label">温度</view>
+        <view class="metric-value">{{realtemp === '' || realtemp === null || realtemp === undefined ? '--' : realtemp}}<text>℃</text></view>
+      </view>
+      <view class="hero-metric">
+        <view class="metric-icon iconfont icon-humidity"></view>
+        <view class="metric-label">湿度</view>
+        <view class="metric-value">{{realhumidity === '' || realhumidity === null || realhumidity === undefined ? '--' : realhumidity}}<text>%</text></view>
+      </view>
+      <view class="hero-metric">
+        <view class="metric-icon iconfont icon-dewpoint"></view>
+        <view class="metric-label">露点</view>
+        <view class="metric-value">{{dewPoint === '' || dewPoint === null || dewPoint === undefined ? '--' : dewPoint}}<text>℃</text></view>
+      </view>
     </view>
-      
+  </view>
+
+  <view class="setting-card">
+    <view class="card-heading">
+      <view><view class="card-title">环境设定</view><view class="card-subtitle">{{sliderable ? '调整目标环境参数' : '当前模式无需手动设定'}}</view></view>
+      <view class="mode-chip">{{show_mode || '未获取模式'}}</view>
+    </view>
+
+    <view class="setting-control" wx:if="{{sliderable}}">
+      <view>
+        <view class="setting-name">{{setwords || '目标值'}}</view>
+        <view class="setting-type">{{chushiway || '环境参数'}}</view>
+      </view>
+      <view class="step-control">
+        <button class="step-button iconfont icon-minus" aria-label="降低设定值" bindtap="bindMinus"></button>
+        <view class="target-value">{{shownum}}<text>{{chushiway == '相对湿度' ? '%' : (chushiway == '露点温度' ? '℃' : '')}}</text></view>
+        <button class="step-button iconfont icon-plus" aria-label="升高设定值" bindtap="bindPlus"></button>
+      </view>
+    </view>
+
+    <view class="setting-info-grid">
+      <view class="info-item"><view class="info-label">当前模式</view><view class="info-value">{{show_mode || '--'}}</view></view>
+      <view class="info-item"><view class="info-label">除湿方式</view><view class="info-value">{{chushiway || '--'}}</view></view>
+      <view class="info-item"><view class="info-label">除湿出风</view><view class="info-value">{{wind || '--'}}</view></view>
+    </view>
+  </view>
+
+  <view class="chart-card">
+    <view class="card-heading chart-heading">
+      <view><view class="card-title">24小时环境趋势</view><view class="card-subtitle">点击图例查看不同环境参数</view></view>
+    </view>
+    <ec-canvas id="mychart1" canvas-id="mychart1" ec="{{ ec1 }}"></ec-canvas>
+  </view>
 </view>
-  
-
-
-  
-
-
-  
