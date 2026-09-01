@@ -15,14 +15,12 @@ Page({
     loading: true,
   },
   onLoad() {
-    var that = this;
-    wx.getSystemInfo({
-      success: function (res) {
-        console.log(res);
-        that.setData({
-          winHeight: res.windowHeight - 29, //这是减去tab导航的高度
-        });
-      },
+    const windowInfo =
+      typeof wx.getWindowInfo === "function"
+        ? wx.getWindowInfo()
+        : wx.getSystemInfoSync();
+    this.setData({
+      winHeight: windowInfo.windowHeight - 29,
     });
   },
 
@@ -39,10 +37,9 @@ Page({
     this.setData({ loading: true });
     wx.showNavigationBarLoading();
     try {
-      const [notices, announcements] = await Promise.all([
-        legacyControlMessageBody({ messageType: 200 }),
-        legacyControlMessageBody({ messageType: 201 }),
-      ]);
+      // 旧版控制屏回调接口共享项目级响应通道，串行请求可避免并发串包。
+      const notices = await legacyControlMessageBody({ messageType: 200 });
+      const announcements = await legacyControlMessageBody({ messageType: 201 });
       if (requestSequence !== this._messageRequestSequence) {
         return;
       }
@@ -70,6 +67,10 @@ Page({
       ...item,
       time: String(item.time || ""),
     }));
+  },
+
+  onUnload() {
+    this._messageRequestSequence = (this._messageRequestSequence || 0) + 1;
   },
 
   //第一步先完成导航tab切换样式

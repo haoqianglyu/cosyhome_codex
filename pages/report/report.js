@@ -20,15 +20,12 @@ Page({
     
       
     var nowdate = new Date();
-    console.log(nowdate)
     nowdate.setMonth(nowdate.getMonth());
     var y = nowdate.getFullYear();
     var last_y = nowdate.getFullYear()-1;
     var m = (nowdate.getMonth()+1).toString().padStart(2,'0');
     var start_date = last_y+'-'+m;
     var end_date = y+'-'+m;
-    console.log(start_date);
-    console.log(end_date);
     this.setData({
       date: end_date,
       start_date:start_date,
@@ -45,7 +42,6 @@ Page({
   
   
   bindDateChange: function(e) {
-    console.log('picker发送选择改变，携带值为', e.detail.value)
     this.setData({
       date: e.detail.value
     })

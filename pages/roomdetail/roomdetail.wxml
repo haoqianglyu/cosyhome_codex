@@ -1,3 +1,13 @@
+<view class="room-status-bar" style="height: {{statusBarHeight}}px;"></view>
+<view class="room-custom-nav">
+  <view class="room-nav-back" aria-role="button" aria-label="返回房间列表" bindtap="BackPage">
+    <text class="room-nav-back-icon">‹</text>
+    <text>返回</text>
+  </view>
+  <view class="room-nav-title">房间控制</view>
+  <view class="room-nav-placeholder"></view>
+</view>
+
 <view class="room-hero">
   <view class="room-name-block">
     <text class="room-title">{{roomName}}</text>

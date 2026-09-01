@@ -95,6 +95,44 @@ assert.strictEqual(calculateDewPoint(20, 50), 9.3);
 assert.strictEqual(calculateDewPoint("无效", 50), "");
 assert.strictEqual(calculateDewPoint(20, 0), "");
 
+const { normalizeClockInfo } = loadFunctions(
+  "utils/clock.js",
+  ["normalizeClockInfo"],
+);
+const emptyClock = normalizeClockInfo(null);
+assert.strictEqual(emptyClock.isTiming, false);
+assert.strictEqual(emptyClock.currentMode, 0);
+assert.strictEqual(emptyClock.timeMode, 0);
+assert.deepStrictEqual(
+  Array.from(emptyClock.timingMode, (period) => Array.from(period)),
+  [
+    ["00:00", "00:00"],
+    ["00:00", "00:00"],
+    ["00:00", "00:00"],
+    ["00:00", "00:00"],
+  ],
+  "缺失的定时配置应补齐四组安全默认值",
+);
+const normalizedClock = normalizeClockInfo({
+  isTiming: 1,
+  currentMode: 99,
+  timeMode: "1",
+  timingMode: [["08:30", "bad"], ["23:59", "06:00"]],
+});
+assert.strictEqual(normalizedClock.isTiming, true);
+assert.strictEqual(normalizedClock.currentMode, 3);
+assert.strictEqual(normalizedClock.timeMode, 1);
+assert.deepStrictEqual(
+  Array.from(normalizedClock.timingMode, (period) => Array.from(period)),
+  [
+    ["08:30", "00:00"],
+    ["23:59", "06:00"],
+    ["00:00", "00:00"],
+    ["00:00", "00:00"],
+  ],
+  "异常时间与越界模式应被归一化",
+);
+
 function rc4(bytes, key) {
   const keyBytes = Buffer.from(key, "utf8");
   const state = Array.from({ length: 256 }, (_, index) => index);

@@ -12,6 +12,15 @@
     box-shadow: var(--ui-shadow-soft);
 }
 
+.detail-state {
+    display: flex;
+    min-height: 620rpx;
+    align-items: center;
+    justify-content: center;
+    color: var(--ui-text-muted);
+    font-size: 27rpx;
+}
+
 .header {
     display: flex;
     justify-content: space-between;
@@ -22,9 +31,15 @@
 }
 
 .title {
+    flex: 1;
+    min-width: 0;
+    margin-right: 20rpx;
+    overflow: hidden;
     font-size: 36rpx;
     font-weight: bold;
     color: #333;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .status {
@@ -90,6 +105,12 @@
     display: flex;
     flex-wrap: wrap;
     gap: 20rpx;
+}
+
+.attachment-loading {
+    padding: 30rpx 0;
+    color: var(--ui-text-muted);
+    font-size: 25rpx;
 }
 
 .attachment-item {

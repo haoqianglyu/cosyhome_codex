@@ -6,6 +6,23 @@ import {
   enterProjectRole,
   normalizeProjects,
 } from "../../utils/projects.js";
+
+function requestResponse(method, options) {
+  return new Promise((resolve, reject) => {
+    method({ ...options, success: resolve, fail: reject });
+  });
+}
+
+function getWechatLoginCode() {
+  return new Promise((resolve, reject) => {
+    wx.login({
+      success: ({ code, errMsg }) =>
+        code ? resolve(code) : reject(new Error(errMsg || "微信登录失败")),
+      fail: reject,
+    });
+  });
+}
+
 Page({
   /**
    * 页面的初始数据
@@ -24,6 +41,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+    this._pageVisible = true;
     this.init(); // 在页面加载时自动调用 init 方法，开始动画
   },
 
@@ -44,12 +62,16 @@ Page({
     wx.createSelectorQuery()
       .selectAll("#c1")
       .node((res) => {
+        if (!this._pageVisible || !res || !res[0] || !res[0].node) {
+          return;
+        }
         const canvas = res[0].node;
         const context = canvas.getContext("2d");
+        const pixelRatio = this.getPixelRatio();
 
-        context.scale(this.getPixelRatio(), this.getPixelRatio());
-        canvas.width = 120 * this.getPixelRatio(); //120是图片的宽度
-        canvas.height = 120 * this.getPixelRatio(); //120是图片的高度
+        canvas.width = 120 * pixelRatio;
+        canvas.height = 120 * pixelRatio;
+        context.scale(pixelRatio, pixelRatio);
 
         lottie.setup(canvas);
 
@@ -70,7 +92,11 @@ Page({
   //获取设备的像素比
   getPixelRatio() {
     try {
-      return wx.getSystemInfoSync().pixelRatio || 1;
+      const windowInfo =
+        typeof wx.getWindowInfo === "function"
+          ? wx.getWindowInfo()
+          : wx.getSystemInfoSync();
+      return windowInfo.pixelRatio || 1;
     } catch (error) {
       return 1;
     }
@@ -91,13 +117,14 @@ Page({
   },
 
   onInput(e) {
+    const inputValue = String(e.detail.value || "").replace(/\D/g, "").slice(0, 11);
     this.setData({
-      inputValue: e.detail.value,
+      inputValue,
       inputError: false, // Reset the error state
       errorMessage: "手机号", // Reset the error message
     });
 
-    if (e.detail.value.length === 11) {
+    if (inputValue.length === 11) {
       wx.hideKeyboard(); // Hide the keyboard when there are 11 digits
     }
   },
@@ -113,12 +140,11 @@ Page({
     });
 
     // 可选：输出当前的勾选状态以便于调试。
-    console.log("访客模式登录勾选状态：", isGuestModeEnabled);
   },
 
   // Add the validate and navigate function
   validateAndNavigate: function () {
-    const { inputValue } = this.data;
+    const inputValue = String(this.data.inputValue || "").trim();
 
     // 检查手机号格式是否正确
     if (/^1[3-9]\d{9}$/.test(inputValue)) {
@@ -142,15 +168,12 @@ Page({
   },
 
   onCheckboxChange: function (e) {
-    console.log("bbbb");
-    console.log(e.detail.value);
     this.setData({
       isCheckboxChecked: e.detail.value.length > 0,
     });
   },
 
   confirmDrawer: function () {
-    var that = this
     if (!this.data.isCheckboxChecked) {
       // 如果用户没有勾选同意条款，显示提示
       wx.showToast({
@@ -159,67 +182,66 @@ Page({
         duration: 2000,
       });
     } else if (this.data.isGuestModeEnabled) {
-      // 如果是访客模式，并且用户已经勾选同意条款
-      const phone_number = this.data.inputValue;
-      wx.login({
-        success(res) {
-          const wx_code = res.code;
-          api.visitor_login({
-            method: "POST",
-            header: {
-              "content-type": "application/json",
-              // Authorization: wx.getStorageSync("access_token"),
-            },
-            data: {
-              wx_code: wx_code,
-              distributor_phone: phone_number,
-            },
-            success: function (res) {
-              const access_token = "Bearer " + res.data.access_token;
-              api.visitor_projects({
-                method: "POST",
-                data: {},
-                header: {
-                  "content-type": "application/json",
-                  Authorization: access_token,
-                },
-                success: function (projectResponse) {
-                  const projects = normalizeProjects(
-                    projectResponse.data,
-                    true,
-                  );
-                  that.setData({ homes: projects });
-                  if (!projects.length) {
-                    wx.showToast({
-                      title: "暂无访客项目",
-                      icon: "none",
-                      duration: 2000,
-                    });
-                    return;
-                  }
-                  wx.setStorageSync("access_token", access_token);
-                  app.setVisitorMode(true, true);
-                  wx.setStorageSync("login", "distributor");
-                  enterProjectRole(projects, 1000);
-                },
-              });
-
-            },
-            fail: function (error) {
-              wx.showToast({
-                title: (error.data && error.data.message) || "访客登录失败",
-                icon: "none",
-              });
-            },
-          });
-        },
-      });
+      this.loginAsGuest();
     } else {
       // 如果不是访客模式，并且用户已经勾选同意条款，正常跳转到验证页面
       wx.setStorageSync("userPhoneNumber", this.data.inputValue);
       wx.navigateTo({
         url: "../verification/verification",
       });
+    }
+  },
+
+  async loginAsGuest() {
+    if (this._visitorLoginPending) {
+      return;
+    }
+    this._visitorLoginPending = true;
+    wx.showLoading({ title: "正在登录", mask: true });
+    try {
+      const code = await getWechatLoginCode();
+      const loginResponse = await requestResponse(api.visitor_login, {
+        method: "POST",
+        header: { "content-type": "application/json" },
+        data: {
+          wx_code: code,
+          distributor_phone: this.data.inputValue,
+        },
+      });
+      const token = loginResponse.data && loginResponse.data.access_token;
+      if (!token) {
+        throw new Error("访客登录结果缺少 access_token");
+      }
+      const accessToken = `Bearer ${token}`;
+      const projectResponse = await requestResponse(api.visitor_projects, {
+        method: "POST",
+        data: {},
+        header: {
+          "content-type": "application/json",
+          Authorization: accessToken,
+        },
+      });
+      const projects = normalizeProjects(projectResponse.data, true);
+      if (!projects.length) {
+        wx.showToast({ title: "暂无访客项目", icon: "none" });
+        return;
+      }
+      this.setData({ homes: projects });
+      wx.setStorageSync("access_token", accessToken);
+      app.setVisitorMode(true, true);
+      wx.setStorageSync("login", "distributor");
+      enterProjectRole(projects);
+    } catch (error) {
+      wx.showToast({
+        title:
+          (error && error.data && error.data.message) ||
+          (error && error.message) ||
+          "访客登录失败",
+        icon: "none",
+      });
+    } finally {
+      this._visitorLoginPending = false;
+      wx.hideLoading();
     }
   },
 
@@ -231,7 +253,14 @@ Page({
   /**
    * 生命周期函数--监听页面卸载
    */
-  onUnload: function () { },
+  onUnload: function () {
+    this._pageVisible = false;
+    if (this.ani && typeof this.ani.destroy === "function") {
+      this.ani.destroy();
+    }
+    this.ani = null;
+    this._inited = false;
+  },
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作

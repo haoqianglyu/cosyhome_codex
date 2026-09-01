@@ -77,6 +77,73 @@ function checkPageFiles() {
   }
 }
 
+function checkReleaseConfiguration() {
+  const appConfig = JSON.parse(
+    fs.readFileSync(path.join(root, "app.json"), "utf8"),
+  );
+  const projectConfig = JSON.parse(
+    fs.readFileSync(path.join(root, "project.config.json"), "utf8"),
+  );
+  const sitemap = JSON.parse(
+    fs.readFileSync(path.join(root, "sitemap.json"), "utf8"),
+  );
+  const packageConfig = JSON.parse(
+    fs.readFileSync(path.join(root, "package.json"), "utf8"),
+  );
+
+  if ((appConfig.pages || []).some((route) => route.includes("fantest"))) {
+    errors.push("app.json: 发布路由中不能包含 fantest 测试页面");
+  }
+  if (!projectConfig.setting || projectConfig.setting.urlCheck !== true) {
+    errors.push("project.config.json: 发布前必须启用合法域名校验");
+  }
+  if (
+    !projectConfig.setting ||
+    projectConfig.setting.scopeDataCheck !== true ||
+    projectConfig.setting.autoAudits !== true
+  ) {
+    errors.push("project.config.json: 发布前必须启用权限与自动审计检查");
+  }
+  if (projectConfig.setting.uploadWithSourceMap !== false) {
+    errors.push("project.config.json: 正式发布应关闭 Source Map 上传");
+  }
+  const disallowsAll = (sitemap.rules || []).some(
+    (rule) => rule.action === "disallow" && rule.page === "*",
+  );
+  if (!disallowsAll) {
+    errors.push("sitemap.json: 业务后台页面应禁止微信索引");
+  }
+  if (packageConfig.name !== "cosyhome_codex") {
+    errors.push("package.json: 项目名称必须为 cosyhome_codex");
+  }
+  if (
+    packageConfig.devDependencies &&
+    packageConfig.devDependencies["mini-program-iconfont-cli"]
+  ) {
+    errors.push("package.json: 不应保留已弃用且存在漏洞的图标生成依赖");
+  }
+
+  const ignoredFolders = new Set(
+    ((projectConfig.packOptions && projectConfig.packOptions.ignore) || [])
+      .filter((item) => item.type === "folder")
+      .map((item) => item.value),
+  );
+  for (const filename of files) {
+    const sourcePath = relative(filename).split(path.sep).join("/");
+    if (!/^(?:app\.js|pages\/|subpackages\/|components\/|custom-tab-bar\/)/.test(sourcePath)) {
+      continue;
+    }
+    if (!/\.(?:js|json)$/.test(filename)) continue;
+    const source = fs.readFileSync(filename, "utf8");
+    for (const match of source.matchAll(/@vant\/weapp\/([\w-]+)/g)) {
+      const componentFolder = `miniprogram_npm/@vant/weapp/${match[1]}`;
+      if (ignoredFolders.has(componentFolder)) {
+        addError(filename, `正在使用的 Vant 组件被发布配置排除：${match[1]}`);
+      }
+    }
+  }
+}
+
 function checkLocalComponents() {
   for (const filename of files.filter((file) => file.endsWith(".json"))) {
     let config;
@@ -102,8 +169,15 @@ function checkLocalComponents() {
 function checkSourceRules() {
   for (const filename of files) {
     const source = fs.readFileSync(filename, "utf8");
+    const sourcePath = relative(filename).split(path.sep).join("/");
+    if (
+      /^(?:app\.|my_icon\.wxss|pages\/|subpackages\/|components\/|custom-tab-bar\/|styles\/|icon\.wxss)/.test(sourcePath) &&
+      /(?:http:\/\/|url\(["']?\/\/)/.test(source)
+    ) {
+      addError(filename, "运行时代码和资源必须使用 HTTPS 或本地文件");
+    }
     if (filename.endsWith(".wxml")) {
-      if (/wx:key=["'](?:index|this)["']/.test(source)) {
+      if (/wx:key=["'](?:index|this|i|idx|ri|ci|h|c)["']/.test(source)) {
         addError(filename, "wx:key 必须使用稳定字段");
       }
       const clickableElements = source.match(
@@ -129,6 +203,13 @@ function checkSourceRules() {
     }
     if (
       filename.endsWith(".js") &&
+      /\bthat\./.test(source) &&
+      !/\b(?:var|let|const)\s+that\s*=/.test(source)
+    ) {
+      addError(filename, "使用 that 前必须在当前文件中显式声明");
+    }
+    if (
+      filename.endsWith(".js") &&
       !filename.includes(`${path.sep}scripts${path.sep}`) &&
       source.includes("api.trans_ctrl_message_sync(") &&
       relative(filename) !== path.join("pages", "projectstatus", "projectstatus.js")
@@ -147,10 +228,32 @@ function checkSourceRules() {
   }
 }
 
+function checkDuplicateAssets() {
+  const contentHashes = new Map();
+  for (const filename of files) {
+    if (!/\.(?:wxss|png|jpg|jpeg|webp|gif|svg|woff|woff2|ttf)$/.test(filename)) {
+      continue;
+    }
+    const content = fs.readFileSync(filename);
+    if (content.length < 8192) {
+      continue;
+    }
+    const key = `${content.length}:${content.toString("base64")}`;
+    const previous = contentHashes.get(key);
+    if (previous) {
+      addError(filename, `与 ${relative(previous)} 内容完全重复，请避免重复打包`);
+    } else {
+      contentHashes.set(key, filename);
+    }
+  }
+}
+
 visit(root);
 checkPageFiles();
 checkLocalComponents();
 checkSourceRules();
+checkReleaseConfiguration();
+checkDuplicateAssets();
 
 if (errors.length) {
   console.error(errors.join("\n\n"));

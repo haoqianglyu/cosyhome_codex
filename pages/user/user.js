@@ -130,7 +130,7 @@ Page({
       }
       wx.setStorageSync("login", loginRole);
       app.setVisitorMode(!toUser, app.globalData.isdistributor_visitor);
-      enterProjectRole(projects, 1000);
+      enterProjectRole(projects);
     } catch (error) {
       console.error("身份切换失败", error);
       wx.showToast({ title: "身份切换失败", icon: "none" });

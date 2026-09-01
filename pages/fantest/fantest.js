@@ -50,6 +50,9 @@ Page({
     panelEnabled: true,
     energyEnabled: true,
     lockEnabled: false,
+    presenceMode: "home",
+    presencePending: "",
+    presenceTimerEnabled: true,
     terminalOptions: [
       { key: "floor", label: "地暖", selected: true },
       { key: "fan", label: "风机盘管", selected: true },
@@ -62,6 +65,10 @@ Page({
   },
 
   onUnload() {
+    if (this._presenceSwitchTimer) {
+      clearTimeout(this._presenceSwitchTimer);
+      this._presenceSwitchTimer = null;
+    }
     this._gaugeDragging = false;
     this._gaugeCanvas = null;
     this._gaugeContext = null;
@@ -76,6 +83,36 @@ Page({
       animationClass: state.animationClass,
       levelTitle: state.levelTitle,
       rpmLabel: state.rpmLabel,
+    });
+  },
+
+  selectPresenceMode(event) {
+    const mode = String(event.currentTarget.dataset.mode || "");
+    if (
+      !["home", "away"].includes(mode) ||
+      this.data.presencePending ||
+      mode === this.data.presenceMode
+    ) {
+      return;
+    }
+
+    this.setData({ presencePending: mode });
+    this._presenceSwitchTimer = setTimeout(() => {
+      this._presenceSwitchTimer = null;
+      this.setData({
+        presenceMode: mode,
+        presencePending: "",
+      });
+      wx.showToast({
+        title: mode === "home" ? "已切换为在家" : "已切换为离家",
+        icon: "none",
+      });
+    }, 850);
+  },
+
+  togglePresenceTimer() {
+    this.setData({
+      presenceTimerEnabled: !this.data.presenceTimerEnabled,
     });
   },
 

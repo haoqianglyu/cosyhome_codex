@@ -6,7 +6,25 @@ import {
 } from "../../utils/projects.js";
 
 const app = getApp();
-const ADMIN_PHONES = ["15006181214", "18888888888"];
+// 后端暂未完整返回管理员身份，保留前端管理员号码兼容名单。
+const LEGACY_ADMIN_PHONES = new Set(["15006181214", "18888888888"]);
+
+function isTrueFlag(value) {
+  return value === true || value === 1 || value === "1" || value === "true";
+}
+
+function hasAdminRole(loginData) {
+  if (LEGACY_ADMIN_PHONES.has(String(loginData.customer_phone || ""))) {
+    return true;
+  }
+  if (Object.prototype.hasOwnProperty.call(loginData, "is_admin")) {
+    return isTrueFlag(loginData.is_admin);
+  }
+  if (loginData.role) {
+    return String(loginData.role).toLowerCase() === "admin";
+  }
+  return false;
+}
 function miniLogin(data) {
   return new Promise((resolve, reject) => {
     api.mini_login({
@@ -47,7 +65,10 @@ Page({
   },
 
   saveWindowSize() {
-    const { windowWidth, windowHeight } = wx.getSystemInfoSync();
+    const { windowWidth, windowHeight } =
+      typeof wx.getWindowInfo === "function"
+        ? wx.getWindowInfo()
+        : wx.getSystemInfoSync();
     wx.setStorageSync("windowWidth", windowWidth);
     wx.setStorageSync("windowHeight", windowHeight);
   },
@@ -89,11 +110,11 @@ Page({
   },
 
   async loginDistributor(loginData) {
-    if (ADMIN_PHONES.includes(loginData.customer_phone)) {
+    if (hasAdminRole(loginData)) {
       wx.setStorageSync("isdistributor", true);
       wx.setStorageSync("isAdmin", true);
       app.setVisitorMode(false, false);
-      setTimeout(() => wx.navigateTo({ url: "../admin/admin" }), 1000);
+      wx.redirectTo({ url: "../admin/admin" });
       return;
     }
 
@@ -112,17 +133,14 @@ Page({
     const loginRole = wx.getStorageSync("login");
     if (!loginRole) {
       wx.setStorageSync("isdistributor", true);
-      setTimeout(
-        () => wx.navigateTo({ url: "../distributor/distributor" }),
-        1000,
-      );
+      wx.redirectTo({ url: "../distributor/distributor" });
       return;
     }
 
     wx.setStorageSync("isdistributor", true);
     if (loginRole === "user") {
       app.setVisitorMode(false, false);
-      this.enterProjects(userProjects, 1000);
+      this.enterProjects(userProjects);
     } else {
       const distributorData = await apiRequest(api.distributor_projects);
       app.setVisitorMode(true, false);
@@ -137,24 +155,24 @@ Page({
     const projects = normalizeProjects(projectData);
     app.setVisitorMode(false, false);
     wx.setStorageSync("isdistributor", false);
-    this.enterProjects(projects, 1000, true);
+    this.enterProjects(projects, true);
   },
 
-  enterProjects(projects, delay = 0, bindWhenEmpty = false) {
+  enterProjects(projects, bindWhenEmpty = false) {
     this.setData({ homes: projects });
-    if (enterProjectRole(projects, delay)) {
+    if (enterProjectRole(projects)) {
       return;
     }
 
     wx.showToast({ title: "无项目可查看", icon: "none" });
     if (bindWhenEmpty) {
-      setTimeout(() => wx.navigateTo({ url: "/pages/bind/bind" }), 1000);
+      wx.redirectTo({ url: "/pages/bind/bind" });
     }
   },
 
   goBindPage(message) {
     wx.showToast({ title: message, icon: "none", duration: 1500 });
-    setTimeout(() => wx.navigateTo({ url: "../bind/bind" }), 1000);
+    wx.redirectTo({ url: "../bind/bind" });
   },
 
   onShareAppMessage() {

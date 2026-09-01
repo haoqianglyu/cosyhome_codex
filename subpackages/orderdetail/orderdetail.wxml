@@ -1,6 +1,7 @@
 <view class="page-container">
-  
-  <view class="page-wrapper" wx:if="{{ orderInfo }}">
+  <view class="empty-state" wx:if="{{loading}}"><text class="empty-text">正在加载工单详情...</text></view>
+  <view class="empty-state" wx:elif="{{loadError}}"><text class="empty-text">{{loadError}}</text></view>
+  <view class="page-wrapper" wx:elif="{{ orderInfo }}">
     <view class="card header-card">
       <view class="header-title">{{ orderInfo.name }}</view>
       <view class="header-status {{ orderInfo.statusClass }}">{{ orderInfo.statusText }}</view>
@@ -169,6 +170,8 @@
             value="{{ review }}"
             type="textarea"
             placeholder="请输入您的评价内容"
+            maxlength="500"
+            show-word-limit
             autosize="{{ { minHeight: 80 } }}"
             bind:change="onReviewChange"
             custom-style="background: #f8f8f8; border: 1px solid #e8e8e8; border-radius: 16rpx; margin-top: 0; color: #333333;"

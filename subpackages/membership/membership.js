@@ -15,16 +15,23 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
-    this.loadMemberData();
+    if (wx.getStorageSync("is_member_login")) {
+      wx.showToast({ title: "成员账号无管理权限", icon: "none" });
+      wx.switchTab({ url: "/pages/user/user" });
+      return;
+    }
   },
 
   /**
    * 加载成员数据
    */
-  /**
-   * 加载成员数据
-   */
   loadMemberData(callback) {
+    if (this._memberRequestPending) {
+      if (callback) callback();
+      return;
+    }
+    this._memberRequestPending = true;
+    this.setData({ loading: true });
     api.customers({
       method: "POST",
       header: {
@@ -33,8 +40,7 @@ Page({
       },
       data: {},
       success: (res) => {
-        console.log("customers API response:", res);
-        if (res && res.data && res.data.entities) {
+        if (res && res.data && Array.isArray(res.data.entities)) {
           // 转换API数据格式为页面需要的格式
           const memberList = res.data.entities.map((customer, index) => ({
             id: customer.id,
@@ -48,12 +54,14 @@ Page({
             loading: false,
           });
         } else {
-          console.error("Invalid API response format:", res);
-          this.setData({ loading: false });
+          this.setData({ memberList: [], loading: false });
+          wx.showToast({ title: "成员数据格式异常", icon: "none" });
         }
+        this._memberRequestPending = false;
         if (callback) callback();
       },
       fail: (err) => {
+        this._memberRequestPending = false;
         console.error("customers API failed:", err);
         this.setData({ loading: false });
         wx.showToast({
@@ -75,9 +83,10 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
-    console.log("111");
     // 页面显示时重新加载成员数据，确保从添加成员页面返回后能看到最新数据
-    this.loadMemberData();
+    if (!wx.getStorageSync("is_member_login")) {
+      this.loadMemberData();
+    }
   },
 
   /**
@@ -198,6 +207,12 @@ Page({
    * 执行删除成员操作
    */
   performDeleteMember(id, index, name) {
+    if (this._deletePending) return;
+    if (id == null || id === "" || !Number.isInteger(Number(index))) {
+      Toast.fail("成员信息无效，请刷新后重试");
+      return;
+    }
+    this._deletePending = true;
     // 显示加载提示
     wx.showLoading({
       title: "删除中...",
@@ -210,13 +225,12 @@ Page({
         Authorization: wx.getStorageSync("access_token"),
       },
       success: (delRes) => {
+        this._deletePending = false;
         wx.hideLoading();
-        console.log("删除成员成功:", delRes);
-
         if (delRes.statusCode === 200) {
           // 从本地数据中移除该成员
-          const memberList = this.data.memberList;
-          memberList.splice(index, 1);
+          const memberList = this.data.memberList.slice();
+          memberList.splice(Number(index), 1);
           this.setData({ memberList });
 
           // 显示成功提示
@@ -227,6 +241,7 @@ Page({
         }
       },
       fail: (err) => {
+        this._deletePending = false;
         wx.hideLoading();
         console.error("删除成员接口失败:", err);
         Toast.fail("网络错误，删除失败");
@@ -238,6 +253,10 @@ Page({
    * 添加成员
    */
   onAddMember() {
+    if (wx.getStorageSync("is_member_login")) {
+      wx.showToast({ title: "成员账号无管理权限", icon: "none" });
+      return;
+    }
     wx.navigateTo({
       url: "/subpackages/addMember/addMember",
     });

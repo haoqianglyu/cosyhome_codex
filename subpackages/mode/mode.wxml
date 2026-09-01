@@ -1,4 +1,36 @@
-<!--pages/mode/mode.wxml-->
-<view class="statistics">
-    <ec-canvas id="mychart2" canvas-id="mychart2" ec="{{ ec2 }}"></ec-canvas>
+<view class="mode-page">
+  <view class="mode-hero">
+    <view class="hero-orbit hero-orbit--large"></view>
+    <view class="hero-orbit hero-orbit--small"></view>
+    <view class="hero-eyebrow">RUN MODE ANALYTICS</view>
+    <view class="hero-row">
+      <view class="hero-title">运行模式占比</view>
+      <view class="month-chip">{{selectedMonth}}月</view>
+    </view>
+    <view class="hero-copy">不同运行模式在本月运行时间中的占比</view>
+    <view class="hero-summary" wx:if="{{key.length}}">
+      <view class="summary-item">
+        <view class="summary-value">{{key.length}}</view>
+        <view class="summary-label">运行模式</view>
+      </view>
+      <view class="summary-line"></view>
+      <view class="summary-item summary-item--wide">
+        <view class="summary-value summary-value--text">{{dominantMode}}</view>
+        <view class="summary-label">主要运行模式</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="chart-card">
+    <view class="chart-heading">
+      <view>
+        <view class="chart-title">模式时间分布</view>
+        <view class="chart-caption">按运行时间占比排序展示</view>
+      </view>
+      <view class="chart-unit"><view class="unit-dot"></view>占比 %</view>
+    </view>
+    <view class="chart-shell">
+      <ec-canvas id="mychart2" canvas-id="mychart2" ec="{{ ec2 }}"></ec-canvas>
+    </view>
+  </view>
 </view>

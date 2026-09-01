@@ -16,6 +16,14 @@ import {
   filterProjects,
   restoreHomeProjects,
 } from "../../utils/homeProjects.js";
+
+const HOME_MODE_MIN_LOADING_MS = 850;
+const HOME_MODE_SETTLED_MS = 240;
+
+function waitForAnimation(duration) {
+  return new Promise((resolve) => setTimeout(resolve, duration));
+}
+
 Page({
   /**
    * 页面的初始数据
@@ -39,6 +47,8 @@ Page({
     clock_info: "",
     hasclock: false,
     home_mode: 1,
+    showHomeModeSheet: false,
+    homeModePending: "",
     clock_on: true,
     deviceName: "",
     interval: "", //定时器
@@ -56,15 +66,12 @@ Page({
   // 点击下拉显示框
   selectTap() {
     var that = this;
-    console.log(that.data.homes);
     that.setData({
       show: !this.data.show,
       // showList: wx.getStorageSync("backfromhome2")?wx.getStorageSync("home2showlist"):that.data.homes,
       showList: that.data.homes,
       searchedList: that.data.homes,
     });
-    console.log(that.data.homes);
-    console.log(that.data.showList);
   },
 
   // 点击下拉列表
@@ -125,8 +132,6 @@ Page({
       return;
     }
 
-    console.log("[weather_get] current_region:", current_region);
-    console.log("[weather_get] 请求 cityCode:", cityCode);
 
     // ===== 2. 发起 API 请求 =====
     api.get_weather({
@@ -138,7 +143,6 @@ Page({
       },
 
       success(res) {
-        console.log("[weather_get] raw response:", res);
 
         // --- 提取实时天气 ---
         const weather = res.data && res.data.weather;
@@ -421,6 +425,29 @@ Page({
     }
   },
 
+  openHomeModeSheet() {
+    this.setData({ showHomeModeSheet: true });
+  },
+
+  closeHomeModeSheet() {
+    if (this._homeModePending) {
+      return;
+    }
+    this.setData({ showHomeModeSheet: false });
+  },
+
+  selectHomeMode(event) {
+    const mode = String(event.currentTarget.dataset.mode || "");
+    if (!["home", "away"].includes(mode) || this._homeModePending) {
+      return;
+    }
+    const atHome = mode === "home";
+    if (Boolean(this.data.home_mode) === atHome) {
+      return;
+    }
+    return this.changeHomeMode(atHome);
+  },
+
   async changeHomeMode(atHome) {
     if (this._homeModePending) {
       return;
@@ -443,6 +470,8 @@ Page({
     }
 
     this._homeModePending = true;
+    this.setData({ homeModePending: atHome ? "home" : "away" });
+    const switchStartedAt = Date.now();
     try {
       await apiRequest(api.ctrl_home, {
         method: "POST",
@@ -455,10 +484,28 @@ Page({
           at_home: atHome,
         },
       });
+
+      const loadingElapsed = Date.now() - switchStartedAt;
+      const remainingLoadingTime = Math.max(
+        0,
+        HOME_MODE_MIN_LOADING_MS - loadingElapsed,
+      );
+      if (remainingLoadingTime > 0) {
+        await waitForAnimation(remainingLoadingTime);
+      }
       if (!isCurrentPage(this)) {
         return;
       }
-      this.setData({ home_mode: atHome ? 1 : 0 });
+      this.setData({
+        home_mode: atHome ? 1 : 0,
+        homeModePending: "",
+      });
+
+      await waitForAnimation(HOME_MODE_SETTLED_MS);
+      if (!isCurrentPage(this)) {
+        return;
+      }
+      this.setData({ showHomeModeSheet: false });
       wx.showToast({
         title: atHome ? "已开启在家模式" : "已开启离家模式",
         icon: "success",
@@ -470,6 +517,9 @@ Page({
       }
     } finally {
       this._homeModePending = false;
+      if (isCurrentPage(this)) {
+        this.setData({ homeModePending: "" });
+      }
       if (this._pageVisible) {
         this.scheduleStatusRefresh();
       }
@@ -569,6 +619,7 @@ Page({
    */
   onHide: function () {
     this._pageVisible = false;
+    this.setData({ showHomeModeSheet: false });
     this.clearTimeInterval();
     this.clearStatusRefreshTimer();
   },

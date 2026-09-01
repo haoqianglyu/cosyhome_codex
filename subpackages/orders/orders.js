@@ -7,6 +7,8 @@ const STATUS_MAP = {
 Page({
   data: {
     orderList: [],
+    loading: true,
+    loadError: '',
   },
 
   onLoad(options) {
@@ -25,6 +27,9 @@ Page({
   },
 
   loadCompletedOrders() {
+    if (this._ordersRequestPending) return;
+    this._ordersRequestPending = true;
+    this.setData({ loading: true, loadError: '' });
     wx.showLoading({ title: '加载中...' });
     const projectId = wx.getStorageSync("selected_home");
     const workOrderParams = {
@@ -32,8 +37,6 @@ Page({
       status: [9],
       page_options: { page: 1, limit: 0 }
     };
-
-    console.log("发起API请求，参数：", workOrderParams);
 
     // 获取服务类别映射
     const fetchCategoriesPromise = new Promise((resolve) => {
@@ -92,15 +95,17 @@ Page({
         } else {
           console.error("获取工单数据失败:", workOrdersResult.reason);
           wx.showToast({ title: '获取工单数据失败', icon: 'error' });
-          this.setData({ orderList: [] });
+          this.setData({ orderList: [], loadError: '获取工单数据失败' });
         }  
       })
       .catch((error) => {
         console.error("数据加载异常:", error);
         wx.showToast({ title: '数据加载异常', icon: 'error' });
-        this.setData({ orderList: [] });
+        this.setData({ orderList: [], loadError: '工单数据加载异常' });
       })
       .finally(() => {
+        this._ordersRequestPending = false;
+        this.setData({ loading: false });
         wx.hideLoading();
         wx.stopPullDownRefresh();
       });
@@ -117,8 +122,7 @@ Page({
         const serviceTypeName = categoriesMap.get(item.category_id) || '未分类';
         
         // 检查是否已评价：有score或review字段且不为空
-        const hasRating = (item.score !== undefined && item.score !== null) || 
-                         (item.review !== undefined && item.review !== null && item.review.trim() !== '');
+        const hasRating = item.score != null || String(item.review || '').trim() !== '';
         
         return { 
           ...item, 
@@ -134,7 +138,6 @@ Page({
       });
 
       this.setData({ orderList: formattedOrders });
-      console.log("已完成工单列表:", formattedOrders);
     } else {
       console.warn("没有找到已完成的工单:", res);
       this.setData({ orderList: [] });
@@ -146,7 +149,7 @@ Page({
     const orderData = this.data.orderList.find(item => item.id === id);
     if (orderData) {
       wx.navigateTo({
-        url: `/subpackages/orderdetail/orderdetail?id=${id}`,
+        url: `/subpackages/orderdetail/orderdetail?id=${encodeURIComponent(id)}`,
         success: (res) => res.eventChannel.emit('acceptDataFromOrdersPage', { data: orderData })
       });
     } else {

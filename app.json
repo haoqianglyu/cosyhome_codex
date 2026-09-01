@@ -8,7 +8,6 @@
     "pages/privacy/privacy",
     "pages/roomstats2/roomstats2",
     "pages/modeselect/modeselect",
-    "pages/fantest/fantest",
     "pages/bind/bind",
     "pages/distributor/distributor",
     "pages/roomdetail/roomdetail",
@@ -112,7 +111,7 @@
   "tabBar": {
     "custom": true,
     "color": "#aaaaaa",
-    "selectedColor": "#0d7266",
+    "selectedColor": "#55c2bb",
     "backgroundColor": "#ffffff",
     "list": [
       {

@@ -114,28 +114,92 @@
       </block>
     </swiper>
     <view class="home-actions">
-      <!-- 在家 / 离家 / 定时 -->
+      <!-- 当前在家状态入口 + 独立定时入口 -->
       <view class="home_mode">
-        <view class="mode-action athome {{home_mode ? 'mode-action--active' : ''}}" aria-role="button" aria-label="开启在家模式" bindtap="backhome">
-          <text class="iconfont icon-huijiamoshi"></text>
-          <view class="mode-action-label">在家</view>
+        <view class="home-status-entry" aria-role="button" aria-label="切换在家状态" bindtap="openHomeModeSheet">
+          <view class="home-status-entry-icon">
+            <text class="iconfont {{home_mode ? 'icon-huijiamoshi' : 'icon-lijiamoshi'}}"></text>
+          </view>
+          <view class="home-status-entry-title">{{home_mode ? '在家' : '离家'}}</view>
+          <text class="home-status-entry-arrow">›</text>
         </view>
-        <view class="mode-action leavehome {{!home_mode ? 'mode-action--active' : ''}}" aria-role="button" aria-label="开启离家模式" bindtap="leavehome">
-          <text class="iconfont icon-lijiamoshi"></text>
-          <view class="mode-action-label">离家</view>
-        </view>
-        <view class="mode-action clock {{clock_on ? 'mode-action--active' : ''}}" aria-role="button" aria-label="设置定时" wx:if="{{hasclock}}" bindtap="clock">
-          <text class="iconfont icon-clock"></text>
-          <view class="mode-action-label">定时</view>
+        <view class="home-timer-entry {{clock_on ? 'home-timer-entry--active' : ''}}" aria-role="button" aria-label="设置定时" wx:if="{{hasclock}}" bindtap="clock">
+          <view class="home-timer-entry-icon">
+            <text class="iconfont icon-clock"></text>
+          </view>
+          <view class="home-timer-entry-label">定时</view>
+          <text class="home-status-entry-arrow">›</text>
         </view>
       </view>
       <!-- 滤网剩余 -->
       <view class="filter" wx:if="{{filter!=''}}">
-        <text>滤网剩余有效期</text>
-        <text class="day {{filter > 0 ? '' : 'day--expired'}}">{{filter}}天</text>
+        <text>滤网剩余有效期:</text>
+        <text class="day {{filter > 0 ? '' : 'day--expired'}}">{{filter}}</text>
+        <text class="filter-unit">天</text>
       </view>
     </view>
   </view>
+
+  <!-- 在家 / 离家状态选择 -->
+  <view
+    class="home-mode-overlay"
+    aria-role="button"
+    aria-label="关闭在家状态选择"
+    wx:if="{{showHomeModeSheet}}"
+    bindtap="closeHomeModeSheet"
+    catchtouchmove="noop"
+  >
+    <view class="home-mode-sheet" catchtap="noop">
+      <view class="home-mode-sheet-handle"></view>
+      <view class="home-mode-sheet-heading">
+        <view>
+          <view class="home-mode-sheet-eyebrow">HOME STATUS</view>
+          <view class="home-mode-sheet-title">选择在家状态</view>
+        </view>
+        <view class="home-mode-sheet-close" aria-role="button" aria-label="关闭" catchtap="closeHomeModeSheet">×</view>
+      </view>
+
+      <view class="home-presence-options">
+        <view class="home-presence-option" aria-role="button" aria-label="切换为在家模式" data-mode="home" catchtap="selectHomeMode">
+          <view class="home-presence-ring {{home_mode ? 'home-presence-ring--active' : ''}} {{homeModePending === 'home' ? 'home-presence-ring--loading' : ''}}">
+            <view class="home-presence-icon">
+              <text class="iconfont icon-huijiamoshi"></text>
+            </view>
+          </view>
+          <view class="home-presence-copy">
+            <view class="home-presence-title">在家</view>
+            <view class="home-presence-caption">{{homeModePending === 'home' ? '正在切换…' : (home_mode ? '当前状态' : '点击切换')}}</view>
+          </view>
+        </view>
+
+        <view class="home-presence-connector"></view>
+
+        <view class="home-presence-option" aria-role="button" aria-label="切换为离家模式" data-mode="away" catchtap="selectHomeMode">
+          <view class="home-presence-ring {{!home_mode ? 'home-presence-ring--active' : ''}} {{homeModePending === 'away' ? 'home-presence-ring--loading' : ''}}">
+            <view class="home-presence-icon">
+              <text class="iconfont icon-lijiamoshi"></text>
+            </view>
+          </view>
+          <view class="home-presence-copy">
+            <view class="home-presence-title">离家</view>
+            <view class="home-presence-caption">{{homeModePending === 'away' ? '正在切换…' : (!home_mode ? '当前状态' : '点击切换')}}</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="home-mode-timer-row" aria-role="button" aria-label="设置定时计划" wx:if="{{hasclock}}" catchtap="clock">
+        <view class="home-mode-timer-icon">
+          <text class="iconfont icon-clock"></text>
+        </view>
+        <view class="home-mode-timer-copy">
+          <view class="home-mode-timer-title">定时计划</view>
+          <view class="home-mode-timer-caption">单独设置定时，不改变当前状态</view>
+        </view>
+        <text class="home-mode-timer-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 天气详情弹层 -->
   <view class="weather-overlay" aria-role="button" aria-label="关闭天气详情" wx:if="{{showWeatherBox}}" bindtap="closeWeatherBox">
     <view class="weather-box" catchtap="noop">

@@ -6,7 +6,7 @@
     <view class="brand-mark">
       <canvas id="c1" type="2d" class="brand-animation"></canvas>
     </view>
-    <view class="hero-kicker">HC COSY HOME</view>
+    <view class="hero-kicker">HC COSYHOME</view>
     <view class="hero-title">欢迎使用健康舒适家</view>
     <view class="hero-subtitle">绑定预留手机号，连接您的舒适生活</view>
   </view>

@@ -6,7 +6,9 @@ Page({
    * 页面的初始数据
    */
   data: {
-
+    content: [],
+    loading: true,
+    loadError: "",
   },
 
   /**
@@ -21,6 +23,7 @@ Page({
   },
 
   async loadStatistics() {
+    this.setData({ loading: true, loadError: "" });
     try {
       const body = await legacyControlMessageBody({
         messageType: 20,
@@ -36,8 +39,9 @@ Page({
             _key: item.id || item.address || item.name || index,
           }))
         : [];
-      this.setData({ content });
+      this.setData({ content, loading: false });
     } catch (error) {
+      this.setData({ content: [], loading: false, loadError: "环境量数据获取失败" });
       wx.showToast({ title: "环境量数据获取失败", icon: "none" });
     } finally {
       wx.hideNavigationBarLoading();
@@ -76,7 +80,7 @@ Page({
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh: function () {
-
+    this.loadStatistics().finally(() => wx.stopPullDownRefresh());
   },
 
   /**

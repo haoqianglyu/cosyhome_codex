@@ -8,6 +8,52 @@ page {
   background-size: cover;
 }
 
+.room-status-bar {
+  width: 100%;
+}
+
+.room-custom-nav {
+  display: flex;
+  height: 88rpx;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28rpx;
+}
+
+.room-nav-back {
+  display: flex;
+  width: 120rpx;
+  flex-shrink: 0;
+  align-items: center;
+  color: #29433d;
+  font-size: 28rpx;
+}
+
+.room-nav-back-icon {
+  margin-right: 5rpx;
+  font-size: 48rpx;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.room-nav-title {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: #172c27;
+  font-size: 31rpx;
+  font-weight: 600;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.room-nav-placeholder {
+  width: 120rpx;
+  flex-shrink: 0;
+}
+
 .room-hero {
   display: flex;
   min-height: 116rpx;

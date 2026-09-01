@@ -1,5 +1,6 @@
 // pages/clock/clock.js
 import { sendControlCommand } from "../../utils/controlMessage.js";
+import { normalizeClockInfo } from "../../utils/clock.js";
 var app = getApp();
 Page({
   /**
@@ -19,13 +20,12 @@ Page({
     wx.setNavigationBarTitle({
       title: "定时设置",
     });
-    var clockInfo = wx.getStorageSync("clock_info") || {}; // 获取存储的数据或默认为空对象
+    const clockInfo = normalizeClockInfo(wx.getStorageSync("clock_info"));
     that.setData({
       clock_info: clockInfo,
       currentTab: clockInfo.currentMode + 1, // 因为currentMode是从0开始的，而currentTab是从1开始的
       switch_on: clockInfo.isTiming,
     });
-    console.log(that.data.clock_info);
   },
 
   bindTimeChangeMode1Start: function (e) {
@@ -106,13 +106,13 @@ Page({
       });
     } else {
       this._confirmPending = true;
-      var body_json = JSON.stringify({
+      const body = {
         isTiming: that.data.switch_on, // 开关的状态
         currentMode: that.data.currentTab - 1, // 当前选中的模式，减1是因为Tab从1开始，而currentMode可能是从0开始
         timingMode: that.data.clock_info.timingMode, // timingMode的数据
-      });
+      };
   
-      sendControlCommand({ messageType: 17, body: body_json })
+      sendControlCommand({ messageType: 17, body })
         .then(function () {
           wx.showToast({
             title: "定时指令已发送",
@@ -120,28 +120,26 @@ Page({
           });
   
           // 延迟返回上一页
-          setTimeout(function () {
+          that._navigateTimer = setTimeout(function () {
             wx.navigateBack({
               delta: 1, // 返回上一层页面
             });
           }, 1500); // 延迟2000ms，确保提示能够显示完整
         })
         .catch(function (error) {
+          that._confirmPending = false;
           wx.showToast({
             title: "定时指令发送失败",
             icon: "none",
           });
           console.error(error);
-        })
-        .finally(function () {
-          that._confirmPending = false;
         });
     }
   },
   
 
   cancel: function () {
-    console.log("取消");
+    this.clearNavigateTimer();
     wx.navigateBack({
         delta: 1 // 这里的数字表示返回的层数，1 表示返回上一层页面
     });
@@ -159,16 +157,13 @@ Page({
   onShow: function () {},
 
   switchTab: function (e) {
-    var that = this;
-    console.log(e.currentTarget.dataset.id);
-    that.setData({
-      currentTab: e.currentTarget.dataset.id,
+    this.setData({
+      currentTab: Number(e.currentTarget.dataset.id),
     });
   },
 
   onChangePower(e) {
     var that = this;
-    console.log(e.detail.value);
     if (app.globalData.isvisitor) {
       wx.showToast({
         title: "访客模式不可操作",
@@ -184,12 +179,22 @@ Page({
   /**
    * 生命周期函数--监听页面隐藏
    */
-  onHide: function () {},
+  onHide: function () {
+    this.clearNavigateTimer();
+  },
 
   /**
    * 生命周期函数--监听页面卸载
    */
-  onUnload: function () {},
+  onUnload: function () {
+    this.clearNavigateTimer();
+  },
+
+  clearNavigateTimer() {
+    clearTimeout(this._navigateTimer);
+    this._navigateTimer = null;
+    this._confirmPending = false;
+  },
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作

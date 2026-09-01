@@ -4,7 +4,5 @@
     "i-switch": "../../dist/switch/index",
     "cu-custom": "/colorui/components/cu-custom"
   },
-  "navigationBarTitleText": "房间控制",
-  "navigationBarBackgroundColor": "#eef7f4",
-  "navigationBarTextStyle": "black"
+  "navigationStyle": "custom"
 }

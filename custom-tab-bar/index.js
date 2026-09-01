@@ -14,7 +14,6 @@ Component({
       list: app.ensureTabBarList()
     })
     this._tabbarCallback = res => {
-      console.log(res)
       that.setData({
         list:res
       })

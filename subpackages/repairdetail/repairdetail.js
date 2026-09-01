@@ -9,7 +9,10 @@ const REPAIR_STATUS_MAP = {
 Page({
     data: {
         repair: {},
-        attachments: []
+        attachments: [],
+        detailLoading: true,
+        loadError: "",
+        attachmentLoading: false,
     },
 
     onLoad(options) {
@@ -18,7 +21,8 @@ Page({
         if (eventChannel && eventChannel.on) {
             eventChannel.on('acceptDataFromServicePage', (data) => {
                 const { data: repairData } = data;
-                this.setData({ repair: this.formatRepair(repairData) });
+                if (!repairData || !repairData.id) return;
+                this.setData({ repair: this.formatRepair(repairData), detailLoading: false, loadError: "" });
                 this.loadAttachments(repairData.id);
             });
         }
@@ -29,6 +33,8 @@ Page({
                     this.loadRepairDetail(options.id);
                 }
             });
+        } else if (!eventChannel || !eventChannel.on) {
+            this.setData({ detailLoading: false, loadError: "缺少报修记录编号" });
         }
     },
 
@@ -54,13 +60,15 @@ Page({
                     (item) => String(item.id) === String(repairId),
                 );
                 if (!repair) {
+                    this.setData({ detailLoading: false, loadError: "未找到报修信息" });
                     wx.showToast({ title: "未找到报修信息", icon: "none" });
                     return;
                 }
-                this.setData({ repair: this.formatRepair(repair) });
+                this.setData({ repair: this.formatRepair(repair), detailLoading: false, loadError: "" });
                 this.loadAttachments(repair.id);
             },
             fail: () => {
+                this.setData({ detailLoading: false, loadError: "报修详情加载失败" });
                 wx.showToast({ title: "报修详情加载失败", icon: "none" });
             },
         });
@@ -86,7 +94,7 @@ Page({
             return;
         }
         this._attachmentsRepairId = repairId;
-        console.log('Loading attachments for repair ID:', repairId);
+        this.setData({ attachmentLoading: true });
         api.get_repair_report_attachments({
             method: "POST",
             data: { repair_report_id: repairId },
@@ -95,27 +103,23 @@ Page({
                 Authorization: wx.getStorageSync("access_token")
             },
             success: (res) => {
-                console.log('Attachments list response:', res);
                 if (res && res.data && Array.isArray(res.data.repair_report_attachment_entities)) {
                     const entities = res.data.repair_report_attachment_entities;
-                    console.log('Found', entities.length, 'attachments');
 
                     if (entities.length === 0) {
-                        this.setData({ attachments: [] });
+                        this.setData({ attachments: [], attachmentLoading: false });
                         return;
                     }
 
                     // Fetch download URL for each attachment
                     const urlPromises = entities.map((entity, index) => {
                         return new Promise((resolve, reject) => {
-                            console.log(`Fetching download URL for attachment ${index + 1}/${entities.length}, ID:`, entity.id);
                             api.get_repair_report_attachment_download_url(entity.id, {
                                 method: "GET",
                                 header: {
                                     Authorization: wx.getStorageSync("access_token")
                                 },
                                 success: (urlRes) => {
-                                    console.log(`Download URL response for attachment ${index + 1}:`, urlRes);
                                     let data = urlRes.data;
                                     // Handle case where data might be a JSON string
                                     if (typeof data === 'string') {
@@ -126,7 +130,7 @@ Page({
                                         }
                                     }
 
-                                    if (data && data.url) {
+                                    if (data && /^https:\/\//i.test(String(data.url || ""))) {
                                         const filename = entity.filename || entity.name || '附件';
                                         const url = data.url;
 
@@ -149,23 +153,27 @@ Page({
                         });
                     });
 
-                    Promise.all(urlPromises)
-                        .then(attachments => {
-                            console.log('All download URLs fetched successfully:', attachments);
-                            this.setData({ attachments });
+                    Promise.allSettled(urlPromises)
+                        .then(results => {
+                            const attachments = results
+                                .filter((result) => result.status === "fulfilled")
+                                .map((result) => result.value);
+                            this.setData({ attachments, attachmentLoading: false });
+                            if (attachments.length !== entities.length) {
+                                wx.showToast({ title: "部分附件加载失败", icon: "none" });
+                            }
                         })
                         .catch(err => {
                             console.error("Failed to load attachment URLs", err);
-                            this.setData({ attachments: [] });
+                            this.setData({ attachments: [], attachmentLoading: false });
                         });
                 } else {
-                    console.log('No attachments found in response');
-                    this.setData({ attachments: [] });
+                    this.setData({ attachments: [], attachmentLoading: false });
                 }
             },
             fail: (err) => {
                 console.error("Failed to load attachments", err);
-                this.setData({ attachments: [] });
+                this.setData({ attachments: [], attachmentLoading: false });
             }
         });
     },
@@ -207,6 +215,10 @@ Page({
         } else {
             wx.showToast({ title: '暂不支持预览此类型文件', icon: 'none' });
         }
+    },
+
+    onUnload() {
+        this._attachmentsRepairId = null;
     },
 
     /**

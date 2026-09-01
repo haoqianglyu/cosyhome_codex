@@ -91,8 +91,6 @@ Page({
    * @param {Array} arr 设备数组，每项: { deviceName, dayList, avgUsage, totalUsage... }
    */
   handleDataAndRender: function (arr) {
-    console.log("解析到的最终数据 =>", arr);
-
     if (!Array.isArray(arr) || arr.length === 0) {
       this.showNoData();
       return;
@@ -122,6 +120,7 @@ Page({
    */
   showNoData: function () {
     this.chart1Componnet = this.selectComponent("#mychart2");
+    if (!this.chart1Componnet) return;
     this.chart1Componnet.init((canvas, width, height, dpr) => {
       barChart1 = echarts.init(canvas, null, {
         width: width,
@@ -194,6 +193,7 @@ Page({
   init_echarts1: function (chartData) {
     const that = this;
     this.chart1Componnet = this.selectComponent("#mychart2");
+    if (!this.chart1Componnet) return;
     this.chart1Componnet.init((canvas, width, height, dpr) => {
       barChart1 = echarts.init(canvas, null, {
         width: width,
@@ -224,7 +224,6 @@ Page({
 
       // 2) 监听图例点击 => 更新总和
       barChart1.on("legendselectchanged", (e) => {
-        console.log("点击图例:", e.name);
         const allSeries = barChart1.getOption().series;
         // var selected = e.selected;
         // var symbolSize = selected[e.name] ? 8 : 5;
@@ -254,7 +253,6 @@ Page({
   },
 
   getBarOption1: function (chartData) {
-    console.log(chartData);
     var option = {
       title: {
         padding: [10, 20, 100, 100],

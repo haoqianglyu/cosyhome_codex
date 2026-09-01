@@ -1,5 +1,5 @@
 {
-  "name": "cosyhome_allmini",
+  "name": "cosyhome_codex",
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
@@ -9,16 +9,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@hi-txw.tpddns.cn:cosyhomedevteam/cosyhome_mini.git"
+    "url": "http://test.cosyhome.com.cn:8088/gitlab/HaoqiangLyu/cosyhome_codex.git"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@vant/weapp": "^1.11.7",
     "lottie-miniprogram": "^1.0.12"
-  },
-  "devDependencies": {
-    "mini-program-iconfont-cli": "^0.6.1"
   },
   "description": ""
 }

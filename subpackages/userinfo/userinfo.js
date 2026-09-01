@@ -16,6 +16,9 @@ Page({
     
   },
   onShow: function() {
+    this.loadCustomerInfo();
+  },
+  loadCustomerInfo: function() {
     var that = this
     api.customer_info({
       method: 'POST',
@@ -27,16 +30,19 @@ Page({
         "project_id":wx.getStorageSync("selected_home"),
       },
       success: function(res){
-        console.log(res)
+        const customerInfo =
+          (res.data && res.data.customer_info) || {};
         that.setData({
-          customer_info: res.data.customer_info
-        })
-        console.log(that.data.customer_info)
-        that.setData({
-          phone : that.data.customer_info.hasOwnProperty("service_phone")?that.data.customer_info.service_phone:that.data.customer_info.distributor_phone
-        })
-        console.log(that.data.phone)
-      }
+          customer_info: customerInfo,
+          phone:
+            customerInfo.service_phone ||
+            customerInfo.distributor_phone ||
+            "-",
+        });
+      },
+      fail() {
+        wx.showToast({ title: "项目信息加载失败", icon: "none" });
+      },
     });
   },
   onHide: function() {
@@ -46,7 +52,8 @@ Page({
 
   },
   onPullDownRefresh: function() {
-
+    this.loadCustomerInfo();
+    wx.stopPullDownRefresh();
   },
   onReachBottom: function() {
 
@@ -64,6 +71,5 @@ Page({
 
   },
  
-  
+
 });
-  

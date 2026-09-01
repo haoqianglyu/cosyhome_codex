@@ -71,6 +71,7 @@ function wxRequest(params = {}, url) {
   } = params;
 
   return wx.request({
+    timeout: 15000,
     ...requestOptions,
     url,
     method,
@@ -152,7 +153,8 @@ function endpoint(path, defaults = {}) {
 }
 
 function endpointWithId(path) {
-  return (id, params) => wxRequest(params, `${HOST}${path}/${id}`);
+  return (id, params) =>
+    wxRequest(params, `${HOST}${path}/${encodeURIComponent(String(id))}`);
 }
 
 const api = {

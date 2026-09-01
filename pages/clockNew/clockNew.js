@@ -1,5 +1,6 @@
 // pages/clock/clock.js
 import { sendControlCommand } from "../../utils/controlMessage.js";
+import { normalizeClockInfo } from "../../utils/clock.js";
 var app = getApp();
 Page({
   /**
@@ -19,7 +20,7 @@ Page({
     wx.setNavigationBarTitle({
       title: "定时设置",
     });
-    var clockInfo = wx.getStorageSync("clock_info") || {}; // 获取存储的数据或默认为空对象
+    const clockInfo = normalizeClockInfo(wx.getStorageSync("clock_info"));
     that.setData({
       clock_info: clockInfo,
       currentTab: clockInfo.currentMode + 1, // 因为currentMode是从0开始的，而currentTab是从1开始的
@@ -30,8 +31,6 @@ Page({
         clockInfo.timingMode[3][1]
       ), // 生成初始提示文字
     });
-    console.log(that.data.clock_info);
-    console.log(that.data.currentTab);
   },
 
  
@@ -152,7 +151,6 @@ generateNoticeText: function(startTime, endTime) {
       noticeText: newNoticeText // 更新提示文字
     });
   
-    console.log(that.data.clock_info); // 可以查看更新后的 clock_info 数据
   },
   
 
@@ -166,13 +164,13 @@ generateNoticeText: function(startTime, endTime) {
       });
     } else {
       this._confirmPending = true;
-      var body_json = JSON.stringify({
+      const body = {
         timeMode: that.data.clock_info.timeMode,
         isTiming: that.data.switch_on, // 开关的状态
         currentMode: that.data.currentTab - 1, // 当前选中的模式，减1是因为Tab从1开始，而currentMode可能是从0开始
         timingMode: that.data.clock_info.timingMode, // timingMode的数据
-      });
-      sendControlCommand({ messageType: 17, body: body_json })
+      };
+      sendControlCommand({ messageType: 17, body })
         .then(function () {
           wx.showToast({
             title: "定时指令已发送",
@@ -180,28 +178,26 @@ generateNoticeText: function(startTime, endTime) {
           });
   
           // 延迟返回上一页
-          setTimeout(function () {
+          that._navigateTimer = setTimeout(function () {
             wx.navigateBack({
               delta: 1, // 这里的数字表示返回的层数，1 表示返回上一层页面
             });
           }, 1500); // 延迟时间与showToast相同，2000毫秒
         })
         .catch(function (error) {
+          that._confirmPending = false;
           wx.showToast({
             title: "定时指令发送失败",
             icon: "none",
           });
           console.error(error);
-        })
-        .finally(function () {
-          that._confirmPending = false;
         });
     }
   },
   
 
   cancel: function () {
-    console.log("取消");
+    this.clearNavigateTimer();
     wx.navigateBack({
       delta: 1, // 这里的数字表示返回的层数，1 表示返回上一层页面
     });
@@ -211,8 +207,6 @@ generateNoticeText: function(startTime, endTime) {
   isCrossDay: function (startTime, endTime) {
     const startHour = parseInt(startTime.split(":")[0], 10);
     const endHour = parseInt(endTime.split(":")[0], 10);
-    console.log(startHour);
-    console.log(endHour);
     // 判断结束小时数是否小于开始小时数
     return endHour < startHour;
   },
@@ -238,14 +232,13 @@ generateNoticeText: function(startTime, endTime) {
     // console.log(e)
     // console.log(e.currentTarget.dataset.id);
     that.setData({
-      currentTab: e.currentTarget.dataset.id,
+      currentTab: Number(e.currentTarget.dataset.id),
     });
     // console.log(that.data.currentTab)
   },
 
   onChangePower(e) {
     var that = this;
-    console.log(e.detail.value);
     if (app.globalData.isvisitor) {
       wx.showToast({
         title: "访客模式不可操作",
@@ -261,12 +254,22 @@ generateNoticeText: function(startTime, endTime) {
   /**
    * 生命周期函数--监听页面隐藏
    */
-  onHide: function () {},
+  onHide: function () {
+    this.clearNavigateTimer();
+  },
 
   /**
    * 生命周期函数--监听页面卸载
    */
-  onUnload: function () {},
+  onUnload: function () {
+    this.clearNavigateTimer();
+  },
+
+  clearNavigateTimer() {
+    clearTimeout(this._navigateTimer);
+    this._navigateTimer = null;
+    this._confirmPending = false;
+  },
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作

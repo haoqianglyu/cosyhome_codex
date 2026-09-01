@@ -1,5 +1,20 @@
 import api from "../../api/api.js";
 
+const MAX_ATTACHMENTS = 9;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const MAX_SOURCE_IMAGE_SIZE = 20 * 1024 * 1024;
+const MAX_CONTACT_NAME_LENGTH = 50;
+const MAX_ADDRESS_LENGTH = 200;
+const MAX_DESCRIPTION_LENGTH = 2000;
+
+function safeFilename(filename) {
+    const basename = String(filename || "attachment")
+        .split(/[\\/]/)
+        .pop()
+        .replace(/[\u0000-\u001f<>:"|?*]/g, "_");
+    return basename.slice(0, 120) || "attachment";
+}
+
 // --- 工具类：处理文件扩展名和 MIME 类型 ---
 const FileTypeUtils = {
     getExtension(filename) {
@@ -9,7 +24,7 @@ const FileTypeUtils = {
     },
     getFileType(filename) {
         const ext = this.getExtension(filename);
-        const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+        const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
         if (imageExts.includes(ext)) return 'image';
         const videoExts = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'm4v', '3gp'];
         if (videoExts.includes(ext)) return 'video';
@@ -56,8 +71,28 @@ Page({
         const newFiles = Array.isArray(file) ? file : [file];
 
         // 初始化状态：status='ready', message=''
-        const newUploads = newFiles.map(item => ({
+        const remainingCount = Math.max(
+            MAX_ATTACHMENTS - fileList.length,
+            0,
+        );
+        const acceptedFiles = newFiles
+            .filter((item) => {
+                if (!item || !item.url) return false;
+                const filename = item.name || item.url;
+                const isImage = FileTypeUtils.getFileType(filename) === 'image';
+                const validSize = !item.size || item.size <= MAX_SOURCE_IMAGE_SIZE;
+                return isImage && validSize;
+            })
+            .slice(0, remainingCount);
+        if (acceptedFiles.length !== newFiles.length) {
+            wx.showToast({
+                title: '仅支持20MB以内的常见图片，最多9张',
+                icon: 'none',
+            });
+        }
+        const newUploads = acceptedFiles.map(item => ({
             ...item,
+            name: safeFilename(item.name || String(item.url).split('/').pop()),
             status: 'ready',
             message: '',
             isCompressed: false // 标记是否已压缩，防止重试时重复压缩
@@ -70,7 +105,7 @@ Page({
 
     deleteFile(event) {
         const { index } = event.detail;
-        const { fileList } = this.data;
+        const fileList = this.data.fileList.slice();
         fileList.splice(index, 1);
         this.setData({ fileList });
     },
@@ -115,8 +150,6 @@ Page({
             return;
         }
 
-        console.log('当前点击的文件状态:', file.status);
-
         // 情况1：如果状态是失败，则触发手动重试
         if (file.status === 'failed') {
             if (!this.data.currentReportId) {
@@ -143,18 +176,32 @@ Page({
     // ---------------------------------------------------------
     submitFeedback() {
         // 1. 修改点：解构加入 address
-        const { contactName, contactPhone, address, description, fileList, currentReportId } = this.data;
+        const contactName = String(this.data.contactName || '').trim();
+        const contactPhone = String(this.data.contactPhone || '').trim();
+        const address = String(this.data.address || '').trim();
+        const description = String(this.data.description || '').trim();
+        const { fileList, currentReportId } = this.data;
 
         if (!contactName) { wx.showToast({ title: '请填写联系人', icon: 'none' }); return; }
+        if (contactName.length > MAX_CONTACT_NAME_LENGTH) { wx.showToast({ title: '联系人姓名过长', icon: 'none' }); return; }
         if (!contactPhone) { wx.showToast({ title: '请填写联系电话', icon: 'none' }); return; }
+        if (!/^[0-9+\-\s]{6,20}$/.test(contactPhone)) { wx.showToast({ title: '联系电话格式不正确', icon: 'none' }); return; }
         // 2. 修改点：加入地址非空校验
         if (!address) { wx.showToast({ title: '请填写详细地址', icon: 'none' }); return; }
+        if (address.length > MAX_ADDRESS_LENGTH) { wx.showToast({ title: '详细地址不能超过200个字符', icon: 'none' }); return; }
         if (!description) { wx.showToast({ title: '请填写问题描述', icon: 'none' }); return; }
+        if (description.length > MAX_DESCRIPTION_LENGTH) { wx.showToast({ title: '问题描述不能超过2000个字符', icon: 'none' }); return; }
 
         if (this.data.submitting) return;
 
+        if (!wx.getStorageSync("selected_home")) {
+            wx.showToast({ title: '请先选择项目', icon: 'none' });
+            return;
+        }
+
         // 断点续传逻辑
         if (currentReportId) {
+            this.setData({ submitting: true });
             this.uploadAllFiles(currentReportId);
             return;
         }
@@ -184,8 +231,6 @@ Page({
                 if (res && res.data && res.data.id) {
                     const reportId = res.data.id;
                     this.setData({ currentReportId: reportId }); // 保存 ID
-                    console.log('Report created:', reportId);
-
                     if (fileList.length > 0) {
                         this.uploadAllFiles(reportId);
                     } else {
@@ -240,6 +285,8 @@ Page({
     // 手动重试单个文件
     // ---------------------------------------------------------
     async retrySingleFile(index) {
+        if (this._retryPending) return;
+        this._retryPending = true;
         const reportId = this.data.currentReportId;
         wx.showLoading({ title: '重试中...', mask: true });
 
@@ -257,6 +304,8 @@ Page({
         } catch (e) {
             wx.hideLoading();
             wx.showToast({ title: '重试失败，请检查网络', icon: 'none' });
+        } finally {
+            this._retryPending = false;
         }
     },
 
@@ -271,7 +320,7 @@ Page({
             await this.performSingleFileUpload(index, reportId);
             this.updateFileStatus(index, 'done', '上传成功');
         } catch (firstError) {
-            console.log(`Index ${index} first attempt failed, retrying...`, firstError);
+            console.warn(`附件 ${index + 1} 首次上传失败，正在自动重试`);
 
             // --- 自动第二次尝试 ---
             this.updateFileStatus(index, 'uploading', '重试中...');
@@ -294,14 +343,23 @@ Page({
         const fs = wx.getFileSystemManager();
         const file = this.data.fileList[index];
 
-        const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+        if (!file || !file.url) {
+            throw new Error('附件文件不存在');
+        }
+
         let processedUrl = file.url;
 
         // 1. 预处理 (图片压缩)
-        const fileName = file.name || file.url.split('/').pop();
+        const fileName = safeFilename(file.name || String(file.url).split('/').pop());
         const fileType = FileTypeUtils.getFileType(fileName);
+        const sourceFileInfo = await new Promise((resolve, reject) => {
+            wx.getFileInfo({ filePath: file.url, success: resolve, fail: reject });
+        });
+        if (sourceFileInfo.size > MAX_SOURCE_IMAGE_SIZE) {
+            throw new Error('图片大小不能超过20MB');
+        }
 
-        if (fileType === 'image' && file.size > MAX_IMAGE_SIZE && !file.isCompressed) {
+        if (fileType === 'image' && sourceFileInfo.size > MAX_IMAGE_SIZE && !file.isCompressed) {
             processedUrl = await this.recursiveCompress(file.url, MAX_IMAGE_SIZE);
             this.setData({
                 [`fileList[${index}].url`]: processedUrl,
@@ -309,8 +367,15 @@ Page({
             });
         }
 
+        const processedFileInfo = await new Promise((resolve, reject) => {
+            wx.getFileInfo({ filePath: processedUrl, success: resolve, fail: reject });
+        });
+        if (processedFileInfo.size > MAX_IMAGE_SIZE) {
+            throw new Error('图片压缩后仍超过5MB');
+        }
+
         // 2. 获取 Content-Type
-        const finalFileName = file.name || processedUrl.split('/').pop();
+        const finalFileName = safeFilename(file.name || processedUrl.split('/').pop());
         const contentType = FileTypeUtils.getMimeType(finalFileName);
 
         // 3. 调接口获取上传 URL
@@ -334,6 +399,9 @@ Page({
                 fail: (err) => reject(err)
             });
         });
+        if (!/^https:\/\//i.test(uploadInfo.url)) {
+            throw new Error('上传地址必须使用 HTTPS');
+        }
 
         // 4. 读取文件数据
         const fileData = await new Promise((resolve, reject) => {
@@ -352,6 +420,7 @@ Page({
             wx.request({
                 url: uploadInfo.url,
                 method: 'PUT',
+                timeout: 60000,
                 header: { 'Content-Type': contentType },
                 data: fileData,
                 success: (res) => {
@@ -380,9 +449,16 @@ Page({
         wx.hideLoading();
         this.setData({ submitting: false, currentReportId: null });
         wx.showToast({ title: '提交成功', icon: 'success' });
-        setTimeout(() => {
+        this._navigateTimer = setTimeout(() => {
             wx.navigateBack();
         }, 1500);
+    },
+
+    onUnload() {
+        clearTimeout(this._navigateTimer);
+        this._navigateTimer = null;
+        this._retryPending = false;
+        wx.hideLoading();
     },
 
     /**

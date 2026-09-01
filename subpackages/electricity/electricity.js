@@ -69,8 +69,6 @@ Page({
    * 统一处理数据并渲染: 包括填充 listData / dataArray / xAxis
    */
   handleDataAndRender: function(dataArr, versionType="old") {
-    console.log(`解析到 ${versionType} 版本数据 =>`, dataArr);
-
     if (!Array.isArray(dataArr) || dataArr.length === 0) {
       this.showNoData();
       return;
@@ -120,6 +118,7 @@ Page({
    */
   showNoData: function() {
     this.chart1Componnet = this.selectComponent('#mychart1');
+    if (!this.chart1Componnet) return;
     this.chart1Componnet.init((canvas, width, height, dpr) => {
       barChart1 = echarts.init(canvas, null, {
         width: width,
@@ -172,6 +171,7 @@ Page({
   init_echarts1: function (chartData) {
     // console.log(chartData)
     this.chart1Componnet = this.selectComponent('#mychart1');
+    if (!this.chart1Componnet) return;
     this.chart1Componnet.init((canvas, width, height, dpr) => {
       barChart1 = echarts.init(canvas, null, {
         width: width,

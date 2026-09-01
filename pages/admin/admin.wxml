@@ -3,11 +3,12 @@
   <view class="search-shell"><text class="cuIcon-search search-icon"></text><input type="text" placeholder="搜索经销商名称" confirm-type="search" name="distributor" bindinput="getDistributor" /></view>
   <view class="result-meta"><text>经销商列表</text><text>{{showList.length}} 个结果</text></view>
   <scroll-view scroll-y class="distributor-scroll" scroll-top="{{scrollTop}}">
-    <view wx:if="{{showList.length}}" class="distributor-list">
+    <view wx:if="{{loading}}" class="empty-state"><view class="empty-title">正在加载经销商...</view></view>
+    <view wx:elif="{{showList.length}}" class="distributor-list">
       <view class="distributor-item" aria-role="button" aria-label="选择经销商 {{item.name}}" wx:for="{{showList}}" wx:key="id" wx:for-index="idx" data-index="{{idx}}" bindtap="selectDistributor">
         <view class="distributor-avatar cuIcon-group"></view><text class="distributor-name">{{item.name}}</text><text class="item-arrow">›</text>
       </view>
     </view>
-    <view wx:else class="empty-state"><view class="empty-icon cuIcon-search"></view><view class="empty-title">没有找到经销商</view><view class="empty-copy">请尝试其他关键词</view></view>
+    <view wx:else class="empty-state"><view class="empty-icon cuIcon-search"></view><view class="empty-title">{{loadError || '没有找到经销商'}}</view><view class="empty-copy">{{loadError ? '下拉页面可重新加载' : '请尝试其他关键词'}}</view></view>
   </scroll-view>
 </view>

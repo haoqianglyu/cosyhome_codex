@@ -15,7 +15,13 @@ Page({
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad(options) {},
+  onLoad(options) {
+    if (wx.getStorageSync("is_member_login")) {
+      wx.showToast({ title: "成员账号无管理权限", icon: "none" });
+      wx.switchTab({ url: "/pages/user/user" });
+      return;
+    }
+  },
 
   /**
    * 生命周期函数--监听页面初次渲染完成
@@ -30,12 +36,16 @@ Page({
   /**
    * 生命周期函数--监听页面隐藏
    */
-  onHide() {},
+  onHide() {
+    this.clearNavigateTimer();
+  },
 
   /**
    * 生命周期函数--监听页面卸载
    */
-  onUnload() {},
+  onUnload() {
+    this.clearNavigateTimer(false);
+  },
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作
@@ -87,10 +97,11 @@ Page({
       return;
     }
 
-    const { memberName, memberPhone } = this.data;
+    const memberName = String(this.data.memberName || "").trim();
+    const memberPhone = String(this.data.memberPhone || "").trim();
 
     // 验证成员姓名
-    if (!memberName.trim()) {
+    if (!memberName) {
       Toast({
         type: "fail",
         message: "请输入成员姓名",
@@ -99,8 +110,17 @@ Page({
       return;
     }
 
+    if (memberName.length > 30) {
+      Toast({
+        type: "fail",
+        message: "成员姓名不能超过30个字符",
+        context: this,
+      });
+      return;
+    }
+
     // 验证手机号格式
-    if (!/^1[3-9]\d{9}$/.test(memberPhone.trim())) {
+    if (!/^1[3-9]\d{9}$/.test(memberPhone)) {
       Toast({
         type: "fail",
         message: "请输入正确的手机号码",
@@ -136,7 +156,7 @@ Page({
           });
 
           // 延迟返回上一页，让用户看到成功提示
-          setTimeout(() => {
+          this._navigateTimer = setTimeout(() => {
             wx.navigateBack({
               delta: 1,
             });
@@ -144,7 +164,7 @@ Page({
         } else {
           Toast({
             type: "fail",
-            message: res.data.message || "添加失败，请重试",
+            message: (res.data && res.data.message) || "添加失败，请重试",
             context: this, // <--- 已修改
           });
         }
@@ -160,8 +180,18 @@ Page({
       complete: () => {
         // 无论成功或失败，都隐藏加载状态
         wx.hideLoading();
-        this.setData({ isLoading: false });
+        if (!this._navigateTimer) {
+          this.setData({ isLoading: false });
+        }
       },
     });
+  },
+
+  clearNavigateTimer(updateView = true) {
+    clearTimeout(this._navigateTimer);
+    this._navigateTimer = null;
+    if (updateView && this.data.isLoading) {
+      this.setData({ isLoading: false });
+    }
   },
 });

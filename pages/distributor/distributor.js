@@ -42,7 +42,7 @@ Page({
       wx.setStorageSync("login", loginRole);
       app.setVisitorMode(visitor, false);
       wx.showToast({ title: "登录成功", icon: "none", duration: 1500 });
-      enterProjectRole(projects, 1000);
+      enterProjectRole(projects);
     } catch (error) {
       console.error("身份切换失败", error);
       wx.showToast({ title: "项目列表获取失败", icon: "none" });

@@ -1,18 +1,21 @@
 <wxs module="numberUtil" src="../../utils/numberUtil.wxs"></wxs>
   
 <view class="report-container">
+  <view wx:if="{{reportLoading}}" class="report-state">正在加载报告...</view>
+  <view wx:elif="{{loadError}}" class="report-state">{{loadError}}</view>
+  <block wx:else>
   <!-- 标题 & 日期 -->
   <view class="first_title">{{ report.name }}</view>
   <view class="period">日期间隔：{{ metrics.period }}</view>
 
   <!-- 基本信息 -->
-  <view wx:for="{{ rows }}" wx:key="i" class="row">
-    <text class="{{ item[1] ? 'item' : 'item-wide' }}">
-      {{ item[0].label }}：{{ item[0].value }}
+  <view wx:for="{{ rows }}" wx:key="key" class="row">
+    <text class="{{ item.right ? 'item' : 'item-wide' }}">
+      {{ item.left.label }}：{{ item.left.value }}
     </text>
 
-    <text wx:if="{{ item[1] }}" class="item">
-      {{ item[1].label }}：{{ item[1].value }}
+    <text wx:if="{{ item.right }}" class="item">
+      {{ item.right.label }}：{{ item.right.value }}
     </text>
   </view>
 
@@ -24,7 +27,7 @@
   <!-- 运行情况表格 -->
   <view
     wx:for="{{ tables }}"
-    wx:key="title"
+    wx:key="key"
     class="table-section"
     wx:for-item="tb"
   >
@@ -32,16 +35,17 @@
 
     <!-- 表头 -->
     <view class="table-row header">
-      <text wx:for="{{ tb.headers }}" wx:key="h" class="cell">{{ item }}</text>
+      <text wx:for="{{ tb.headers }}" wx:key="key" class="cell">{{ item.value }}</text>
     </view>
 
     <!-- 数据行 -->
     <view
       wx:for="{{ tb.rows }}"
-      wx:key="ri"
-      class="table-row {{ ri % 2 === 1 ? 'row-even' : '' }}"
+      wx:key="key"
+      wx:for-index="rowIndex"
+      class="table-row {{ rowIndex % 2 === 1 ? 'row-even' : '' }}"
     >
-      <text wx:for="{{ item }}" wx:key="ci" class="cell">{{ item }}</text>
+      <text wx:for="{{ item.cells }}" wx:key="key" class="cell">{{ item.value }}</text>
     </view>
   </view>
 
@@ -53,7 +57,7 @@
 
     <!-- 图例 -->
     <view class="legend">
-      <view wx:for="{{ colorPieces }}" wx:key="c" class="legend-item">
+      <view wx:for="{{ colorPieces }}" wx:key="label" class="legend-item">
         <view class="legend-color" style="background: {{ item.color }}"></view>
         <text class="legend-label">{{ item.label }}</text>
       </view>
@@ -137,5 +141,6 @@
       <text class="lastvalue" style="color: #B0B0B0;">*本报告数据来自建筑设备和能效监控管理云平台，报告人将以合规方式进行数据处理并为用户提供报告。要实现数据隔离与隐私安全防护，防止越权访问。温馨提示：本报告中可能包含用户隐私，应注意做好信息保护。非经用户同意，不得对外传播。</text>
     
   </view>
+  </block>
     
 </view>

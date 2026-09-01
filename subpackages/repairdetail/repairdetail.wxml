@@ -1,5 +1,7 @@
 <view class="page-container">
-    <view class="detail-card">
+    <view wx:if="{{detailLoading}}" class="detail-state">正在加载报修详情...</view>
+    <view wx:elif="{{loadError}}" class="detail-state">{{loadError}}</view>
+    <view wx:else class="detail-card">
         <view class="header">
             <text class="title">{{ repair.project_name || '未命名报修' }}</text>
             <view class="status {{repair.statusClass}}">{{ repair.statusText }}</view>
@@ -31,9 +33,10 @@
             <view class="section-title">问题描述</view>
             <view class="description">{{ repair.description || '无详细描述' }}</view>
         </view>
-        <view class="info-section" wx:if="{{ attachments.length > 0 }}">
+        <view class="info-section" wx:if="{{attachmentLoading || attachments.length > 0}}">
             <view class="section-title">附件</view>
-            <view class="attachment-container">
+            <view wx:if="{{attachmentLoading}}" class="attachment-loading">正在加载附件...</view>
+            <view wx:else class="attachment-container">
                 <van-uploader file-list="{{ attachments }}" preview-size="200rpx" disabled="{{ true }}" deletable="{{ false }}" max-count="{{ attachments.length }}" />
             </view>
         </view>

@@ -1,4 +1,4 @@
-const SILENCED_METHODS = ["log", "info", "debug", "warn", "error"];
+const SILENCED_METHODS = ["log", "info", "debug"];
 
 function getEnvironmentVersion() {
   try {

@@ -18,6 +18,10 @@ Page({
         orderList: [],
         isRepairRefreshing: false,
         isOrderRefreshing: false,
+        repairLoading: true,
+        orderLoading: true,
+        repairError: '',
+        orderError: '',
     },
 
     onLoad(options) {
@@ -72,13 +76,15 @@ Page({
     // --- Repair Logic ---
 
     loadRepairList() {
+        if (this._repairPromise) return this._repairPromise;
+        this.setData({ repairLoading: true, repairError: '' });
         const projectId = wx.getStorageSync("selected_home");
         const params = {
             project_id: projectId,
             page_options: { page: 1, limit: 0 }
         };
 
-        return new Promise((resolve, reject) => {
+        this._repairPromise = new Promise((resolve, reject) => {
             api.get_repair_reports({
                 method: "POST",
                 data: params,
@@ -110,16 +116,21 @@ Page({
                 fail: (err) => {
                     console.error("Failed to load repair list", err);
                     wx.showToast({ title: '加载报修失败', icon: 'none' });
-                    reject(err);
+                    this.setData({ repairList: [], repairError: '加载报修失败' });
+                    resolve();
                 }
             });
+        }).finally(() => {
+            this._repairPromise = null;
+            this.setData({ repairLoading: false });
         });
+        return this._repairPromise;
     },
 
     navigateToRepairDetail(e) {
         const item = e.currentTarget.dataset.item;
         wx.navigateTo({
-            url: `/subpackages/repairdetail/repairdetail?id=${item.id}`,
+            url: `/subpackages/repairdetail/repairdetail?id=${encodeURIComponent(item.id)}`,
             success: (res) => {
                 res.eventChannel.emit('acceptDataFromServicePage', { data: item });
             }
@@ -135,6 +146,8 @@ Page({
     // --- Order Logic ---
 
     loadOrderList() {
+        if (this._orderPromise) return this._orderPromise;
+        this.setData({ orderLoading: true, orderError: '' });
         const projectId = wx.getStorageSync("selected_home");
         const workOrderParams = {
             project_id: projectId,
@@ -177,7 +190,7 @@ Page({
             });
         });
 
-        return Promise.allSettled([fetchCategoriesPromise, fetchWorkOrdersPromise])
+        this._orderPromise = Promise.allSettled([fetchCategoriesPromise, fetchWorkOrdersPromise])
             .then((results) => {
                 const [categoriesResult, workOrdersResult] = results;
 
@@ -193,13 +206,18 @@ Page({
                 if (workOrdersResult.status === 'fulfilled') {
                     this.handleOrderApiResponse(workOrdersResult.value);
                 } else {
-                    this.setData({ orderList: [] });
+                    this.setData({ orderList: [], orderError: '加载工单失败' });
                 }
             })
             .catch((error) => {
                 console.error("Order data load error:", error);
-                this.setData({ orderList: [] });
+                this.setData({ orderList: [], orderError: '加载工单失败' });
+            })
+            .finally(() => {
+                this._orderPromise = null;
+                this.setData({ orderLoading: false });
             });
+        return this._orderPromise;
     },
 
     handleOrderApiResponse(res) {
@@ -212,8 +230,7 @@ Page({
                 const orderTitle = (item.content || []).map(c => c.name).join('、') || '无服务内容';
                 const serviceTypeName = categoriesMap.get(item.category_id) || '未分类';
 
-                const hasRating = (item.score !== undefined && item.score !== null) ||
-                    (item.review !== undefined && item.review !== null && item.review.trim() !== '');
+                const hasRating = item.score != null || String(item.review || '').trim() !== '';
 
                 return {
                     ...item,
@@ -239,7 +256,7 @@ Page({
         const orderData = this.data.orderList.find(item => item.id === id);
         if (orderData) {
             wx.navigateTo({
-                url: `/subpackages/orderdetail/orderdetail?id=${id}`,
+                url: `/subpackages/orderdetail/orderdetail?id=${encodeURIComponent(id)}`,
                 success: (res) => res.eventChannel.emit('acceptDataFromOrdersPage', { data: orderData })
             });
         }

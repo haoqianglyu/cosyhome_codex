@@ -78,21 +78,27 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    console.log(options);
-
     var that = this;
     const windowInfo =
       typeof wx.getWindowInfo === "function"
         ? wx.getWindowInfo()
         : wx.getSystemInfoSync();
-    var roomID = options.roomID;
-    var roomName = options.roomName;
-    console.log(roomName)
-    console.log(app.globalData.isvisitor);
+    const roomID = String((options && options.roomID) || "").trim();
+    let roomName = String((options && options.roomName) || "房间");
+    try {
+      roomName = decodeURIComponent(roomName);
+    } catch (error) {
+      roomName = "房间";
+    }
+    if (!roomID) {
+      wx.showToast({ title: "缺少房间编号", icon: "none" });
+      wx.nextTick(() => wx.navigateBack({ delta: 1 }));
+      return;
+    }
     that.setData({
       isvisitor: app.globalData.isvisitor,
       roomId: roomID,
-      roomName:roomName,
+      roomName,
       windowHeight: wx.getStorageSync("windowHeight"),
       windowWidth: wx.getStorageSync("windowWidth"),
       statusBarHeight: windowInfo.statusBarHeight || 0,
@@ -108,19 +114,18 @@ Page({
       airConditionerModeName: wx.getStorageSync("airConditionerModeName") || "",
     });
 
-    console.log(that.data.roomId);
-
     this.loadHistory();
   },
 
   async loadHistory() {
+    if (!this.data.roomId) return;
     wx.showLoading({ title: "正在加载数据" });
     try {
       const body = await legacyControlMessageBody({
         messageType: 4,
         body: this.data.roomId,
       });
-      const records = Array.isArray(body) ? body : [];
+      const records = Array.isArray(body) ? body.slice(-200) : [];
       const temperatures = records.map((item) => item.temperature);
       const humidities = records.map((item) => item.humidity);
       const co2Values = records.map((item) => item.co2);
@@ -173,6 +178,10 @@ Page({
         body.ecoTemperature === undefined || body.energyMode !== 1
           ? setTemperature
           : body.ecoTemperature;
+      const windLevelNumber = Math.min(
+        Math.max(Math.floor(Number(body.windLevelNumber) || 0), 0),
+        10,
+      );
       this.setData({
         canOff: body.canOff,
         maxTemperatureSet: body.maxTemperatureSet,
@@ -193,7 +202,7 @@ Page({
         switch_power: body.energyMode,
         ecoTemperature: body.ecoTemperature,
         workModes: Array.isArray(body.workModes) ? body.workModes : [],
-        windLevelNumber: body.windLevelNumber,
+        windLevelNumber,
         isAutoWindLevel: body.isAutoWindLevel,
         currentButton,
         minusStatus:
@@ -205,7 +214,7 @@ Page({
             ? "disabled"
             : "normal",
         windLevels: Array.from(
-          { length: Number(body.windLevelNumber) || 0 },
+          { length: windLevelNumber },
           (_, index) => index,
         ),
       });
@@ -275,6 +284,7 @@ Page({
 
   init_echarts1: function (chartData) {
     this.chart1Componnet = this.selectComponent("#mychart1"); //去获取echarts    这里的id就是echarts的id
+    if (!this.chart1Componnet) return;
     // console.log(this.chart1Componnet)
     this.chart1Componnet.init((canvas, width, height, dpr) => {
       // 初始化图表
@@ -576,6 +586,11 @@ Page({
       this.startRoomPolling();
       return;
     }
+    if (roomName.length > 20) {
+      wx.showToast({ title: "房间名称最多20个字符", icon: "none" });
+      this.startRoomPolling();
+      return;
+    }
     if (this._renamePending) {
       return;
     }
@@ -610,6 +625,13 @@ Page({
 
   switchButton: function(e) {
     var index = Number(e.currentTarget.dataset.index); 
+    if (
+      index !== 100 &&
+      (!Number.isInteger(index) || index < 0 || index >= Number(this.data.windLevelNumber))
+    ) {
+      wx.showToast({ title: "风速档位无效", icon: "none" });
+      return;
+    }
     const actualWindLevel = index === 100 ? 100 : index + 1;
     this.clearTimeInterval();
     if (app.globalData.isvisitor) {
@@ -667,6 +689,10 @@ Page({
     let num = Number(this.data.showtemp);
     const minTemperatureSet = Number(this.data.minTemperatureSet);
     const maxTemperatureSet = Number(this.data.maxTemperatureSet);
+    if (![num, minTemperatureSet, maxTemperatureSet].every(Number.isFinite)) {
+      wx.showToast({ title: "温度范围暂不可用", icon: "none" });
+      return;
+    }
     this.clearTimeInterval();
     if (app.globalData.isvisitor) {
       wx.showToast({
@@ -789,13 +815,13 @@ Page({
 
   onChangePower(e) {
     var that = this;
-    console.log(e.detail.value);
     that.clearTimeInterval();
     if (app.globalData.isvisitor) {
       wx.showToast({
         title: "访客模式不可操作",
         icon: "none",
       });
+      that.startRoomPolling();
     } else {
       that.runSwitchControl(
         "power",
@@ -812,13 +838,13 @@ Page({
 
   onChangeLock(e) {
     var that = this;
-    console.log(e.detail.value);
     that.clearTimeInterval();
     if (app.globalData.isvisitor) {
       wx.showToast({
         title: "访客模式不可操作",
         icon: "none",
       });
+      that.startRoomPolling();
     } else {
       that.runSwitchControl(
         "lock",
@@ -835,13 +861,13 @@ Page({
 
   onChange(e) {
     var that = this;
-    console.log(e.detail.value);
     that.clearTimeInterval();
     if (app.globalData.isvisitor) {
       wx.showToast({
         title: "访客模式不可操作",
         icon: "none",
       });
+      that.startRoomPolling();
     } else {
       that.runSwitchControl(
         "main",

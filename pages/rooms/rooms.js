@@ -10,6 +10,8 @@ Page({
     interval: null,
     statusBarHeight: 0,
     projectName: "",
+    loading: true,
+    loadError: "",
   },
 
   syncPageHeader() {
@@ -54,7 +56,7 @@ Page({
 
     if (wx.getStorageSync("haveProject") === false) {
       this.clearTimeInterval();
-      this.setData({ floors: [], floors_id: [], content: [] });
+      this.setData({ floors: [], floors_id: [], content: [], loading: false, loadError: "" });
       return;
     }
 
@@ -68,12 +70,25 @@ Page({
     }
     this._floorsRequestPending = true;
     if (showLoading) {
+      this.setData({ loading: true, loadError: "" });
+    }
+    if (showLoading) {
       wx.showNavigationBarLoading();
     }
 
     try {
       const body = await legacyControlMessageBody({ messageType: 2 });
-      const floorData = Array.isArray(body && body.data) ? body.data : [];
+      const floorData = Array.isArray(body && body.data)
+        ? body.data.map((floor) => ({
+            ...floor,
+            rooms: Array.isArray(floor.rooms)
+              ? floor.rooms.map((room) => ({
+                  ...room,
+                  roomRouteName: encodeURIComponent(String(room.roomName || "房间")),
+                }))
+              : [],
+          }))
+        : [];
       this._floorData = floorData;
       const index = Math.min(this.data.index, Math.max(floorData.length - 1, 0));
       const selectedFloor = floorData[index] || {};
@@ -83,9 +98,14 @@ Page({
         floors: floorData.map((floor) => floor.floorName),
         floors_id: floorData.map((floor) => floor.floorId),
         content: Array.isArray(selectedFloor.rooms) ? selectedFloor.rooms : [],
+        loading: false,
+        loadError: "",
       });
     } catch (error) {
       console.error("房间列表获取失败", error);
+      if (showLoading) {
+        this.setData({ loading: false, loadError: "房间数据加载失败" });
+      }
     } finally {
       this._floorsRequestPending = false;
       if (showLoading) {
@@ -113,6 +133,10 @@ Page({
 
   onUnload() {
     this.clearTimeInterval();
+  },
+
+  onPullDownRefresh() {
+    this.loadFloors(true).finally(() => wx.stopPullDownRefresh());
   },
 
   onShareAppMessage() {

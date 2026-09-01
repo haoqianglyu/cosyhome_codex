@@ -26,11 +26,15 @@
     >{{item}}</view>
   </view>
 
-  <view wx:if="{{content.length}}" class="room-list">
+  <view wx:if="{{loading}}" class="empty-state">
+    <view class="empty-title">正在读取房间数据...</view>
+  </view>
+
+  <view wx:elif="{{content.length}}" class="room-list">
     <navigator
       open-type="navigate"
       hover-class="none"
-      url="/pages/roomdetail/roomdetail?roomID={{item.id}}&roomName={{item.roomName}}"
+      url="/pages/roomdetail/roomdetail?roomID={{item.id}}&roomName={{item.roomRouteName}}"
       class="room-card {{item.panelState === 0 ? 'room-card--off' : 'room-card--on'}}"
       wx:for="{{content}}"
       wx:key="id"
@@ -62,6 +66,6 @@
   </view>
 
   <view wx:else class="empty-state">
-    <view class="empty-title">当前楼层暂无房间</view>
+    <view class="empty-title">{{loadError || '当前楼层暂无房间'}}</view>
   </view>
 </view>

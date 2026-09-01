@@ -28,6 +28,72 @@
     </view>
   </view>
 
+  <view class="presence-card demo-card">
+    <view class="presence-heading">
+      <view>
+        <view class="presence-eyebrow">HOME STATUS</view>
+        <view class="presence-title">在家状态</view>
+      </view>
+      <view class="presence-current">
+        <view class="presence-current-dot"></view>
+        <text>{{presenceMode === 'home' ? '在家' : '离家'}}</text>
+      </view>
+    </view>
+
+    <view class="presence-options">
+      <view
+        class="presence-option"
+        aria-role="button"
+        aria-label="切换为在家模式"
+        data-mode="home"
+        bindtap="selectPresenceMode"
+      >
+        <view class="presence-ring {{presenceMode === 'home' ? 'presence-ring--active' : ''}} {{presencePending === 'home' ? 'presence-ring--loading' : ''}}">
+          <view class="presence-icon">
+            <text class="iconfont icon-huijiamoshi"></text>
+          </view>
+        </view>
+        <view class="presence-option-copy">
+          <view class="presence-option-title">在家</view>
+          <view class="presence-option-caption">{{presencePending === 'home' ? '正在切换…' : (presenceMode === 'home' ? '当前模式' : '点击切换')}}</view>
+        </view>
+      </view>
+
+      <view class="presence-connector"></view>
+
+      <view
+        class="presence-option"
+        aria-role="button"
+        aria-label="切换为离家模式"
+        data-mode="away"
+        bindtap="selectPresenceMode"
+      >
+        <view class="presence-ring {{presenceMode === 'away' ? 'presence-ring--active' : ''}} {{presencePending === 'away' ? 'presence-ring--loading' : ''}}">
+          <view class="presence-icon">
+            <text class="iconfont icon-lijiamoshi"></text>
+          </view>
+        </view>
+        <view class="presence-option-copy">
+          <view class="presence-option-title">离家</view>
+          <view class="presence-option-caption">{{presencePending === 'away' ? '正在切换…' : (presenceMode === 'away' ? '当前模式' : '点击切换')}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="presence-timer" aria-role="button" aria-label="{{presenceTimerEnabled ? '关闭定时计划' : '开启定时计划'}}" bindtap="togglePresenceTimer">
+      <view class="presence-timer-icon">
+        <text class="iconfont icon-clock"></text>
+      </view>
+      <view class="presence-timer-copy">
+        <view class="presence-timer-title">定时计划</view>
+        <view class="presence-timer-caption">独立于在家与离家状态</view>
+      </view>
+      <view class="mock-switch mock-switch--dark {{presenceTimerEnabled ? 'mock-switch--on' : ''}}">
+        <view class="mock-switch-knob"></view>
+      </view>
+    </view>
+  </view>
+
   <view class="environment-card demo-card">
     <view class="card-heading">
       <view class="card-title">房间环境</view>

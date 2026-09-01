@@ -15,7 +15,6 @@ Page({
     this.setData({
       isMemberLogin: isMemberLogin,
     });
-    console.log(isMemberLogin);
   },
 
   /**

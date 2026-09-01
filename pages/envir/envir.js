@@ -179,7 +179,6 @@ Page({
   onShow: function () {
     var that = this;
     this._pageVisible = true;
-    console.log(that.getTabBar());
     if (typeof that.getTabBar === "function" && that.getTabBar()) {
       that.getTabBar().setData({
         selected: 1,
@@ -398,6 +397,7 @@ Page({
 
   init_echarts1: function (chartData) {
     this.chart1Componnet = this.selectComponent("#mychart1"); //去获取echarts    这里的id就是echarts的id
+    if (!this.chart1Componnet) return;
     // console.log(this.chart1Componnet)
     this.chart1Componnet.init((canvas, width, height, dpr) => {
       // 初始化图表

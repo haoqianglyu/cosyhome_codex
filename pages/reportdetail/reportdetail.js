@@ -23,6 +23,45 @@ const PIECES = LABELS.map((k, i) => ({
   label: k,
 }));
 
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function finiteNumber(value, fallback = 0) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function fixedNumber(value, digits = 1) {
+  return finiteNumber(value).toFixed(digits);
+}
+
+function normalizeInfoRows(rows) {
+  return rows.map((cells, index) => ({
+    key: `info-${index}-${(cells[0] && cells[0].label) || "row"}`,
+    left: cells[0],
+    right: cells[1],
+  }));
+}
+
+function normalizeTables(tables) {
+  return tables.map((table, tableIndex) => ({
+    ...table,
+    key: `table-${tableIndex}-${table.title}`,
+    headers: table.headers.map((value, index) => ({
+      key: `header-${index}-${value}`,
+      value,
+    })),
+    rows: table.rows.map((cells, rowIndex) => ({
+      key: `row-${rowIndex}`,
+      cells: cells.map((value, cellIndex) => ({
+        key: `cell-${cellIndex}`,
+        value,
+      })),
+    })),
+  }));
+}
+
 const WEEK_CN = ["日", "一", "二", "三", "四", "五", "六"];
 const MONTH_CN = [
   "一月",
@@ -46,8 +85,11 @@ function transformDatum(datumArr) {
   let minTS = Number.MAX_SAFE_INTEGER,
     maxTS = 0;
 
-  datumArr.forEach((rec) => {
-    const ts = rec.date_day;
+  asArray(datumArr).forEach((rec) => {
+    const ts = finiteNumber(rec && rec.date_day, NaN);
+    if (!Number.isFinite(ts) || !Object.prototype.hasOwnProperty.call(VAL_MAP, rec.valuation_des)) {
+      return;
+    }
     if (ts < minTS) minTS = ts;
     if (ts > maxTS) maxTS = ts;
 
@@ -59,6 +101,9 @@ function transformDatum(datumArr) {
     heat.push([ds, VAL_MAP[des]]);
     scat.push([ds, 1, tDev, hDev, des]);
   });
+  if (!heat.length) {
+    return null;
+  }
   // console.log(heat)
   const start = echarts.time.format(minTS, "{yyyy}-{MM}-{dd}", false);
   const end = echarts.time.format(maxTS, "{yyyy}-{MM}-{dd}", false);
@@ -180,14 +225,25 @@ Page({
     city_name: null,
     legendData: [],
     colorPieces: PIECES,
+    reportLoading: true,
+    loadError: "",
   },
 
   /* ---------------- 页面加载 ---------------- */
   onLoad(options = {}) {
     this._pageVisible = true;
-    var that = this;
     const ec = this.getOpenerEventChannel();
-    ec.on("acceptData", (report) => this.applyReport(report));
+    if (ec && typeof ec.on === "function") {
+      ec.on("acceptData", (report) => {
+        try {
+          this.applyReport(report);
+        } catch (error) {
+          console.error("报告详情渲染失败", error);
+          this._reportLoaded = false;
+          this.setData({ reportLoading: false, loadError: "报告内容异常，无法展示" });
+        }
+      });
+    }
     if (options.id) {
       this._reportFallbackTimer = setTimeout(() => {
         if (!this._reportLoaded) {
@@ -200,6 +256,7 @@ Page({
   async loadReportById(reportId) {
     if (this._reportLoading) return;
     this._reportLoading = true;
+    this.setData({ reportLoading: true, loadError: "" });
     wx.showLoading({ title: "报告加载中", mask: true });
     try {
       const response = await apiRequest(api.project_report, {
@@ -211,12 +268,13 @@ Page({
         data: { project_id: wx.getStorageSync("selected_home") },
       });
       if (!isCurrentPage(this) || this._reportLoaded) return;
-      const entities = response.data.project_report_entities || [];
+      const entities = asArray(response && response.data && response.data.project_report_entities);
       const entity = entities.find((item) => String(item.id) === String(reportId));
       if (!entity) throw new Error("未找到这份报告");
       this.applyReport(prepareReport(entity));
     } catch (error) {
       if (isCurrentPage(this)) {
+        this.setData({ reportLoading: false, loadError: getErrorMessage(error, "报告加载失败") });
         wx.showToast({ title: getErrorMessage(error, "报告加载失败"), icon: "none" });
       }
     } finally {
@@ -227,10 +285,10 @@ Page({
 
   applyReport(report) {
       if (!report || this._reportLoaded) return;
+      const that = this;
       this._reportLoaded = true;
       clearTimeout(this._reportFallbackTimer);
       this.disposeCharts();
-      console.log(report);
       // 获取 report 详细信息并传递到页面
       const endarea = {
         evaluate: report.evaluate, // 运行结论与建议
@@ -246,9 +304,16 @@ Page({
           body = JSON.parse(report.bodyDecrypted);
         } catch (error) {
           this._reportLoaded = false;
+          this.setData({ reportLoading: false, loadError: "报告内容损坏，无法打开" });
           wx.showToast({ title: "报告内容损坏，无法打开", icon: "none" });
           return;
         }
+      }
+      if (!body || typeof body !== "object" || Array.isArray(body)) {
+        this._reportLoaded = false;
+        this.setData({ reportLoading: false, loadError: "报告内容格式异常" });
+        wx.showToast({ title: "报告内容格式异常", icon: "none" });
+        return;
       }
 
       // metrics 和 rows 的处理
@@ -262,16 +327,20 @@ Page({
       const customerRegion = String(project.customer_region || "").split("/");
       const cityCode = customerRegion[2]; // 获取第三级的代码
 
-      const buildEnergyData = body?.build_energy || [];
+      const buildEnergyData = asArray(body?.build_energy);
       // 设置 buildEnergyData
       that.setData({
         buildEnergyData,
       });
 
-      const co2_per = body?.sensor?.co2_per || [0, 0, 0, 0, 0];
-      const pm25_per = body?.sensor?.pm25_per || [0, 0, 0, 0, 0];
-      const co2_score = body?.sensor?.co2_score || 0;
-      const pm25_score = body?.sensor?.pm25_score || 0;
+      const co2_per = Array.from({ length: 5 }, (_, index) =>
+        finiteNumber(asArray(body?.sensor?.co2_per)[index]),
+      );
+      const pm25_per = Array.from({ length: 5 }, (_, index) =>
+        finiteNumber(asArray(body?.sensor?.pm25_per)[index]),
+      );
+      const co2_score = finiteNumber(body?.sensor?.co2_score);
+      const pm25_score = finiteNumber(body?.sensor?.pm25_score);
 
       // 五个评价对应的颜色
       const colors = ["#5470c6", "#91cc75", "#fac858", "#ee6666", "#73c0de"];
@@ -299,29 +368,30 @@ Page({
       });
 
       // 处理每个房间的数据
-      const rooms2 = (body.sensor && body.sensor.details) || [];
+      const rooms2 = asArray(body.sensor && body.sensor.details);
 
       const co2CurveData = [];
       const pm25CurveData = [];
 
       // 处理每个房间的 CO2 和 PM2.5 数据
       rooms2.forEach((room2) => {
-        console.log(room2);
         const roomCo2 = [];
         const roomPm25 = [];
 
-        room2.datum.forEach((datum) => {
+        asArray(room2 && room2.datum).forEach((datum) => {
           // console.log(datum)
           const timestamp = that.fmt(datum.date_day);
-          const avgCo2 = datum.avg_co2 || 0;
-          const avgPm25 = datum.avg_pm25 || 0;
+          const avgCo2 = finiteNumber(datum.avg_co2);
+          const avgPm25 = finiteNumber(datum.avg_pm25);
 
           roomCo2.push({ timestamp, avgCo2 });
           roomPm25.push({ timestamp, avgPm25 });
         });
 
-        co2CurveData.push({ roomName: room2.name, data: roomCo2 });
-        pm25CurveData.push({ roomName: room2.name, data: roomPm25 });
+        if (roomCo2.length) {
+          co2CurveData.push({ roomName: room2.name || "未命名房间", data: roomCo2 });
+          pm25CurveData.push({ roomName: room2.name || "未命名房间", data: roomPm25 });
+        }
       });
 
       // 设置曲线图的数据
@@ -330,27 +400,24 @@ Page({
         pm25CurveData,
       });
 
-      console.log(that.data.co2CurveData);
-      console.log(that.data.pm25CurveData);
-
       const metrics = {
         period: report.period,
         totalRooms: body.total_rooms ?? 0,
         ratedRooms: body.rated_rooms ?? 0,
-        roomScore: (body?.room?.total_score ?? 0).toFixed(1),
-        co2Score: (body?.sensor?.co2_score ?? 0).toFixed(1),
-        pm25Score: (body?.sensor?.pm25_score ?? 0).toFixed(1),
-        totalScore: (body.total_score ?? 0).toFixed(1),
+        roomScore: fixedNumber(body?.room?.total_score),
+        co2Score: fixedNumber(body?.sensor?.co2_score),
+        pm25Score: fixedNumber(body?.sensor?.pm25_score),
+        totalScore: fixedNumber(body.total_score),
         trouble:
           body.trouble_per !== undefined
-            ? Number(body.trouble_per).toFixed(2)
+            ? fixedNumber(body.trouble_per, 2)
             : "0",
         runtime: body.runtime ?? 0,
       };
 
-      const energyLines = (body.build_energy || []).map((e) => ({
+      const energyLines = buildEnergyData.map((e) => ({
         label: `标准能耗-${e.energy_name}`,
-        value: Number(e.total_usage).toFixed(1),
+        value: fixedNumber(e.total_usage),
       }));
 
       const infoItems = [
@@ -374,7 +441,7 @@ Page({
       ];
 
       // 调用接口获取城市中文名称
-      api.get_city({
+      if (cityCode) api.get_city({
         method: "POST",
         header: {
           "content-type": "application/json",
@@ -384,11 +451,11 @@ Page({
           city_code: cityCode, // 使用动态获取的三级行政代码
         },
         success: function (res) {
-          console.log(res); // 打印返回的城市中文名称
+          if (!that._pageVisible) return;
           // 更新数据中城市名称字段，并重新设置 infoItems
           that.setData(
             {
-              city_name: res.data.city_name,
+              city_name: (res.data && res.data.city_name) || "-",
             },
             () => {
               // 在 city_name 更新后，重新构建 infoItems
@@ -418,7 +485,7 @@ Page({
 
               // 更新 rows 到页面
               that.setData({
-                rows,
+                rows: normalizeInfoRows(rows),
               });
             }
           );
@@ -515,11 +582,13 @@ Page({
       this.setData(
         {
           report,
-          rows,
+          rows: normalizeInfoRows(rows),
           metrics,
-          modeRatio: body.mode_ratio || [],
-          tables,
+          modeRatio: asArray(body.mode_ratio),
+          tables: normalizeTables(tables),
           roomTotalScore: body.room?.total_score ?? 0,
+          reportLoading: false,
+          loadError: "",
         },
         () => {
           that.initPieChart();
@@ -530,26 +599,32 @@ Page({
         }
       );
 
-      const rooms = (body.room && body.room.details) || [];
-      const { windowWidth: W } = wx.getSystemInfoSync();
+      const rooms = asArray(body.room && body.room.details);
+      const { windowWidth: W } =
+        typeof wx.getWindowInfo === "function"
+          ? wx.getWindowInfo()
+          : wx.getSystemInfoSync();
       const H_MARGIN = 20,
         headerH = 34;
 
-      const roomCalendars = rooms.map((room, idx) => {
-        const { heat, scat, start, end, monthCnt } = transformDatum(room.datum);
+      const roomCalendars = rooms.reduce((result, room, idx) => {
+        const transformed = transformDatum(room && room.datum);
+        if (!transformed) return result;
+        const { heat, scat, start, end, monthCnt } = transformed;
         const cell = (W - (H_MARGIN + 30) - H_MARGIN) / 7;
         const chartHpx = monthCnt * (headerH + cell * 6) + 40;
 
-        return {
-          id: room.id,
+        result.push({
+          id: room.id || `room-${idx}`,
           name: room.name,
           score: room.score,
           time_period: room.time_period,
           ec: { disableTouch: false, lazyLoad: true },
           canvasH: (chartHpx * 550) / W,
           _inner: { heat, scat, start, end, cell },
-        };
-      });
+        });
+        return result;
+      }, []);
 
       this.setData({ roomCalendars }, () => {
         this.data.roomCalendars.forEach((room, idx) => {
@@ -595,6 +670,7 @@ Page({
     if (!this.data.buildEnergyData.length) return;
 
     const comp = this.selectComponent("#energyChart");
+    if (!comp) return;
     comp.init((canvas, width, height, dpr) => {
       const chart = echarts.init(canvas, null, {
         width,
@@ -605,7 +681,7 @@ Page({
       // 获取所有日期，确保日期一致
       let allDates = [];
       this.data.buildEnergyData.forEach((energy) => {
-        energy.day_list.forEach((d) => {
+        asArray(energy.day_list).forEach((d) => {
           const formattedDate = this.fmt(d.date);
           if (!allDates.includes(formattedDate)) {
             allDates.push(formattedDate);
@@ -616,12 +692,12 @@ Page({
 
       // 准备系统能耗数据
       const series = this.data.buildEnergyData.map((energy) => {
-        const avgUsage = energy.avg_usage.toFixed(1);
-        const totalUsage = energy.total_usage.toFixed(1);
+        const avgUsage = fixedNumber(energy.avg_usage);
+        const totalUsage = fixedNumber(energy.total_usage);
 
         // 确保每条曲线都有完整的日期列表
         const data = allDates.map((date) => {
-          const dayData = energy.day_list.find(
+          const dayData = asArray(energy.day_list).find(
             (d) => this.fmt(d.date) === date
           );
           // 如果某天的数据不存在，则返回 "-"
@@ -699,6 +775,7 @@ Page({
     if (!this.data.co2CurveData.length) return;
 
     const comp = this.selectComponent("#co2Chart");
+    if (!comp) return;
     comp.init((canvas, width, height, dpr) => {
       const chart = echarts.init(canvas, null, {
         width,
@@ -790,6 +867,7 @@ Page({
     if (!this.data.pm25CurveData.length) return;
 
     const comp = this.selectComponent("#pm25Chart");
+    if (!comp) return;
     comp.init((canvas, width, height, dpr) => {
       const chart = echarts.init(canvas, null, {
         width,
@@ -880,6 +958,7 @@ Page({
     if (!this.data.co2Data.length || !this.data.pm25Data.length) return;
 
     const comp = this.selectComponent("#airQualityPieChart");
+    if (!comp) return;
     comp.init((canvas, w, h, dpr) => {
       const chart = echarts.init(canvas, null, {
         width: w,
@@ -983,6 +1062,7 @@ Page({
   initPieChart() {
     if (!this.data.modeRatio.length) return;
     const comp = this.selectComponent("#pieChart");
+    if (!comp) return;
     comp.init((canvas, w, h, dpr) => {
       const chart = echarts.init(canvas, null, {
         width: w,
@@ -1040,7 +1120,7 @@ Page({
         p = (x) => (x < 10 ? "0" + x : x);
       return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
     }
-    return ts.slice(0, 10);
+    return String(ts).slice(0, 10);
   },
 
   onHide() {

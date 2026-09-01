@@ -8,7 +8,7 @@ Page({
     scrollTop: 0,
     menu_number: 1,
     open: false,
-    open_gif: true,
+    isLoading: true,
     mark: 0,
     newmark: 0,
     istoright: true,
@@ -42,7 +42,6 @@ Page({
   },
 
   async loadMenuList() {
-    wx.showLoading({ title: "正在加载数据" });
     try {
       const body = await legacyControlMessageBody({ messageType: 5 });
       const menuItems = Array.isArray(body && body.menuList)
@@ -60,7 +59,7 @@ Page({
             : null;
         menuNames.push(firstEquipment ? firstEquipment.name : menu.name);
         menuTypes.push(menu.type);
-        menuIds.push(firstEquipment ? firstEquipment.id : menu.id);
+        menuIds.push(firstEquipment ? firstEquipment.id : null);
         equipmentTypes.push(firstEquipment ? firstEquipment.equipmentType : null);
       });
 
@@ -76,13 +75,18 @@ Page({
       if (menuItems.length) {
         this.selectMenu(0);
       } else {
-        this.setData({ content: [], titles: [], ids: [] });
+        this.setData({
+          content: [],
+          titles: [],
+          ids: [],
+          isLoading: false,
+        });
       }
     } catch (error) {
+      this.setData({ isLoading: false });
       wx.showToast({ title: "设备列表获取失败", icon: "none" });
     } finally {
-      wx.hideLoading();
-      this.setData({ color: "#55c2bb", open_gif: false });
+      this.setData({ color: "#55c2bb" });
     }
   },
 
@@ -93,12 +97,21 @@ Page({
   optionTap(event) {
     const index = Number(event.currentTarget.dataset.index) || 0;
     currentEquipmentId = this.data.ids[index];
-    this.setData({ index2: index, show: false });
+    this.setData({
+      index2: index,
+      show: false,
+      content: [],
+      isLoading: true,
+    });
     this.loadEquipmentData(true);
   },
 
   clicked(event) {
     const index = Number(event.currentTarget.dataset.key) || 0;
+    this.setData({ open: false });
+    if (index === this.data.current_item) {
+      return;
+    }
     this.selectMenu(index, true);
   },
 
@@ -113,12 +126,10 @@ Page({
     const titles = equipments.length
       ? equipments.map((item) => item.name)
       : [menu.name];
-    const ids = equipments.length
-      ? equipments.map((item) => item.id)
-      : [menu.id];
+    const ids = equipments.map((item) => item.id);
 
     currentMenuType = menu.type;
-    currentEquipmentId = ids[0];
+    currentEquipmentId = equipments.length ? ids[0] : undefined;
     this.setData({
       current_item: index,
       index2: 0,
@@ -127,12 +138,14 @@ Page({
       ids,
       first_type: currentMenuType,
       first_equipmentid: currentEquipmentId,
+      content: [],
+      isLoading: true,
     });
     this.loadEquipmentData(showLoading);
   },
 
   async loadEquipmentData(showLoading = false) {
-    if (currentMenuType == null || currentEquipmentId == null) {
+    if (currentMenuType == null) {
       return;
     }
     if (this._equipmentRequestPending) {
@@ -143,21 +156,21 @@ Page({
       return;
     }
     this._equipmentRequestPending = true;
-    if (showLoading) {
-      wx.showLoading({ title: "正在加载数据" });
-    }
 
     const requestId = Date.now();
     const requestedMenuType = currentMenuType;
     const requestedEquipmentId = currentEquipmentId;
+    const requestBody = {
+      menuType: requestedMenuType,
+      requestId,
+    };
+    if (requestedEquipmentId != null) {
+      requestBody.equipmentId = requestedEquipmentId;
+    }
     try {
       const body = await legacyControlMessageBody({
         messageType: 6,
-        body: {
-          menuType: requestedMenuType,
-          equipmentId: requestedEquipmentId,
-          requestId,
-        },
+        body: requestBody,
       });
       if (
         String(currentMenuType) !== String(requestedMenuType) ||
@@ -185,11 +198,10 @@ Page({
       const reloadWithLoading = this._equipmentReloadShowLoading;
       this._equipmentReloadRequested = false;
       this._equipmentReloadShowLoading = false;
-      if (showLoading) {
-        wx.hideLoading();
-      }
       if (shouldReload) {
         this.loadEquipmentData(reloadWithLoading);
+      } else {
+        this.setData({ isLoading: false });
       }
     }
   },
@@ -203,7 +215,6 @@ Page({
   tap_ch() {
     this.setData({
       open: !this.data.open,
-      open_gif: !this.data.open_gif,
     });
   },
 
@@ -218,7 +229,7 @@ Page({
     this.data.newmark = pageX;
     if (this.data.mark !== pageX) {
       const open = this.data.mark < pageX;
-      this.setData({ open, open_gif: open });
+      this.setData({ open });
     }
     this.data.mark = pageX;
   },

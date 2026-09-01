@@ -15,12 +15,14 @@ Page({
     allFloorsData: [],     // 一次性存储所有楼层数据
 
     requestId: null,       // 当前请求的唯一标识
+    loading: true,
+    loadError: "",
   },
 
   onLoad() {
     // 如果没有项目 => 清空并返回
     if (wx.getStorageSync("haveProject") === false) {
-      this.setData({ floors: [], floors_id: [], content: [] });
+      this.setData({ floors: [], floors_id: [], content: [], loading: false });
       return;
     }
 
@@ -42,11 +44,13 @@ Page({
 
   /** 获取并渲染房间环境量统计。 */
   async fetchFloorsData() {
+    const requestId = String(Date.now());
+    this.setData({ loading: true, loadError: "", requestId });
     try {
       const body = await legacyControlMessageBody({
         messageType: 10,
         body: {
-          requestId: this.data.requestId,
+          requestId,
           month: wx.getStorageSync("selected_month"),
           year: wx.getStorageSync("selected_year"),
         },
@@ -59,7 +63,7 @@ Page({
       }
     } catch (error) {
       console.error("房间环境量统计获取失败", error);
-      this.showNoData();
+      this.showNoData("房间环境量统计获取失败");
     } finally {
       wx.hideLoading();
     }
@@ -69,7 +73,6 @@ Page({
    * 处理拿到的楼层数组 dataArr 并默认显示第 0 楼层
    */
   handleFloorsDataAndRender(dataArr, versionType = "old") {
-    console.log(`handleFloorsDataAndRender => ${versionType}`, dataArr);
     if (!Array.isArray(dataArr) || dataArr.length === 0) {
       this.showNoData();
       return;
@@ -89,7 +92,9 @@ Page({
       floors: newFloors,
       floors_id: newFloorIds,
       index: idx,
-      content: theContent
+      content: theContent,
+      loading: false,
+      loadError: "",
     });
 
     // 隐藏 loading，因为数据已经加载完毕
@@ -99,7 +104,7 @@ Page({
   /**
    * 无数据时，清空数据
    */
-  showNoData() {
+  showNoData(loadError = "") {
     // 隐藏 loading
     wx.hideLoading();
     
@@ -108,7 +113,9 @@ Page({
       floors_id: [],
       index: 0,
       content: [],
-      allFloorsData: []
+      allFloorsData: [],
+      loading: false,
+      loadError
     });
   },
 
@@ -126,7 +133,6 @@ Page({
    */
   optionTap(e) {
     const idx = e.currentTarget.dataset.index;
-    console.log("optionTap => index =", idx);
     this.setData({
       index: idx,
       show: false
@@ -150,7 +156,9 @@ Page({
   onReady() {},
   onHide() {},
   onUnload() {},
-  onPullDownRefresh() {},
+  onPullDownRefresh() {
+    this.fetchFloorsData().finally(() => wx.stopPullDownRefresh());
+  },
   onReachBottom() {},
   onShareAppMessage: function () {
     return {

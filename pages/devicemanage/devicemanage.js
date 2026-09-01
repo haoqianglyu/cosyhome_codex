@@ -7,6 +7,8 @@ Page({
    */
   data: {
     devices: [],
+    loading: true,
+    loadError: "",
   },
 
   /**
@@ -16,7 +18,12 @@ Page({
     this.getDeviceList();
   },
 
-  getDeviceList() {
+  getDeviceList(callback) {
+    if (this._deviceRequestPending) {
+      return;
+    }
+    this._deviceRequestPending = true;
+    this.setData({ loading: true, loadError: "" });
     const that = this;
     api.get_devices({
       method: "GET",
@@ -26,8 +33,7 @@ Page({
       },
       data: {},
       success: function (res) {
-        console.log("device list:", res);
-        if (res.data && res.data.devices) {
+        if (res.data && Array.isArray(res.data.devices)) {
           // 第一步：预处理数据，计算出毫秒时间戳用于排序
           let devices = res.data.devices.map((item) => {
             let timestampMs = 0; // 默认为 0，表示未知时间
@@ -84,15 +90,23 @@ Page({
 
           that.setData({
             devices: devices,
+            loading: false,
           });
+        } else {
+          that.setData({ devices: [], loading: false, loadError: "设备数据格式异常" });
         }
       },
       fail: function (err) {
         console.error("fetch devices failed", err);
+        that.setData({ devices: [], loading: false, loadError: "获取设备列表失败" });
         wx.showToast({
           title: "获取设备列表失败",
           icon: "none",
         });
+      },
+      complete() {
+        that._deviceRequestPending = false;
+        if (callback) callback();
       },
     });
   },
@@ -125,6 +139,12 @@ Page({
   },
 
   executeLogout(deviceId) {
+    if (this._logoutPending) return;
+    if (deviceId == null || deviceId === "") {
+      wx.showToast({ title: "设备信息无效，请刷新后重试", icon: "none" });
+      return;
+    }
+    this._logoutPending = true;
     const that = this;
     api.device_logout({
       method: "POST",
@@ -155,6 +175,9 @@ Page({
           icon: "none",
         });
       },
+      complete() {
+        that._logoutPending = false;
+      },
     });
   },
 
@@ -182,8 +205,7 @@ Page({
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh() {
-    this.getDeviceList();
-    wx.stopPullDownRefresh();
+    this.getDeviceList(() => wx.stopPullDownRefresh());
   },
 
   /**

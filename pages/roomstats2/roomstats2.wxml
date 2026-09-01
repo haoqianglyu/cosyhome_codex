@@ -1,6 +1,11 @@
 <wxs module="numberUtil" src="../../utils/numberUtil.wxs"></wxs>
 <view class="panel">
-    <view class='nav-list margin-top'>
+    <view wx:if="{{loading}}" class="page-state">正在读取环境量数据...</view>
+    <view wx:elif="{{!content.length}}" class="page-state">
+      <view class="page-state-title">{{loadError || '暂无环境量数据'}}</view>
+      <view class="page-state-copy">下拉页面可重新加载</view>
+    </view>
+    <view wx:else class='nav-list margin-top'>
         <view class="nav-li" wx:for="{{content}}" wx:key="_key">
           
             <!-- <view class="text-center margin-bottom text-lg  text-grey">
@@ -24,15 +29,15 @@
                 
                   <view class="tr">
                     <view class="td">均值</view>
-                    <view class="td">{{item.avgTemperature?numberUtil.toFix(item.avgTemperature):"-"}}</view>
-                    <view class="td">{{item.avgHumidity?numberUtil.toFix(item.avgHumidity):"-"}}</view>
-                    <view class="td">{{item.avgDewPoint?numberUtil.toFix(item.avgDewPoint):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.avgTemperature)?numberUtil.toFix(item.avgTemperature):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.avgHumidity)?numberUtil.toFix(item.avgHumidity):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.avgDewPoint)?numberUtil.toFix(item.avgDewPoint):"-"}}</view>
                   </view>
                   <view class="tr">
                     <view class="td">标准差</view>
-                    <view class="td">{{item.sdTemperature?2*numberUtil.toFix(item.sdTemperature):"-"}}</view>
-                    <view class="td">{{item.sdHumidity?2*numberUtil.toFix(item.sdHumidity):"-"}}</view>
-                    <view class="td">{{item.sdDewPoint?2*numberUtil.toFix(item.sdDewPoint):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.sdTemperature)?numberUtil.toFix(item.sdTemperature):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.sdHumidity)?numberUtil.toFix(item.sdHumidity):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.sdDewPoint)?numberUtil.toFix(item.sdDewPoint):"-"}}</view>
                 
                   </view>
                 

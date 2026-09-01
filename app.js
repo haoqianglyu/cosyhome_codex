@@ -93,18 +93,20 @@ App({
     this.restoreSessionState();
     this.autoUpdate();
     
-    wx.getSystemInfo({
-      success: e => {
-        this.globalData.StatusBar = e.statusBarHeight;
-        let capsule = wx.getMenuButtonBoundingClientRect();
-		if (capsule) {
-		 	this.globalData.Custom = capsule;
-			this.globalData.CustomBar = capsule.bottom + capsule.top - e.statusBarHeight;
-		} else {
-			this.globalData.CustomBar = e.statusBarHeight + 50;
-		}
-      }
-    })
+    const windowInfo =
+      typeof wx.getWindowInfo === "function"
+        ? wx.getWindowInfo()
+        : wx.getSystemInfoSync();
+    const statusBarHeight = windowInfo.statusBarHeight || 0;
+    this.globalData.StatusBar = statusBarHeight;
+    const capsule = wx.getMenuButtonBoundingClientRect();
+    if (capsule && capsule.bottom) {
+      this.globalData.Custom = capsule;
+      this.globalData.CustomBar =
+        capsule.bottom + capsule.top - statusBarHeight;
+    } else {
+      this.globalData.CustomBar = statusBarHeight + 50;
+    }
 
     // if (this.globalData.userInfo) {
     //   console.log("aaaaaa")

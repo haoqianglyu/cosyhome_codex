@@ -6,6 +6,11 @@
   </view>
   
   <scroll-view class="member-list-container" scroll-y="{{true}}" bindtap="onCloseSwipeCell">
+    <view wx:if="{{loading}}" class="member-state">正在加载成员...</view>
+    <view wx:elif="{{!memberList.length}}" class="member-state">
+      <view class="member-state-title">暂无其他成员</view>
+      <view class="member-state-copy">可通过下方按钮添加家庭成员</view>
+    </view>
     <view class="member-list">
       <van-swipe-cell 
         wx:for="{{memberList}}" 

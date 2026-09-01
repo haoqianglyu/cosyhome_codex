@@ -45,18 +45,22 @@ page {
 }
 
 .option_box {
-  position: absolute;
-  top: 82rpx;
-  left: 0;
+  position: relative;
   width: 100%;
   box-sizing: border-box;
   overflow-y: auto;
-  border: 1rpx solid var(--ui-border);
-  border-top: 0;
-  border-radius: 0 0 22rpx 22rpx;
+  border: 0 solid var(--ui-border);
+  border-radius: 22rpx;
   background: var(--ui-surface);
   box-shadow: var(--ui-shadow-card);
-  transition: height 0.25s;
+  opacity: 0;
+  transition: height 0.25s, margin-top 0.25s, opacity 0.18s;
+}
+
+.option_box--open {
+  margin-top: 10rpx;
+  border-width: 1rpx;
+  opacity: 1;
 }
 
 .option {
@@ -75,6 +79,27 @@ page {
   gap: 24rpx;
 }
 
+.page-state {
+  display: flex;
+  min-height: 520rpx;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--ui-text-muted);
+  font-size: 25rpx;
+}
+
+.page-state-title {
+  color: var(--ui-text-secondary);
+  font-size: 29rpx;
+  font-weight: 600;
+}
+
+.page-state-copy {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+}
+
 .nav-li {
   overflow: hidden;
   border: 1rpx solid var(--ui-border);
@@ -83,10 +108,15 @@ page {
   box-shadow: var(--ui-shadow-soft);
 }
 
-.text-center {
-  padding: 24rpx;
+.room-card-title {
+  display: flex;
+  min-height: 70rpx;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  padding: 10rpx 20rpx;
   color: var(--ui-text);
-  font-size: 30rpx;
+  font-size: 28rpx;
   font-weight: 650;
   text-align: center;
 }

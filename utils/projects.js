@@ -77,7 +77,7 @@ export function saveSelectedProject(project) {
   wx.setStorageSync("selected_region", project.customer_region || "");
 }
 
-export function enterProjectRole(projects, delay = 0) {
+export function enterProjectRole(projects) {
   if (!projects.length) {
     return false;
   }
@@ -88,11 +88,6 @@ export function enterProjectRole(projects, delay = 0) {
   app.globalData.userInfo = { userName: `role${role}`, role };
   wx.setStorageSync("isSingle", isSingle);
 
-  const navigate = () => app.switchTabWithRole(role);
-  if (delay > 0) {
-    setTimeout(navigate, delay);
-  } else {
-    navigate();
-  }
+  app.switchTabWithRole(role);
   return true;
 }

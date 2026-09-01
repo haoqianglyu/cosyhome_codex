@@ -13,13 +13,21 @@ Page({
     distributors: [],
     showList: [],
     homes: [],
+    loading: true,
+    loadError: "",
   },
 
   onLoad() {
+    if (!wx.getStorageSync("isAdmin")) {
+      wx.showToast({ title: "无管理员权限", icon: "none" });
+      app.switchTabWithRole(wx.getStorageSync("isSingle") ? 2 : 1);
+      return;
+    }
     this.loadDistributors();
   },
 
   async loadDistributors() {
+    this.setData({ loading: true, loadError: "" });
     try {
       const data = await apiRequest(api.distributors, {
         page_options: { page: 1, limit: 10000 },
@@ -32,9 +40,11 @@ Page({
         showList: distributors,
         homes: [],
         showname: "",
+        loading: false,
       });
     } catch (error) {
       console.error("经销商列表获取失败", error);
+      this.setData({ loading: false, loadError: "经销商列表获取失败" });
       wx.showToast({ title: "经销商列表获取失败", icon: "none" });
     }
   },
@@ -46,6 +56,10 @@ Page({
         ? this.searchStr(keyword, this.data.distributors)
         : this.data.distributors,
     });
+  },
+
+  onPullDownRefresh() {
+    this.loadDistributors().finally(() => wx.stopPullDownRefresh());
   },
 
   searchStr(value, list) {

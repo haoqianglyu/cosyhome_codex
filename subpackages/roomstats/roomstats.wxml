@@ -1,22 +1,28 @@
 <wxs module="numberUtil" src="../../utils/numberUtil.wxs"></wxs>
 
 <view class="panel">
+    <view wx:if="{{loading}}" class="page-state">正在读取房间环境量数据...</view>
+    <view wx:elif="{{!floors.length}}" class="page-state">
+      <view class="page-state-title">{{loadError || '暂无房间环境量数据'}}</view>
+      <view class="page-state-copy">下拉页面可重新加载</view>
+    </view>
+    <block wx:else>
     <view class='select_box'>
         <view class='select' aria-role="button" aria-label="选择楼层" catchtap='selectTap'>
           <text class='select_text'>{{floors[index]}}</text>
           <image class='select_img {{show&&"select_img_rotate"}}' src='/icons/gobottom.png'></image>
         </view>
 
-        <view class='option_box' style='height:{{show?(floors.length>5?300:floors.length*60):0}}rpx;'>
+        <view class='option_box {{show ? "option_box--open" : ""}}' style='height:{{show?(floors.length>5?300:floors.length*60):0}}rpx;'>
             <text class='option' aria-role="button" aria-label="选择 {{item}}" style='{{index==floors.length-1&&"border:0;"}}' wx:for='{{floors}}' wx:key='*this' data-index='{{index}}' catchtap='optionTap'>{{item}}</text>
         </view>
     </view>
 
 
-    <view class='nav-list margin-top'>
+    <view class='nav-list'>
         <view class="nav-li" wx:for="{{content}}" wx:key="name">
 
-            <view class="text-center margin-bottom text-lg  text-grey">
+            <view class="room-card-title">
                 {{item.name}}
             </view>
 
@@ -40,19 +46,19 @@
 
                   <view class="tr">
                     <view class="td">均值</view>
-                    <view class="td">{{item.avgTemperature?numberUtil.toFix(item.avgTemperature):"-"}}</view>
-                    <view class="td">{{item.avgHumidity?numberUtil.toFix(item.avgHumidity):"-"}}</view>
-                    <view class="td">{{item.avgDewPoint?numberUtil.toFix(item.avgDewPoint):"-"}}</view>
-                    <view class="td">{{item.avgPm?numberUtil.toFix(item.avgPm):"-"}}</view>
-                    <view class="td">{{item.avgCO2?numberUtil.toFix(item.avgCO2):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.avgTemperature)?numberUtil.toFix(item.avgTemperature):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.avgHumidity)?numberUtil.toFix(item.avgHumidity):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.avgDewPoint)?numberUtil.toFix(item.avgDewPoint):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.avgPm)?numberUtil.toFix(item.avgPm):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.avgCO2)?numberUtil.toFix(item.avgCO2):"-"}}</view>
                   </view>
                   <view class="tr">
                     <view class="td">标准差</view>
-                    <view class="td">{{item.sdTemperature?2*numberUtil.toFix(item.sdTemperature):"-"}}</view>
-                    <view class="td">{{item.sdHumidity?2*numberUtil.toFix(item.sdHumidity):"-"}}</view>
-                    <view class="td">{{item.sdDewPoint?2*numberUtil.toFix(item.sdDewPoint):"-"}}</view>
-                    <view class="td">{{item.sdPm?2*numberUtil.toFix(item.sdPm):"-"}}</view>
-                    <view class="td">{{item.sdCO2?2*numberUtil.toFix(item.sdCO2):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.sdTemperature)?numberUtil.toFix(item.sdTemperature):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.sdHumidity)?numberUtil.toFix(item.sdHumidity):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.sdDewPoint)?numberUtil.toFix(item.sdDewPoint):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.sdPm)?numberUtil.toFix(item.sdPm):"-"}}</view>
+                    <view class="td">{{numberUtil.hasValue(item.sdCO2)?numberUtil.toFix(item.sdCO2):"-"}}</view>
                   </view>
 
               </view>
@@ -64,4 +70,5 @@
 
 
 
+    </block>
 </view>

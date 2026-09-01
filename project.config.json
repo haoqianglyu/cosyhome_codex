@@ -1,11 +1,236 @@
 {
   "description": "项目配置文件",
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      {
+        "type": "folder",
+        "value": "node_modules"
+      },
+      {
+        "type": "folder",
+        "value": "scripts"
+      },
+      {
+        "type": "folder",
+        "value": "pages/fantest"
+      },
+      {
+        "type": "suffix",
+        "value": ".less"
+      },
+      {
+        "type": "suffix",
+        "value": ".DS_Store"
+      },
+      {
+        "type": "suffix",
+        "value": ".d.ts"
+      },
+      {
+        "type": "file",
+        "value": "iconfont.json"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/action-sheet"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/area"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/calendar"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/card"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/cascader"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/circle"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/col"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/collapse"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/collapse-item"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/config-provider"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/count-down"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/datetime-picker"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/definitions"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/divider"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/dropdown-item"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/dropdown-menu"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/goods-action-icon"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/grid"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/grid-item"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/image"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/index-anchor"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/index-bar"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/nav-bar"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/notice-bar"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/notify"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/panel"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/picker"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/picker-column"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/progress"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/radio"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/radio-group"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/row"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/search"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/share-sheet"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/sidebar"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/sidebar-item"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/skeleton"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/slider"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/stepper"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/steps"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/sticky"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/submit-bar"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/switch"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/tab"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/tabbar"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/tabbar-item"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/tabs"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/tag"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram_npm/@vant/weapp/tree-select"
+      }
+    ],
     "include": []
   },
   "setting": {
-    "urlCheck": false,
+    "urlCheck": true,
     "es6": true,
     "enhance": true,
     "postcss": true,
@@ -14,13 +239,13 @@
     "newFeature": false,
     "coverView": true,
     "nodeModules": true,
-    "autoAudits": false,
+    "autoAudits": true,
     "showShadowRootInWxmlPanel": true,
-    "scopeDataCheck": false,
+    "scopeDataCheck": true,
     "uglifyFileName": false,
     "checkInvalidKey": true,
     "checkSiteMap": true,
-    "uploadWithSourceMap": true,
+    "uploadWithSourceMap": false,
     "compileHotReLoad": false,
     "lazyloadPlaceholderEnable": false,
     "useMultiFrameRuntime": true,
@@ -50,7 +275,7 @@
   "compileType": "miniprogram",
   "libVersion": "3.8.12",
   "appid": "wx6feeac67ef010841",
-  "projectname": "cosyhome_allmini",
+  "projectname": "cosyhome_codex",
   "isGameTourist": false,
   "condition": {
     "search": {

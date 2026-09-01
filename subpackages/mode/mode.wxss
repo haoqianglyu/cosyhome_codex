@@ -1,27 +1,183 @@
 page {
   min-height: 100%;
-  background: linear-gradient(180deg, #edf8f4 0, var(--ui-bg) 340rpx);
+  background: linear-gradient(180deg, #e8f8f4 0, var(--ui-bg) 430rpx);
 }
 
-.statistics {
+.mode-page {
+  min-height: 100vh;
   box-sizing: border-box;
-  padding: 34rpx 28rpx;
+  padding: 28rpx 28rpx calc(48rpx + env(safe-area-inset-bottom));
 }
 
-ec-canvas {
+.mode-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 34rpx 30rpx 30rpx;
+  border-radius: 30rpx;
+  color: #fff;
+  background: linear-gradient(138deg, #55c2bb 0%, #67cec6 100%);
+  box-shadow: 0 22rpx 48rpx rgba(85, 194, 187, .22);
+}
+
+.hero-orbit {
+  position: absolute;
+  border: 1rpx solid rgba(255, 255, 255, .2);
+  border-radius: 50%;
+}
+
+.hero-orbit--large {
+  top: -126rpx;
+  right: -76rpx;
+  width: 310rpx;
+  height: 310rpx;
+  box-shadow: 0 0 0 42rpx rgba(255, 255, 255, .055), 0 0 0 88rpx rgba(255, 255, 255, .03);
+}
+
+.hero-orbit--small {
+  right: 172rpx;
+  bottom: -54rpx;
+  width: 112rpx;
+  height: 112rpx;
+  opacity: .55;
+}
+
+.hero-eyebrow {
+  position: relative;
+  font-size: 18rpx;
+  font-weight: 700;
+  letter-spacing: 4rpx;
+  opacity: .72;
+}
+
+.hero-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12rpx;
+}
+
+.hero-title {
+  font-size: 41rpx;
+  font-weight: 700;
+}
+
+.month-chip {
+  padding: 9rpx 18rpx;
+  border: 1rpx solid rgba(255, 255, 255, .3);
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, .15);
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.hero-copy {
+  position: relative;
+  margin-top: 10rpx;
+  font-size: 23rpx;
+  opacity: .78;
+}
+
+.hero-summary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-top: 28rpx;
+  padding: 19rpx 22rpx;
+  border: 1rpx solid rgba(255, 255, 255, .2);
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, .12);
+}
+
+.summary-item {
+  min-width: 130rpx;
+}
+
+.summary-item--wide {
+  flex: 1;
+  min-width: 0;
+}
+
+.summary-line {
+  width: 1rpx;
+  height: 54rpx;
+  margin: 0 24rpx;
+  background: rgba(255, 255, 255, .24);
+}
+
+.summary-value {
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.summary-value--text {
+  overflow: hidden;
+  font-size: 27rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summary-label {
+  margin-top: 4rpx;
+  font-size: 19rpx;
+  opacity: .7;
+}
+
+.chart-card {
+  margin-top: 24rpx;
+  padding: 27rpx 24rpx 20rpx;
+  border: 1rpx solid var(--ui-border);
+  border-radius: 30rpx;
+  background: rgba(255, 255, 255, .96);
+  box-shadow: var(--ui-shadow-card);
+}
+
+.chart-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7rpx;
+}
+
+.chart-title {
+  color: var(--ui-text);
+  font-size: 29rpx;
+  font-weight: 700;
+}
+
+.chart-caption {
+  margin-top: 5rpx;
+  color: var(--ui-text-muted);
+  font-size: 20rpx;
+}
+
+.chart-unit {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 13rpx;
+  border-radius: 999rpx;
+  color: var(--ui-primary-dark);
+  background: var(--ui-primary-soft);
+  font-size: 19rpx;
+}
+
+.unit-dot {
+  width: 8rpx;
+  height: 8rpx;
+  margin-right: 8rpx;
+  border-radius: 50%;
+  background: var(--ui-primary);
+  box-shadow: 0 0 0 5rpx rgba(85, 194, 187, .12);
+}
+
+.chart-shell {
+  width: 100%;
+  height: 570rpx;
+  margin-top: 12rpx;
+}
+
+.chart-shell ec-canvas {
   width: 100%;
   height: 100%;
   background: transparent;
-}
-
-#mychart2 {
-  display: block;
-  width: 100%;
-  height: 680rpx;
-  box-sizing: border-box;
-  padding: 12rpx;
-  border: 1rpx solid var(--ui-border);
-  border-radius: 30rpx;
-  background: var(--ui-surface);
-  box-shadow: var(--ui-shadow-card);
 }

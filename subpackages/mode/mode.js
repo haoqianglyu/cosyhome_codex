@@ -15,6 +15,8 @@ Page({
     cachedKey: [],
     cachedValue: [],
     requestId: null,
+    selectedMonth: "",
+    dominantMode: "--",
   },
 
   onLoad: function (options) {
@@ -27,6 +29,7 @@ Page({
 
     // 设置标题
     const selectedMonth = wx.getStorageSync("selected_month");
+    this.setData({ selectedMonth });
     wx.setNavigationBarTitle({
       title: `${selectedMonth}月运行模式数据`,
     });
@@ -68,17 +71,19 @@ Page({
    * 处理拿到的数据 => 分解出 key/value
    */
   processData(data) {
-    const keys = [];
-    const values = [];
-    data.forEach(item => {
-      keys.push(item.name);
-      // 这里保留你原本对 value 的处理
-      values.push(Number(item.value).toFixed(1));
-    });
+    const sortedData = data
+      .map((item) => ({
+        name: item.name,
+        value: Number(item.value) || 0,
+      }))
+      .sort((left, right) => right.value - left.value);
+    const keys = sortedData.map((item) => item.name);
+    const values = sortedData.map((item) => item.value.toFixed(1));
 
     this.setData({
       key: keys,
-      value: values
+      value: values,
+      dominantMode: keys[0] || "--",
     });
   },
 
@@ -96,6 +101,7 @@ Page({
 
   init_echarts2: function (chartData) {
     this.chart2Componnet = this.selectComponent("#mychart2");
+    if (!this.chart2Componnet) return;
     this.chart2Componnet.init((canvas, width, height, dpr) => {
       pieChart = echarts.init(canvas, null, {
         width: width,
@@ -116,46 +122,56 @@ Page({
 
   getPieOption: function (chartData) {
     const option = {
-      title: {
-        left: "center",
-        text: chartData.title,
-      },
+      animationDuration: 850,
+      animationEasing: "cubicOut",
       tooltip: {
         trigger: "axis",
-        formatter: "{b}{a}: {c}%",
+        confine: true,
+        formatter: "{b}<br/>{a}：{c}%",
+        backgroundColor: "rgba(35, 61, 56, .94)",
+        borderWidth: 0,
+        textStyle: { color: "#ffffff", fontSize: 12 },
         axisPointer: {
-          type: "shadow",
+          type: "none",
         },
       },
       grid: {
-        top: "10%",
-        left: "3%",
-        right: "15%",
-        bottom: "10%",
+        top: 24,
+        left: 8,
+        right: 50,
+        bottom: 12,
         containLabel: true,
       },
       xAxis: {
-        show: true,
+        type: "value",
+        min: 0,
+        max: 100,
+        splitNumber: 4,
         axisLabel: {
-          formatter: "{value}",
-          show: true,
+          formatter: "{value}%",
+          color: "#9aaca7",
+          fontSize: 10,
         },
-        splitLine: { show: false },
-        axisLine: {
+        splitLine: {
           show: true,
-          symbol: ["none", "arrow"],
+          lineStyle: {
+            color: "rgba(85, 194, 187, .12)",
+            type: "dashed",
+          },
         },
+        axisLine: { show: false },
+        axisTick: { show: false },
       },
       yAxis: {
         type: "category",
+        inverse: true,
         axisLabel: {
-          color: "#808080",
-          formatter: (val) => `${val}`,
+          color: "#405a54",
+          fontSize: 11,
+          margin: 16,
+          formatter: (value) => value.length > 8 ? `${value.slice(0, 8)}…` : value,
         },
-        axisLine: {
-          show: true,
-          symbol: ["none", "arrow"],
-        },
+        axisLine: { show: false },
         axisTick: {
           show: false,
         },
@@ -169,19 +185,31 @@ Page({
             show: true,
             position: "right",
             formatter: "{c}%",
+            color: "#3faea7",
+            fontSize: 11,
+            fontWeight: 600,
           },
-          barWidth: 10,
+          barWidth: 15,
           showBackground: true,
-          barMaxWidth: 20,
-          barMinWidth: 5,
+          backgroundStyle: {
+            color: "rgba(85, 194, 187, .1)",
+            borderRadius: 10,
+          },
           itemStyle: {
-            borderRadius: [0, 10, 10, 0],
-            color: new echarts.graphic.LinearGradient(1, 0, 0, 0, [
-              { offset: 0, color: "rgba(220,220,220)" },
-              { offset: 1, color: "rgba(169,169,169, 1)" },
+            borderRadius: 10,
+            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+              { offset: 0, color: "#8ae0da" },
+              { offset: .55, color: "#55c2bb" },
+              { offset: 1, color: "#35aaa3" },
             ]),
-            borderWidth: 1,
-            borderColor: "black",
+            shadowBlur: 8,
+            shadowColor: "rgba(85, 194, 187, .2)",
+          },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 14,
+              shadowColor: "rgba(85, 194, 187, .34)",
+            },
           },
           data: chartData.seriesData,
         },

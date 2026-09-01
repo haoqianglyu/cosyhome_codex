@@ -27,7 +27,6 @@ Page({
         : wx.getSystemInfoSync();
     let mode_id = wx.getStorageSync("current_mode");
     let mode_list = wx.getStorageSync("mode_list");
-    console.log(mode_list);
 
     if (!Array.isArray(mode_list)) {
       mode_list = [];
@@ -48,7 +47,6 @@ Page({
 
     for (var i = 0; i < that.data.buttons.length; i++) {
       if (that.data.buttons[i].id === mode_id) {
-        console.log(that.data.buttons[i].id);
         that.data.buttons[i].checked = true;
       }
     }
@@ -118,7 +116,6 @@ Page({
     let click_mode = null;
     let message = null;
     let id = e.currentTarget.dataset.id;
-    console.log(id);
     if (app.globalData.isvisitor) {
       wx.showToast({
         title: "访客模式不可操作",
@@ -132,8 +129,6 @@ Page({
         }
       }
 
-      console.log(id);
-      console.log(click_mode);
       wx.showModal({
         title: "提示",
         cancelText: "取消",
@@ -182,8 +177,6 @@ Page({
             } finally {
               this._modePending = false;
             }
-          } else if (res.cancel) {
-            console.log("用户点击取消");
           }
         },
       });

@@ -25,20 +25,30 @@ Page({
   },
 
   onLoad: function(options) {
+    this._pageVisible = true;
+    const phone = wx.getStorageSync("userPhoneNumber");
     this.setData({
-      phone: wx.getStorageSync('userPhoneNumber'),
+      phone,
     });
-    // this.login()
-    this.handleSendVerify()
+    if (!/^1[3-9]\d{9}$/.test(phone)) {
+      wx.showToast({ title: "手机号无效，请重新填写", icon: "none" });
+      return;
+    }
+    this.handleSendVerify();
   },
 
   handleSendVerify: function () {
-    console.log(this.data.phone);
-    let self = this;
-    self.setData({
+    if (this._sendVerifyPending) {
+      return;
+    }
+    if (!/^1[3-9]\d{9}$/.test(this.data.phone)) {
+      wx.showToast({ title: "手机号无效，请重新填写", icon: "none" });
+      return;
+    }
+    this._sendVerifyPending = true;
+    this.setData({
       phoneStatus: false,
     });
-    var _that = this;
     api.sendverify({
       method: "POST",
       data: {
@@ -48,28 +58,22 @@ Page({
         "content-type": "application/json",
       },
       success: function (res) {
-        console.log(res);
-        console.log(res.statusCode);
-        // wx.hideLoading()
-        if(res.statusCode === 200){
-          //验证码发送成功
-          
-          
-        }else{
-          console.log("1111")
+        if (res.statusCode !== 200) {
           wx.showToast({
-                    title: res.data.message,
-                    icon: "none",
-                    duration: 1500,
-                  });
+            title: (res.data && res.data.message) || "验证码发送失败",
+            icon: "none",
+            duration: 1500,
+          });
         }
-
       },
       fail: function (error) {
         wx.showToast({
           title: (error.data && error.data.message) || "验证码发送失败",
           icon: "none",
         });
+      },
+      complete: () => {
+        this._sendVerifyPending = false;
       },
     });
   },
@@ -127,6 +131,10 @@ Page({
 
     // 验证码校验
     if (value.length === 4) {
+      if (this._verifyPending) {
+        return;
+      }
+      this._verifyPending = true;
       // if (value === "1234") {
       //   wx.navigateTo({ url: "/pages/test/test" });
       // } else {
@@ -136,8 +144,6 @@ Page({
       wx.login({
         success(res) {
           if (res.code) {
-            console.log(res);
-            console.log(res.code);
             let phone = that.data.phone;
             let verify = value;
             let code = res.code;
@@ -153,7 +159,6 @@ Page({
                 "content-type": "application/json",
               },
               success: function (res) {
-                console.log(res);
                 if (res.statusCode === 200) {
                   wx.removeStorageSync("userPhoneNumber");
                   wx.showToast({
@@ -161,8 +166,8 @@ Page({
                     icon: "none",
                     duration: 1500,
                   });
-                  setTimeout(() => {
-                    wx.navigateTo({
+                  that._navigationTimer = setTimeout(() => {
+                    wx.reLaunch({
                       url: "/pages/index/index",
                     });
                   }, 1000);
@@ -170,12 +175,17 @@ Page({
                   // self.setData({
                   //   loginStatus: true,
                   // });
-                  that.setData({ errorCode: res.data.message });
+                  that.setData({
+                    errorCode:
+                      (res.data && res.data.message) || "验证码验证失败",
+                  });
                   that.triggerErrorAnimation();
+                  that._verifyPending = false;
                 
                 }
               },
               fail: function (error) {
+                that._verifyPending = false;
                 that.setData({
                   loginStatus: true,
                   errorCode:
@@ -185,8 +195,19 @@ Page({
               },
             });
           } else {
-            console.log("登录失败！" + res.errMsg);
+            that._verifyPending = false;
+            wx.showToast({
+              title: res.errMsg || "微信登录失败",
+              icon: "none",
+            });
           }
+        },
+        fail(error) {
+          that._verifyPending = false;
+          wx.showToast({
+            title: (error && error.errMsg) || "微信登录失败",
+            icon: "none",
+          });
         },
       });
     } else {
@@ -239,7 +260,6 @@ Page({
         focus2: false,
         focus3: false,
         focus4: false,
-        errorCode: "",
       });
     }, 500);
 
@@ -266,9 +286,11 @@ Page({
   },
 
   onUnload() {
+    this._pageVisible = false;
     this._animationGeneration = (this._animationGeneration || 0) + 1;
     clearTimeout(this._inputResetTimer);
     clearTimeout(this._particleCleanupTimer);
+    clearTimeout(this._navigationTimer);
   },
 
   onShareAppMessage: function () {

@@ -1,9 +1,13 @@
 var filters = {
   toFix: function (value) {
     return Number(value).toFixed(1)//此处1为保留1位小数
+  },
+  hasValue: function (value) {
+    return value === 0 || value === "0" || !!value
   }
 }
 
 module.exports = {
-  toFix: filters.toFix
+  toFix: filters.toFix,
+  hasValue: filters.hasValue
 }

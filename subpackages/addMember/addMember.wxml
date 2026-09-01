@@ -13,6 +13,7 @@
       <van-field
         value="{{memberName}}"
         placeholder="输入成员姓名"
+        maxlength="30"
         border="{{false}}"
         bind:change="onNameChange"
         custom-style="background: #ffffff; border-radius: 12rpx; color: #333333; box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);"
@@ -27,6 +28,7 @@
         placeholder="输入成员手机号"
         border="{{false}}"
         type="number"
+        maxlength="11"
         bind:change="onPhoneChange"
         custom-style="background: #ffffff; border-radius: 12rpx; color: #333333; box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);"
         input-class="input-field"

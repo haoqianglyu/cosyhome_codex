@@ -4,7 +4,8 @@ page,.equipment-page { height: 100%; overflow: hidden; background: #edf4f1; }
 .drawer-caption { margin-top: 9rpx; color: rgba(255,255,255,.62); font-size: 21rpx; }
 .drawer-list { margin-top: 38rpx; }
 .drawer-item { display: flex; align-items: center; width: 100%; min-height: 82rpx; margin: 0 0 12rpx; padding: 0 20rpx; border-radius: 20rpx; color: rgba(255,255,255,.7); background: transparent; font-size: 26rpx; font-weight: 500; line-height: 82rpx; text-align: left; }
-.drawer-dot { width: 10rpx; height: 10rpx; margin-right: 16rpx; border-radius: 50%; background: rgba(255,255,255,.35); }
+.drawer-item text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.drawer-dot { flex-shrink: 0; width: 10rpx; height: 10rpx; margin-right: 16rpx; border-radius: 50%; background: rgba(255,255,255,.35); }
 .drawer-item-active { color: #fff; background: rgba(255,255,255,.16); box-shadow: inset 0 0 0 1rpx rgba(255,255,255,.12); }
 .drawer-item-active .drawer-dot { background: #c7f5df; box-shadow: 0 0 0 6rpx rgba(199,245,223,.12); }
 .equipment-main { position: relative; z-index: 2; box-sizing: border-box; width: 100%; height: 100%; padding: 26rpx; border-radius: 0; background: linear-gradient(180deg,#f7fbf9 0%,#edf4f1 100%); box-shadow: -18rpx 0 50rpx rgba(12,58,47,.18); transition: transform .3s cubic-bezier(.22,.8,.28,1),border-radius .3s; }
@@ -22,8 +23,8 @@ page,.equipment-page { height: 100%; overflow: hidden; background: #edf4f1; }
 .select-box { position: relative; flex: 1; margin-left: 20rpx; }
 .select { display: flex; align-items: center; justify-content: flex-end; min-height: 68rpx; }
 .select-text { max-width: 370rpx; overflow: hidden; color: var(--ui-text); font-size: 26rpx; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-.select-arrow { margin-left: 12rpx; color: var(--ui-primary); transition: transform .2s; }
-.select-arrow-open { transform: rotate(180deg); }
+.select-arrow { box-sizing: border-box; width: 12rpx; height: 12rpx; margin: -6rpx 3rpx 0 15rpx; border-right: 2rpx solid var(--ui-primary); border-bottom: 2rpx solid var(--ui-primary); transform: rotate(45deg); transform-origin: center; transition: transform .2s,margin .2s; }
+.select-arrow-open { margin-top: 6rpx; transform: rotate(225deg); }
 .option-box { position: absolute; top: 74rpx; right: -12rpx; left: -120rpx; max-height: 0; overflow: hidden; border: 0 solid var(--ui-border); border-radius: 20rpx; background: #fff; box-shadow: 0 18rpx 40rpx rgba(23,68,56,.15); opacity: 0; transition: max-height .25s,opacity .2s; }
 .option-box-open { max-height: 480rpx; overflow-y: auto; border-width: 1rpx; opacity: 1; }
 .option { min-height: 78rpx; padding: 0 24rpx; border-bottom: 1rpx solid #edf3f0; color: var(--ui-text-secondary); font-size: 24rpx; line-height: 78rpx; }
