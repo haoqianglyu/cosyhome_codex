@@ -139,7 +139,6 @@
     </view>
   </view>
 
-  <view class="chart-header">24h房间数据统计</view>
   <view class="statistics">
     <ec-canvas id="mychart1" canvas-id="mychart1" ec="{{ec1}}"></ec-canvas>
   </view>
