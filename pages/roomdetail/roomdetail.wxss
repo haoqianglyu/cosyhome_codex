@@ -24,6 +24,8 @@ page {
 .room-nav-back {
   display: flex;
   width: 120rpx;
+  min-height: 72rpx;
+  box-sizing: border-box;
   flex-shrink: 0;
   align-items: center;
   color: #29433d;
@@ -31,10 +33,14 @@ page {
 }
 
 .room-nav-back-icon {
-  margin-right: 5rpx;
-  font-size: 48rpx;
-  font-weight: 300;
-  line-height: 1;
+  width: 20rpx;
+  height: 20rpx;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  margin-right: 11rpx;
+  border-bottom: 4rpx solid currentColor;
+  border-left: 4rpx solid currentColor;
+  transform: rotate(45deg);
 }
 
 .room-nav-title {

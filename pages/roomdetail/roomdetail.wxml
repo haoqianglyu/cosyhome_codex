@@ -1,7 +1,7 @@
 <view class="room-status-bar" style="height: {{statusBarHeight}}px;"></view>
 <view class="room-custom-nav">
   <view class="room-nav-back" aria-role="button" aria-label="返回房间列表" bindtap="BackPage">
-    <text class="room-nav-back-icon">‹</text>
+    <view class="room-nav-back-icon" aria-hidden="true"></view>
     <text>返回</text>
   </view>
   <view class="room-nav-title">房间控制</view>
@@ -86,7 +86,7 @@
       </i-switch>
     </view>
 
-    <view class="control-row" wx:if="{{windLevelNumber != null && !(isHeatingDehumidify && airConditionerModeName === '制冷')}}">
+    <view class="control-row" wx:if="{{hasWindControl && !(isHeatingDehumidify && airConditionerModeName === '制冷')}}">
       <view class="control-label">
         <view class="control-label-icon control-label-icon--wind">
           <view class="mini-fan" aria-hidden="true">

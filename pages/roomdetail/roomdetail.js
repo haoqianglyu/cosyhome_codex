@@ -2,6 +2,7 @@
 import * as echarts from "../../ec-canvas/echarts";
 import api from "../../api/api.js";
 import { legacyControlMessageBody } from "../../utils/controlMessage.js";
+import { normalizeWindControl } from "../../utils/roomControl.js";
 import {
   apiRequest,
   getErrorMessage,
@@ -29,7 +30,8 @@ Page({
       lazyLoad: true,
     },
     windLevels: [], // 风速级别数组
-    currentButton: 0, // 当前选中的风速
+    currentButton: null, // 当前选中的风速
+    hasWindControl: false, // 是否具备风速控制能力
     windLevelNumber: null, // 风速级别数
     isAutoWindLevel: false, // 是否有自动风速
 
@@ -168,8 +170,7 @@ Page({
       if (!body || typeof body !== "object") {
         return;
       }
-      const currentButton =
-        body.windLevel === 100 ? 100 : Math.max(Number(body.windLevel) - 1, 0);
+      const windControl = normalizeWindControl(body);
       const setTemperature =
         body.roomMode === 0
           ? body.tempOfRefrigeration
@@ -178,10 +179,6 @@ Page({
         body.ecoTemperature === undefined || body.energyMode !== 1
           ? setTemperature
           : body.ecoTemperature;
-      const windLevelNumber = Math.min(
-        Math.max(Math.floor(Number(body.windLevelNumber) || 0), 0),
-        10,
-      );
       this.setData({
         canOff: body.canOff,
         maxTemperatureSet: body.maxTemperatureSet,
@@ -202,9 +199,10 @@ Page({
         switch_power: body.energyMode,
         ecoTemperature: body.ecoTemperature,
         workModes: Array.isArray(body.workModes) ? body.workModes : [],
-        windLevelNumber,
-        isAutoWindLevel: body.isAutoWindLevel,
-        currentButton,
+        hasWindControl: windControl.hasWindControl,
+        windLevelNumber: windControl.windLevelNumber,
+        isAutoWindLevel: windControl.isAutoWindLevel,
+        currentButton: windControl.currentButton,
         minusStatus:
           Number(showTemperature) <= Number(body.minTemperatureSet)
             ? "disabled"
@@ -213,10 +211,7 @@ Page({
           Number(showTemperature) >= Number(body.maxTemperatureSet)
             ? "disabled"
             : "normal",
-        windLevels: Array.from(
-          { length: windLevelNumber },
-          (_, index) => index,
-        ),
+        windLevels: windControl.windLevels,
       });
     } catch (error) {
       console.error("房间状态获取失败", error);
@@ -626,8 +621,12 @@ Page({
   switchButton: function(e) {
     var index = Number(e.currentTarget.dataset.index); 
     if (
-      index !== 100 &&
-      (!Number.isInteger(index) || index < 0 || index >= Number(this.data.windLevelNumber))
+      !this.data.hasWindControl ||
+      (index === 100 && !this.data.isAutoWindLevel) ||
+      (index !== 100 &&
+        (!Number.isInteger(index) ||
+          index < 0 ||
+          index >= Number(this.data.windLevelNumber)))
     ) {
       wx.showToast({ title: "风速档位无效", icon: "none" });
       return;

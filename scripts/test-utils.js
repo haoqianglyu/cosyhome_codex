@@ -99,6 +99,32 @@ const { normalizeClockInfo } = loadFunctions(
   "utils/clock.js",
   ["normalizeClockInfo"],
 );
+
+const { normalizeWindControl } = loadFunctions(
+  "utils/roomControl.js",
+  ["normalizeWindControl"],
+);
+const missingWindControl = normalizeWindControl({
+  isAutoWindLevel: true,
+  windLevel: 100,
+});
+assert.strictEqual(
+  missingWindControl.hasWindControl,
+  false,
+  "缺少 windLevelNumber 的房间不应显示自动风速",
+);
+assert.strictEqual(missingWindControl.windLevelNumber, null);
+assert.deepStrictEqual(Array.from(missingWindControl.windLevels), []);
+
+const fiveLevelWindControl = normalizeWindControl({
+  windLevelNumber: 5,
+  isAutoWindLevel: true,
+  windLevel: 5,
+});
+assert.strictEqual(fiveLevelWindControl.hasWindControl, true);
+assert.strictEqual(fiveLevelWindControl.currentButton, 4);
+assert.strictEqual(fiveLevelWindControl.isAutoWindLevel, true);
+assert.deepStrictEqual(Array.from(fiveLevelWindControl.windLevels), [0, 1, 2, 3, 4]);
 const emptyClock = normalizeClockInfo(null);
 assert.strictEqual(emptyClock.isTiming, false);
 assert.strictEqual(emptyClock.currentMode, 0);
