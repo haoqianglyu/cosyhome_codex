@@ -1,4 +1,5 @@
 import api from "../api/api.js";
+import { isControlResponseForRequest } from "./controlResponse.js";
 
 const JSON_CONTENT_TYPE = { "content-type": "application/json" };
 
@@ -98,4 +99,34 @@ export async function legacyControlMessageBody(options, delay = 1000) {
     body: undefined,
   });
   return parseControlResponse(response);
+}
+
+/**
+ * 发送带 requestId 的控制屏查询，并轮询到本次请求对应的回调结果。
+ * 无 requestId 的旧版响应仍在首次读取后直接返回。
+ */
+export async function legacyCorrelatedControlMessageBody(
+  options,
+  { initialDelay = 2000, retryDelay = 1500, maxAttempts = 6 } = {},
+) {
+  const requestId = options && options.body && options.body.requestId;
+  await sendControlCommand(options);
+
+  let lastBody;
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const delay = attempt === 0 ? initialDelay : retryDelay;
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    const response = await legacyRequest(api.trans_ctrl_message_callback, {
+      ...options,
+      body: undefined,
+    });
+    lastBody = parseControlResponse(response);
+    if (isControlResponseForRequest(lastBody, requestId)) {
+      return lastBody;
+    }
+  }
+
+  const error = new Error("数据仍在生成，请稍后重试");
+  error.lastBody = lastBody;
+  throw error;
 }

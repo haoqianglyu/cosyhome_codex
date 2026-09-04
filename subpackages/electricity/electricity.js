@@ -2,7 +2,7 @@
 import * as echarts from '../../ec-canvas/echarts';
 import {
   controlDataArray,
-  legacyControlMessageBody,
+  legacyCorrelatedControlMessageBody,
 } from "../../utils/controlMessage.js";
 var app = getApp();
 let externalDataArray = [];
@@ -29,28 +29,33 @@ Page({
   },
 
   onLoad: function (options) {
-    var that = this;
+    this._pageActive = true;
+    const selectedMonth = String(wx.getStorageSync("selected_month") || "");
+    const selectedYear = String(wx.getStorageSync("selected_year") || "");
+    const requestId = String(Date.now());
     wx.setNavigationBarTitle({
-      title: wx.getStorageSync("selected_month") + '月计量数据'
+      title: selectedMonth + '月计量数据'
     });
 
-    const nowStr = String(Date.now());
-    this.setData({ requestId: nowStr });
-    that.requestData();
+    this.setData({ requestId });
+    this.requestData({ requestId, month: selectedMonth, year: selectedYear });
   },
 
   /** 获取并渲染计量数据。 */
-  async requestData() {
+  async requestData({ requestId, month, year }) {
     wx.showLoading({ title: "数据加载中...", mask: true });
     try {
-      const body = await legacyControlMessageBody({
+      const body = await legacyCorrelatedControlMessageBody({
         messageType: 9,
         body: {
-          requestId: this.data.requestId,
-          month: wx.getStorageSync("selected_month"),
-          year: wx.getStorageSync("selected_year"),
+          requestId,
+          month,
+          year,
         },
       });
+      if (!this._pageActive) {
+        return;
+      }
       const data = controlDataArray(body);
       if (data.length) {
         this.handleDataAndRender(data, "sync");
@@ -59,7 +64,9 @@ Page({
       }
     } catch (error) {
       console.error("计量数据获取失败", error);
-      this.showNoData();
+      if (this._pageActive) {
+        this.showNoData();
+      }
     } finally {
       wx.hideLoading();
     }
@@ -314,6 +321,7 @@ Page({
   onShow: function () {},
   onHide: function () {},
   onUnload: function () {
+    this._pageActive = false;
     if (barChart1) {
       barChart1.dispose();
       barChart1 = null;

@@ -2,7 +2,7 @@
 import * as echarts from "../../ec-canvas/echarts";
 import {
   controlDataArray,
-  legacyControlMessageBody,
+  legacyCorrelatedControlMessageBody,
 } from "../../utils/controlMessage.js";
 var app = getApp();
 let barChart1 = null;
@@ -44,34 +44,38 @@ Page({
   },
 
   onLoad: function (options) {
-    const that = this;
-    that.setData({
+    this._pageActive = true;
+    const selectedMonth = String(wx.getStorageSync("selected_month") || "");
+    const selectedYear = String(wx.getStorageSync("selected_year") || "");
+    const requestId = String(Date.now());
+    this.setData({
       windowHeight: wx.getStorageSync("windowHeight"),
       windowWidth: wx.getStorageSync("windowWidth"),
+      requestId,
     });
 
-    // 设置标题栏
     wx.setNavigationBarTitle({
-      title: wx.getStorageSync("selected_month") + "月建筑能效",
+      title: selectedMonth + "月建筑能效",
     });
 
-    const nowTimestamp = String(Date.now());
-    this.setData({ requestId: nowTimestamp });
-    wx.showLoading({ title: "加载中..." });
-    that.requestData();
+    wx.showLoading({ title: "加载中...", mask: true });
+    this.requestData({ requestId, month: selectedMonth, year: selectedYear });
   },
 
   /** 获取并渲染建筑能效数据。 */
-  async requestData() {
+  async requestData({ requestId, month, year }) {
     try {
-      const body = await legacyControlMessageBody({
+      const body = await legacyCorrelatedControlMessageBody({
         messageType: 19,
         body: {
-          requestId: this.data.requestId,
-          month: wx.getStorageSync("selected_month"),
-          year: wx.getStorageSync("selected_year"),
+          requestId,
+          month,
+          year,
         },
       });
+      if (!this._pageActive) {
+        return;
+      }
       const data = controlDataArray(body);
       if (data.length) {
         this.handleDataAndRender(data);
@@ -80,7 +84,9 @@ Page({
       }
     } catch (error) {
       console.error("建筑能效数据获取失败", error);
-      this.showNoData();
+      if (this._pageActive) {
+        this.showNoData();
+      }
     } finally {
       wx.hideLoading();
     }
@@ -324,6 +330,7 @@ Page({
   },
 
   onUnload: function () {
+    this._pageActive = false;
     if (barChart1) {
       barChart1.dispose();
       barChart1 = null;

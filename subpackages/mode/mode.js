@@ -2,7 +2,7 @@
 import * as echarts from "../../ec-canvas/echarts";
 import {
   controlDataArray,
-  legacyControlMessageBody,
+  legacyCorrelatedControlMessageBody,
 } from "../../utils/controlMessage.js";
 
 let pieChart = null;
@@ -20,26 +20,31 @@ Page({
   },
 
   onLoad: function (options) {
+    this._pageActive = true;
     // 显示加载中的提示
     wx.showLoading({ title: "加载中..." });
 
-    // 1) 生成字符串形式的 requestId
-    const nowStr = String(Date.now());
-    this.setData({ requestId: nowStr });
-
-    // 设置标题
-    const selectedMonth = wx.getStorageSync("selected_month");
-    this.setData({ selectedMonth });
+    const requestId = String(Date.now());
+    const selectedMonth = String(wx.getStorageSync("selected_month") || "");
+    const selectedYear = String(wx.getStorageSync("selected_year") || "");
+    this.setData({ requestId, selectedMonth });
     wx.setNavigationBarTitle({
       title: `${selectedMonth}月运行模式数据`,
     });
 
-    this.fetchData();
+    this.fetchData({
+      requestId,
+      month: selectedMonth,
+      year: selectedYear,
+    });
   },
 
-  async fetchData() {
+  async fetchData(requestContext) {
     try {
-      const data = await this.loadModeData();
+      const data = await this.loadModeData(requestContext);
+      if (!this._pageActive) {
+        return;
+      }
       if (!data.length) {
         wx.showToast({ title: "没有数据", icon: "none", duration: 2000 });
         return;
@@ -49,19 +54,21 @@ Page({
       this.getChartTestData();
     } catch (error) {
       console.error(`数据获取失败: ${error.message}`);
-      wx.showToast({ title: "数据获取失败", icon: "none", duration: 2000 });
+      if (this._pageActive) {
+        wx.showToast({ title: "数据获取失败", icon: "none", duration: 2000 });
+      }
     } finally {
       wx.hideLoading();
     }
   },
 
-  async loadModeData() {
-    const body = await legacyControlMessageBody({
+  async loadModeData({ requestId, month, year }) {
+    const body = await legacyCorrelatedControlMessageBody({
       messageType: 7,
       body: {
-        requestId: this.data.requestId,
-        month: wx.getStorageSync("selected_month"),
-        year: wx.getStorageSync("selected_year"),
+        requestId,
+        month,
+        year,
       },
     });
     return controlDataArray(body);
@@ -221,7 +228,7 @@ Page({
 
   getChartTestData() {
     const chartData2 = {
-      title: `${wx.getStorageSync("selected_month")}月运行模式时间占比`,
+      title: `${this.data.selectedMonth}月运行模式时间占比`,
       legendData: this.data.key,
       seriesData: this.data.value,
     };
@@ -229,6 +236,7 @@ Page({
   },
 
   onUnload() {
+    this._pageActive = false;
     if (pieChart) {
       pieChart.dispose();
       pieChart = null;

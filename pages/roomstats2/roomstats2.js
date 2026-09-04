@@ -1,5 +1,5 @@
 // pages/roomstats2/roomstats2.js
-import { legacyControlMessageBody } from "../../utils/controlMessage.js";
+import { legacyCorrelatedControlMessageBody } from "../../utils/controlMessage.js";
 Page({
 
   /**
@@ -15,6 +15,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function () {
+    this._pageActive = true;
     wx.showNavigationBarLoading();
     wx.setNavigationBarTitle({
       title: wx.getStorageSync("selected_month") + "月环境量统计",
@@ -23,16 +24,22 @@ Page({
   },
 
   async loadStatistics() {
+    const requestId = String(Date.now());
+    const month = String(wx.getStorageSync("selected_month") || "");
+    const year = String(wx.getStorageSync("selected_year") || "");
     this.setData({ loading: true, loadError: "" });
     try {
-      const body = await legacyControlMessageBody({
+      const body = await legacyCorrelatedControlMessageBody({
         messageType: 20,
         body: {
-          requestId: Date.now(),
-          month: wx.getStorageSync("selected_month"),
-          year: wx.getStorageSync("selected_year"),
+          requestId,
+          month,
+          year,
         },
       });
+      if (!this._pageActive) {
+        return;
+      }
       const content = Array.isArray(body && body.data)
         ? body.data.map((item, index) => ({
             ...item,
@@ -41,8 +48,14 @@ Page({
         : [];
       this.setData({ content, loading: false });
     } catch (error) {
-      this.setData({ content: [], loading: false, loadError: "环境量数据获取失败" });
-      wx.showToast({ title: "环境量数据获取失败", icon: "none" });
+      if (this._pageActive) {
+        this.setData({
+          content: [],
+          loading: false,
+          loadError: "环境量数据获取失败",
+        });
+        wx.showToast({ title: "环境量数据获取失败", icon: "none" });
+      }
     } finally {
       wx.hideNavigationBarLoading();
     }
@@ -73,7 +86,7 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
-
+    this._pageActive = false;
   },
 
   /**

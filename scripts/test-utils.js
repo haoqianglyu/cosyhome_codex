@@ -95,6 +95,32 @@ assert.strictEqual(calculateDewPoint(20, 50), 9.3);
 assert.strictEqual(calculateDewPoint("无效", 50), "");
 assert.strictEqual(calculateDewPoint(20, 0), "");
 
+const { isControlResponseForRequest } = loadFunctions(
+  "utils/controlResponse.js",
+  ["isControlResponseForRequest"],
+);
+assert.strictEqual(
+  isControlResponseForRequest(
+    { requestId: "new-request", data: [] },
+    "new-request",
+  ),
+  true,
+  "相同 requestId 的能效响应应被接收",
+);
+assert.strictEqual(
+  isControlResponseForRequest(
+    { requestId: "old-request", data: [] },
+    "new-request",
+  ),
+  false,
+  "旧 requestId 的缓存响应不应被接收",
+);
+assert.strictEqual(
+  isControlResponseForRequest([{ deviceName: "旧版控制屏" }], "new-request"),
+  true,
+  "无 requestId 的旧版数组响应应继续兼容",
+);
+
 const { normalizeClockInfo } = loadFunctions(
   "utils/clock.js",
   ["normalizeClockInfo"],

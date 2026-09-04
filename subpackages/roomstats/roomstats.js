@@ -1,7 +1,7 @@
 // pages/rooms/rooms.js
 import {
   controlDataArray,
-  legacyControlMessageBody,
+  legacyCorrelatedControlMessageBody,
 } from "../../utils/controlMessage.js";
 
 Page({
@@ -20,6 +20,7 @@ Page({
   },
 
   onLoad() {
+    this._pageActive = true;
     // 如果没有项目 => 清空并返回
     if (wx.getStorageSync("haveProject") === false) {
       this.setData({ floors: [], floors_id: [], content: [], loading: false });
@@ -31,10 +32,6 @@ Page({
       title: wx.getStorageSync("selected_month") + "月房间环境量统计",
     });
 
-    const nowStr = String(Date.now());
-    this.setData({
-      requestId: nowStr
-    });
     wx.showLoading({
       title: "正在加载",
       mask: true
@@ -45,16 +42,21 @@ Page({
   /** 获取并渲染房间环境量统计。 */
   async fetchFloorsData() {
     const requestId = String(Date.now());
+    const month = String(wx.getStorageSync("selected_month") || "");
+    const year = String(wx.getStorageSync("selected_year") || "");
     this.setData({ loading: true, loadError: "", requestId });
     try {
-      const body = await legacyControlMessageBody({
+      const body = await legacyCorrelatedControlMessageBody({
         messageType: 10,
         body: {
           requestId,
-          month: wx.getStorageSync("selected_month"),
-          year: wx.getStorageSync("selected_year"),
+          month,
+          year,
         },
       });
+      if (!this._pageActive) {
+        return;
+      }
       const data = controlDataArray(body);
       if (data.length) {
         this.handleFloorsDataAndRender(data, "sync");
@@ -63,7 +65,9 @@ Page({
       }
     } catch (error) {
       console.error("房间环境量统计获取失败", error);
-      this.showNoData("房间环境量统计获取失败");
+      if (this._pageActive) {
+        this.showNoData("房间环境量统计获取失败");
+      }
     } finally {
       wx.hideLoading();
     }
@@ -155,7 +159,9 @@ Page({
   // 其他生命周期函数
   onReady() {},
   onHide() {},
-  onUnload() {},
+  onUnload() {
+    this._pageActive = false;
+  },
   onPullDownRefresh() {
     this.fetchFloorsData().finally(() => wx.stopPullDownRefresh());
   },

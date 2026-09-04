@@ -1,4 +1,7 @@
-import { legacyControlMessageBody } from "../../utils/controlMessage.js";
+import {
+  legacyControlMessageBody,
+  legacyCorrelatedControlMessageBody,
+} from "../../utils/controlMessage.js";
 
 let currentMenuType = null;
 let currentEquipmentId = null;
@@ -168,10 +171,10 @@ Page({
       requestBody.equipmentId = requestedEquipmentId;
     }
     try {
-      const body = await legacyControlMessageBody({
-        messageType: 6,
-        body: requestBody,
-      });
+      const body = await legacyCorrelatedControlMessageBody(
+        { messageType: 6, body: requestBody },
+        { initialDelay: 1000, retryDelay: 1000, maxAttempts: 5 },
+      );
       if (
         String(currentMenuType) !== String(requestedMenuType) ||
         String(currentEquipmentId) !== String(requestedEquipmentId)
