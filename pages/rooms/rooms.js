@@ -26,6 +26,8 @@ Page({
   },
 
   onLoad() {
+    this._loadedProjectId = null;
+    this._hasLoadedFloors = false;
     this.syncPageHeader();
   },
 
@@ -56,28 +58,56 @@ Page({
 
     if (wx.getStorageSync("haveProject") === false) {
       this.clearTimeInterval();
-      this.setData({ floors: [], floors_id: [], content: [], loading: false, loadError: "" });
+      this._loadedProjectId = null;
+      this._hasLoadedFloors = false;
+      this._floorData = [];
+      this.setData({
+        floors: [],
+        floors_id: [],
+        content: [],
+        loading: false,
+        loadError: "",
+      });
       return;
     }
 
-    this.loadFloors(true);
+    const projectId = String(wx.getStorageSync("selected_home") || "");
+    const projectChanged =
+      this._loadedProjectId !== null && this._loadedProjectId !== projectId;
+    if (projectChanged) {
+      this._hasLoadedFloors = false;
+      this._floorData = [];
+      this.setData({
+        show: false,
+        floors: [],
+        floors_id: [],
+        index: 0,
+        content: [],
+        loading: true,
+        loadError: "",
+      });
+    }
+
+    this.loadFloors(!this._hasLoadedFloors);
     this.startRefresh();
   },
 
-  async loadFloors(showLoading = false) {
+  async loadFloors(showInitialLoading = false) {
     if (this._floorsRequestPending) {
       return;
     }
     this._floorsRequestPending = true;
-    if (showLoading) {
+    const requestProjectId = String(wx.getStorageSync("selected_home") || "");
+    if (showInitialLoading) {
       this.setData({ loading: true, loadError: "" });
-    }
-    if (showLoading) {
       wx.showNavigationBarLoading();
     }
 
     try {
       const body = await legacyControlMessageBody({ messageType: 2 });
+      if (String(wx.getStorageSync("selected_home") || "") !== requestProjectId) {
+        return;
+      }
       const floorData = Array.isArray(body && body.data)
         ? body.data.map((floor) => ({
             ...floor,
@@ -90,9 +120,18 @@ Page({
           }))
         : [];
       this._floorData = floorData;
-      const index = Math.min(this.data.index, Math.max(floorData.length - 1, 0));
+      const selectedFloorId = this.data.floors_id[this.data.index];
+      const matchedFloorIndex = floorData.findIndex(
+        (floor) => String(floor.floorId) === String(selectedFloorId),
+      );
+      const index =
+        matchedFloorIndex >= 0
+          ? matchedFloorIndex
+          : Math.min(this.data.index, Math.max(floorData.length - 1, 0));
       const selectedFloor = floorData[index] || {};
 
+      this._loadedProjectId = requestProjectId;
+      this._hasLoadedFloors = true;
       this.setData({
         index,
         floors: floorData.map((floor) => floor.floorName),
@@ -103,12 +142,12 @@ Page({
       });
     } catch (error) {
       console.error("房间列表获取失败", error);
-      if (showLoading) {
+      if (showInitialLoading) {
         this.setData({ loading: false, loadError: "房间数据加载失败" });
       }
     } finally {
       this._floorsRequestPending = false;
-      if (showLoading) {
+      if (showInitialLoading) {
         wx.hideNavigationBarLoading();
       }
     }
@@ -136,7 +175,9 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.loadFloors(true).finally(() => wx.stopPullDownRefresh());
+    this.loadFloors(!this._hasLoadedFloors).finally(() =>
+      wx.stopPullDownRefresh(),
+    );
   },
 
   onShareAppMessage() {

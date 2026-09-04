@@ -20,7 +20,7 @@
   </view>
   <view class="panel-quick-control" wx:if="{{canOff === true}}">
     <text class="panel-quick-label">温控面板</text>
-    <i-switch size="small" bind:change="onChange" value="{{switch1}}">
+    <i-switch size="large" bind:change="onChange" value="{{switch1}}">
       <view slot="open">开</view>
       <view slot="close">关</view>
     </i-switch>

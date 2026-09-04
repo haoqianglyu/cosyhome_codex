@@ -371,7 +371,8 @@ sup {
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 1100;
+  /* 必须高于自定义 tabBar（9999），否则部分安卓机型会遮住离家选项。 */
+  z-index: 10000;
   display: flex;
   align-items: flex-end;
   background: rgba(28, 48, 44, 0.28);
@@ -381,7 +382,10 @@ sup {
 
 .home-mode-sheet {
   width: 100%;
+  max-height: calc(100vh - 120rpx);
   box-sizing: border-box;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 14rpx 42rpx calc(34rpx + env(safe-area-inset-bottom));
   border: 1rpx solid rgba(255, 255, 255, 0.82);
   border-radius: 44rpx 44rpx 0 0;
