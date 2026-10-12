@@ -1,3 +1,5 @@
+import { createControlQueue } from "../../utils/controlQueue.js";
+import { captureProjectContext, isProjectContextCurrent } from "../../utils/projects.js";
 var app = getApp();
 import {
   legacyControlMessageBody,
@@ -19,7 +21,7 @@ Page({
     deviceData: [],
     refreshInterval: null, // 用于保存刷新定时器的ID
     setwords: "",
-    sliderable: true,
+    sliderable: false,
     shownum: "",
     minset: "",
     maxset: "",
@@ -48,12 +50,45 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function () {
-    this.get24hData();
+    const info = typeof wx.getWindowInfo === "function" ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    this.setData({ windowWidth: info.windowWidth });
+  },
+
+  syncProject() {
+    if (isProjectContextCurrent(this._projectContext)) return;
+    this.clearTimeInterval();
+    this.clearControlTimers();
+    this._projectContext = captureProjectContext();
+    this._historyLoaded = false;
+    this._historyNeedsRender = false;
+    if (barChart1) { barChart1.dispose(); barChart1 = null; }
+    this.setData({
+      realtemp: "", realhumidity: "", dewPoint: "", mode: [], show_mode: "", deviceData: [],
+      setwords: "", sliderable: false, shownum: "", minset: "", maxset: "", setType: null,
+      dvalue: null, chushiway: "", wind: "", minusStatus: "disabled", plusStatus: "disabled",
+      temperature_array: [], humidity_array: [], dewPoint_array: [], time_array: [],
+      temperature_arraytemp: [], humidity_arraytemp: [], dewPoint_arraytemp: [],
+    });
+  },
+
+  async readProjectScreen(messageType) {
+    const context = captureProjectContext();
+    if (!context.projectId || wx.getStorageSync("haveProject") === false) return null;
+    this._queries = this._queries || {};
+    if (isProjectContextCurrent(this._queries[messageType])) return null;
+    this._queries[messageType] = context;
+    try {
+      const body = await legacyControlMessageBody({ messageType, projectId: context.projectId, accessToken: context.accessToken });
+      return !this._destroyed && isProjectContextCurrent(context) ? body : null;
+    } finally {
+      if (this._queries[messageType] === context) delete this._queries[messageType];
+    }
   },
 
   async getDataFromScreen() {
     try {
-      const body = await legacyControlMessageBody({ messageType: 100 });
+      const body = await this.readProjectScreen(100);
+      if (!body) return;
       const sensors = Array.isArray(body && body.sensor)
         ? body.sensor.map((sensor) => ({
             ...sensor,
@@ -85,8 +120,10 @@ Page({
     return value === undefined || value === null ? "" : value;
   },
 
-  setTemp(setType, setValue) {
+  setTemp(setType, setValue, context = captureProjectContext()) {
     return sendControlCommand({
+      projectId: context.projectId,
+      accessToken: context.accessToken,
       messageType: 17,
       body: { setType, value: setValue },
     });
@@ -94,12 +131,14 @@ Page({
 
   async setDataFromScreen() {
     try {
-      const body = await legacyControlMessageBody({ messageType: 18 });
+      const body = await this.readProjectScreen(18);
+      if (!body) return;
+      if (this._temperatureQueue && this._temperatureQueue.isBusy()) return;
       let setWordValue;
       let sliderableValue;
       let chushiwayValue;
 
-      switch (body.setType) {
+      switch (Number(body.setType)) {
             case 0:
               setWordValue = ""; // you can set a default value here if needed
               sliderableValue = false;
@@ -132,7 +171,7 @@ Page({
         shownum: body.value,
         minset: body.min,
         maxset: body.max,
-        setType: body.setType,
+        setType: Number(body.setType),
         dvalue: body.dValue,
         chushiway: chushiwayValue,
         wind: body.dehumidifyMode || "无",
@@ -144,7 +183,8 @@ Page({
 
   async get24hData() {
     try {
-      const body = await legacyControlMessageBody({ messageType: 19 });
+      const body = await this.readProjectScreen(19);
+      if (!body) return;
       const records = Array.isArray(body) ? body : [];
       const temperatures = records.map((item) => item.temperature);
       const humidities = records.map((item) => item.humidity);
@@ -162,10 +202,19 @@ Page({
         humidity_array: this.ArrayNoHundred(humidities),
         dewPoint_array: this.ArrayNoHundred(dewPoints),
       });
-      this.getChartData();
+      this._historyLoaded = true;
+      this._historyNeedsRender = true;
+      if (this._pageVisible) this.renderHistory();
     } catch (error) {
       console.error("24 小时环境数据获取失败", error);
     }
+  },
+
+  renderHistory() {
+    if (!this._historyNeedsRender) return;
+    if (barChart1) { barChart1.dispose(); barChart1 = null; }
+    this.getChartData();
+    this._historyNeedsRender = false;
   },
 
   /**
@@ -184,6 +233,9 @@ Page({
         selected: 1,
       });
     }
+    this.syncProject();
+    if (!this._historyLoaded) this.get24hData();
+    else this.renderHistory();
     that.getDataFromScreen();
     that.setDataFromScreen();
     that.clearTimeInterval();
@@ -191,6 +243,7 @@ Page({
   },
 
   startRealtimePolling: function () {
+    if (!this._pageVisible || !isProjectContextCurrent(this._projectContext)) return;
     const that = this;
     if (that.data.refreshInterval) {
       return;
@@ -214,6 +267,7 @@ Page({
   },
 
   clearControlTimers: function () {
+    if (this._temperatureQueue) this._temperatureQueue.cancel();
     clearTimeout(this.timeout);
     clearTimeout(this._settingsRefreshTimer);
     this.timeout = null;
@@ -243,6 +297,7 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
+    this._destroyed = true;
     this._pageVisible = false;
     this.clearTimeInterval();
     this.clearControlTimers();
@@ -275,106 +330,63 @@ Page({
     };
   },
 
-  /* 点击减号 */
   bindMinus: function () {
-    var that = this;
-    var strip = that.data.dvalue
-    that.clearTimeInterval();
-    // 清除之前设置的定时器
-    if (that.timeout) {
-      clearTimeout(that.timeout);
-    }
-
-    var num = that.data.shownum;
-    var minTemperatureSet = that.data.minset;
-    var maxTemperatureSet = that.data.maxset;
-
-    if (app.globalData.isvisitor) {
-      wx.showToast({
-        title: "访客模式不可操作",
-        icon: "none",
-      });
-      that.startRealtimePolling();
-      return;
-    }
-    if (num > minTemperatureSet) {
-      num = num - strip;
-    }
-    var minusStatus = num <= minTemperatureSet ? "disabled" : "normal";
-    var plusStatus = num >= maxTemperatureSet ? "disabled" : "normal";
-    if (this._temperatureOriginalValue === undefined) {
-      this._temperatureOriginalValue = this.data.shownum;
-    }
-    that.setData({
-      shownum: num,
-      minusStatus: minusStatus,
-      plusStatus: plusStatus,
-    });
-
-    that.scheduleTemperatureUpdate(num);
+    this.changeSetting(-1);
   },
 
-  /* 点击加号 */
   bindPlus: function () {
-    var that = this;
-    var strip = that.data.dvalue
-    that.clearTimeInterval();
-    // 清除之前设置的定时器
-    if (that.timeout) {
-      clearTimeout(that.timeout);
-    }
-    var num = that.data.shownum;
-    var minTemperatureSet = that.data.minset;
-    var maxTemperatureSet = that.data.maxset;
-
-    if (app.globalData.isvisitor) {
-      wx.showToast({
-        title: "访客模式不可操作",
-        icon: "none",
-      });
-      that.startRealtimePolling();
-      return;
-    }
-    if (num < maxTemperatureSet) {
-      num = num + strip;
-    }
-    var minusStatus = num < minTemperatureSet ? "disabled" : "normal";
-    var plusStatus = num > maxTemperatureSet ? "disabled" : "normal";
-    if (this._temperatureOriginalValue === undefined) {
-      this._temperatureOriginalValue = this.data.shownum;
-    }
-    that.setData({
-      shownum: num,
-      minusStatus: minusStatus,
-      plusStatus: plusStatus,
-    });
-
-    that.scheduleTemperatureUpdate(num);
+    this.changeSetting(1);
   },
 
-  scheduleTemperatureUpdate: function (value) {
-    clearTimeout(this.timeout);
-    this.timeout = setTimeout(async () => {
-      this.timeout = null;
-      try {
-        await this.setTemp(this.data.setType, value);
-        this._temperatureOriginalValue = undefined;
-      } catch (error) {
-        const original = this._temperatureOriginalValue;
-        this._temperatureOriginalValue = undefined;
-        if (this._pageVisible && original !== undefined) {
-          this.setData({
-            shownum: original,
-            minusStatus:
-              original <= this.data.minset ? "disabled" : "normal",
-            plusStatus:
-              original >= this.data.maxset ? "disabled" : "normal",
-          });
+  setSettingView(value) {
+    this.setData({
+      shownum: value,
+      minusStatus: value <= Number(this.data.minset) ? "disabled" : "normal",
+      plusStatus: value >= Number(this.data.maxset) ? "disabled" : "normal",
+    });
+  },
+
+  changeSetting(direction) {
+    if (!this._pageVisible || !isProjectContextCurrent(this._projectContext)) return;
+    if (app.globalData.isvisitor) {
+      wx.showToast({ title: "访客模式不可操作", icon: "none" });
+      return;
+    }
+    const values = [this.data.shownum, this.data.minset, this.data.maxset, this.data.dvalue];
+    if (!this.data.sliderable || values.some(value => value == null || value === "") || !values.map(Number).every(Number.isFinite)) {
+      wx.showToast({ title: "设定范围暂不可用", icon: "none" });
+      return;
+    }
+    const [current, min, max, step] = values.map(Number);
+    if (min > max || step <= 0) {
+      wx.showToast({ title: "设定范围暂不可用", icon: "none" });
+      return;
+    }
+    const value = Math.min(max, Math.max(min, Number((current + direction * step).toFixed(6))));
+    if (value === current) return;
+    const queue = this.getSettingQueue();
+    if (!queue.isBusy()) this._settingConfirmedValue = current;
+    this.clearTimeInterval();
+    clearTimeout(this._settingsRefreshTimer);
+    this.setSettingView(value);
+    queue.enqueue({ value, setType: this.data.setType, context: captureProjectContext() });
+  },
+
+  getSettingQueue() {
+    if (!this._temperatureQueue) {
+      this._temperatureQueue = createControlQueue({
+        delay: 1000,
+        isActive: ({ context }) => this._pageVisible && !this._destroyed && isProjectContextCurrent(context),
+        send: ({ value, setType, context }) => this.setTemp(setType, value, context),
+        onSuccess: ({ value }) => { this._settingConfirmedValue = value; },
+        onError: () => {
+          this.setSettingView(this._settingConfirmedValue);
           wx.showToast({ title: "温湿度设置失败", icon: "none" });
-        }
-      }
-      this.scheduleSettingsRefresh();
-    }, 1000);
+        },
+        onIdle: () => this.scheduleSettingsRefresh(),
+      });
+    }
+    return this._temperatureQueue;
   },
 
   ArrayNoHundred: function (array) {

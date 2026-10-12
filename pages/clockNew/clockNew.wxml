@@ -5,8 +5,8 @@
     <view class="control-group left">
         <view class="key">定时功能:</view>
         <i-switch size="small" bind:change="onChangePower" value="{{switch_on}}">
-            <view slot="open" style="font-size: 32rpx;">开</view>
-            <view slot="close" style="font-size: 32rpx;">关</view>
+            <view slot="open">开</view>
+            <view slot="close">关</view>
         </i-switch>
     </view>
 

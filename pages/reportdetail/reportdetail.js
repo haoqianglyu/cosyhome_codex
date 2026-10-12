@@ -2,6 +2,7 @@ import * as echarts from "../../ec-canvas/echarts";
 import api from "../../api/api.js";
 import { prepareReport } from "../../utils/report.js";
 import { apiRequest, getErrorMessage, isCurrentPage } from "../../utils/request.js";
+import { captureProjectContext, isProjectContextCurrent } from "../../utils/projects.js";
 
 const COLOR_MAP = {
   "过热+过湿": "#A50026",
@@ -232,6 +233,7 @@ Page({
   /* ---------------- 页面加载 ---------------- */
   onLoad(options = {}) {
     this._pageVisible = true;
+    this._projectContext = captureProjectContext();
     const ec = this.getOpenerEventChannel();
     if (ec && typeof ec.on === "function") {
       ec.on("acceptData", (report) => {
@@ -255,6 +257,9 @@ Page({
 
   async loadReportById(reportId) {
     if (this._reportLoading) return;
+    const context = this._projectContext || captureProjectContext();
+    this._projectContext = context;
+    if (this._destroyed || !isProjectContextCurrent(context)) return;
     this._reportLoading = true;
     this.setData({ reportLoading: true, loadError: "" });
     wx.showLoading({ title: "报告加载中", mask: true });
@@ -263,19 +268,19 @@ Page({
         method: "POST",
         header: {
           "content-type": "application/json",
-          Authorization: wx.getStorageSync("access_token"),
+          Authorization: context.accessToken,
         },
-        data: { project_id: wx.getStorageSync("selected_home") },
+        data: { project_id: context.projectId },
       });
-      if (!isCurrentPage(this) || this._reportLoaded) return;
+      if (this._destroyed || !isProjectContextCurrent(context) || this._reportLoaded) return;
       const entities = asArray(response && response.data && response.data.project_report_entities);
       const entity = entities.find((item) => String(item.id) === String(reportId));
       if (!entity) throw new Error("未找到这份报告");
       this.applyReport(prepareReport(entity));
     } catch (error) {
-      if (isCurrentPage(this)) {
+      if (!this._destroyed && isProjectContextCurrent(context)) {
         this.setData({ reportLoading: false, loadError: getErrorMessage(error, "报告加载失败") });
-        wx.showToast({ title: getErrorMessage(error, "报告加载失败"), icon: "none" });
+        if (isCurrentPage(this)) wx.showToast({ title: getErrorMessage(error, "报告加载失败"), icon: "none" });
       }
     } finally {
       this._reportLoading = false;
@@ -284,7 +289,13 @@ Page({
   },
 
   applyReport(report) {
-      if (!report || this._reportLoaded) return;
+      if (!report || this._reportLoaded || this._destroyed || !isProjectContextCurrent(this._projectContext)) return;
+      clearTimeout(this._reportFallbackTimer);
+      if (!this._pageVisible) {
+        this._deferredReport = report;
+        this.setData({ reportLoading: false, loadError: "" });
+        return;
+      }
       const that = this;
       this._reportLoaded = true;
       clearTimeout(this._reportFallbackTimer);
@@ -451,7 +462,7 @@ Page({
           city_code: cityCode, // 使用动态获取的三级行政代码
         },
         success: function (res) {
-          if (!that._pageVisible) return;
+          if (that._destroyed || !isProjectContextCurrent(that._projectContext)) return;
           // 更新数据中城市名称字段，并重新设置 infoItems
           that.setData(
             {
@@ -1129,9 +1140,21 @@ Page({
 
   onShow() {
     this._pageVisible = true;
+    if (this._deferredReport) {
+      const report = this._deferredReport;
+      this._deferredReport = null;
+      try {
+        this.applyReport(report);
+      } catch (error) {
+        this._reportLoaded = false;
+        this.setData({ reportLoading: false, loadError: "报告内容异常，无法展示" });
+      }
+    }
   },
 
   onUnload() {
+    this._destroyed = true;
+    this._deferredReport = null;
     this._pageVisible = false;
     clearTimeout(this._reportFallbackTimer);
     this.disposeCharts();

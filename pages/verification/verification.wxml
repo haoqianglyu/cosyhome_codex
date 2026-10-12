@@ -8,65 +8,30 @@
     </view>
     <view class="verification-kicker">安全验证</view>
     <view class="verification-title">输入短信验证码</view>
-    <view class="verification-description">验证码已发送至</view>
+    <view class="verification-description">{{sendStatus === 'sending' ? '正在发送验证码至' : (sendStatus === 'sent' ? '验证码已发送至' : '接收验证码的手机号')}}</view>
     <view class="phone-pill">+86 {{phone}}</view>
   </view>
 
   <view class="code-card">
     <view class="code-label">4 位验证码</view>
-    <view class="input-area">
-      <view class="input-wrapper {{input1 ? 'input-filled' : ''}}">
-        <input class="input-box {{input1Class}}" id="1" maxlength="1" bindinput="moveFocus" focus="{{focus1}}" value="{{input1}}" disabled />
-        <view class="particles" id="particles1">
-          <view wx:for="{{particles1Array}}" wx:key="key" class="particle {{item.animationClass}}" style="left: {{item.left}}; top: {{item.top}}"></view>
+    <view class="code-entry">
+      <view class="code-boxes" aria-hidden="true">
+        <view wx:for="{{[0, 1, 2, 3]}}" wx:key="*this" class="code-box {{currentInput[item] ? 'code-box-filled' : ''}} {{inputFocused && currentInput.length === item ? 'code-box-active' : ''}} {{errorCode ? 'code-box-error' : ''}}">
+          <text>{{currentInput[item] || ''}}</text>
+          <view wx:if="{{inputFocused && currentInput.length === item}}" class="code-caret"></view>
         </view>
       </view>
-
-      <view class="input-wrapper {{input2 ? 'input-filled' : ''}}">
-        <input class="input-box {{input2Class}}" id="2" maxlength="1" bindinput="moveFocus" focus="{{focus2}}" value="{{input2}}" disabled />
-        <view class="particles" id="particles2">
-          <view wx:for="{{particles2Array}}" wx:key="key" class="particle {{item.animationClass}}" style="left: {{item.left}}; top: {{item.top}}"></view>
-        </view>
-      </view>
-
-      <view class="input-wrapper {{input3 ? 'input-filled' : ''}}">
-        <input class="input-box {{input3Class}}" id="3" maxlength="1" bindinput="moveFocus" focus="{{focus3}}" value="{{input3}}" disabled />
-        <view class="particles" id="particles3">
-          <view wx:for="{{particles3Array}}" wx:key="key" class="particle {{item.animationClass}}" style="left: {{item.left}}; top: {{item.top}}"></view>
-        </view>
-      </view>
-
-      <view class="input-wrapper {{input4 ? 'input-filled' : ''}}">
-        <input class="input-box {{input4Class}}" id="4" maxlength="1" bindinput="moveFocus" focus="{{focus4}}" value="{{input4}}" disabled />
-        <view class="particles" id="particles4">
-          <view wx:for="{{particles4Array}}" wx:key="key" class="particle {{item.animationClass}}" style="left: {{item.left}}; top: {{item.top}}"></view>
-        </view>
-      </view>
+      <!-- 单个原生输入层承接键盘、删除和整段粘贴，四格仅负责展示。 -->
+      <input class="code-native-input" type="number" maxlength="32" value="{{currentInput}}" focus="{{inputFocused}}" disabled="{{!phoneValid || sendStatus === 'sending' || verifying || bound}}" bindinput="onCodeInput" bindfocus="onCodeFocus" bindblur="onCodeBlur" bindconfirm="verifyCode" confirm-type="done" aria-label="4 位短信验证码，可长按粘贴" />
     </view>
-
     <view class="error-message {{errorCode ? 'error-visible' : ''}}">{{errorCode}}</view>
-    <view class="code-tip">
-      <text class="cuIcon-info code-tip-icon"></text>
-      <text>输入满 4 位后将自动验证</text>
-    </view>
-  </view>
+    <view class="code-tip">{{bound ? '绑定成功，正在进入首页' : (verifying ? '正在验证，请稍候' : '支持长按粘贴，输入满 4 位后自动验证')}}</view>
+    <button wx:if="{{errorCode && currentInput.length === 4}}" class="verify-retry" bindtap="verifyCode" disabled="{{verifying || bound || sendStatus === 'sending'}}">重新验证</button>
 
-  <view class="keypad-card">
-    <view class="keypad">
-      <view class="key" aria-role="button" aria-label="数字 1" hover-class="key-pressed" bindtap="appendNumber" data-number="1">1</view>
-      <view class="key" aria-role="button" aria-label="数字 2" hover-class="key-pressed" bindtap="appendNumber" data-number="2">2</view>
-      <view class="key" aria-role="button" aria-label="数字 3" hover-class="key-pressed" bindtap="appendNumber" data-number="3">3</view>
-      <view class="key" aria-role="button" aria-label="数字 4" hover-class="key-pressed" bindtap="appendNumber" data-number="4">4</view>
-      <view class="key" aria-role="button" aria-label="数字 5" hover-class="key-pressed" bindtap="appendNumber" data-number="5">5</view>
-      <view class="key" aria-role="button" aria-label="数字 6" hover-class="key-pressed" bindtap="appendNumber" data-number="6">6</view>
-      <view class="key" aria-role="button" aria-label="数字 7" hover-class="key-pressed" bindtap="appendNumber" data-number="7">7</view>
-      <view class="key" aria-role="button" aria-label="数字 8" hover-class="key-pressed" bindtap="appendNumber" data-number="8">8</view>
-      <view class="key" aria-role="button" aria-label="数字 9" hover-class="key-pressed" bindtap="appendNumber" data-number="9">9</view>
-      <view class="key key-placeholder"></view>
-      <view class="key" aria-role="button" aria-label="数字 0" hover-class="key-pressed" bindtap="appendNumber" data-number="0">0</view>
-      <view class="key delete-key" aria-role="button" aria-label="删除一位验证码" hover-class="key-pressed" bindtap="deleteNumber">
-        <text class="iconfont icon-delete delete-icon"></text>
-      </view>
+    <view class="resend-section">
+      <view class="send-error" wx:if="{{sendStatus === 'error'}}">{{sendError}}</view>
+      <button class="resend-button" bindtap="handleSendVerify" loading="{{sendStatus === 'sending'}}" disabled="{{!phoneValid || sendStatus === 'sending' || cooldown > 0 || verifying || bound}}">{{sendStatus === 'sending' ? '正在发送' : (cooldown > 0 ? cooldown + ' 秒后可重发' : (sendStatus === 'error' ? '重新发送验证码' : '重新获取验证码'))}}</button>
+      <view class="resend-tip" wx:if="{{sendStatus === 'sent' && !bound}}">未收到短信？请稍后重发，或返回检查手机号</view>
     </view>
   </view>
 

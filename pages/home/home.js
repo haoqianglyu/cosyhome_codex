@@ -1,3 +1,4 @@
+import { captureProjectContext, isProjectContextCurrent } from "../../utils/projects.js";
 let current_region = null;
 var app = getApp();
 // 直辖市省级行政区代码
@@ -30,6 +31,7 @@ Page({
    */
   data: {
     isvisitor: false,
+    projectReady: false,
     show: false, //控制下拉列表的显示隐藏，false隐藏、true显示
     homes: [], //下拉列表的数据
     showList: [],
@@ -118,6 +120,7 @@ Page({
    */
   weather_get() {
     const that = this;
+    const context = captureProjectContext();
 
     // ===== 1. 解析 city 参数 =====
     if (typeof current_region !== "string" || !current_region) {
@@ -143,6 +146,7 @@ Page({
       },
 
       success(res) {
+        if (!isProjectContextCurrent(context) || that._destroyed) return;
 
         // --- 提取实时天气 ---
         const weather = res.data && res.data.weather;
@@ -218,6 +222,7 @@ Page({
       },
 
       fail(err) {
+        if (!isProjectContextCurrent(context) || that._destroyed) return;
         console.error("[weather_get] 请求失败:", err);
         that.setData({ weatherIconName: false });
         // 如需提示用户，可自行调用 wx.showToast
@@ -236,17 +241,21 @@ Page({
   noop() {},
 
   healthCheck() {
+    const context = captureProjectContext();
+    if (!context.projectId || (this._healthContext && isProjectContextCurrent(this._healthContext))) return;
+    this._healthContext = context;
     var that = this;
     api.control_healthy_check({
       method: "POST",
       data: {
-        project_id: wx.getStorageSync("selected_home"),
+        project_id: context.projectId,
       },
       header: {
         "content-type": "application/json",
-        Authorization: wx.getStorageSync("access_token"),
+        Authorization: context.accessToken,
       },
       success: function (res) {
+        if (!isProjectContextCurrent(context) || that._destroyed) return;
         if (res.data.ok) {
           that.setData({
             offline: false,
@@ -258,27 +267,29 @@ Page({
         }
       },
       fail(error) {
+        if (!isProjectContextCurrent(context) || that._destroyed) return;
         that.setData({ offline: true });
         console.error("控制屏健康检查失败", error);
+      },
+      complete() {
+        if (that._healthContext === context) that._healthContext = null;
       },
     });
   },
 
   async getDataFromScreen() {
-    if (this._screenRequestPending) {
-      return;
-    }
-    const projectId = wx.getStorageSync("selected_home");
-    if (!projectId) {
-      return;
-    }
-    this._screenRequestPending = true;
+    const context = captureProjectContext();
+    if (!context.projectId || (this._screenContext && isProjectContextCurrent(this._screenContext))) return;
+    this._screenContext = context;
+    const projectId = context.projectId;
+    const stateVersion = this._stateVersion || 0;
     try {
       const body = await legacyControlMessageBody({
         messageType: 100,
         projectId,
+        accessToken: context.accessToken,
       });
-      if (projectId !== wx.getStorageSync("selected_home")) {
+      if (this._destroyed || !isProjectContextCurrent(context) || stateVersion !== (this._stateVersion || 0)) {
         return;
       }
       if (!body || typeof body !== "object") {
@@ -289,6 +300,7 @@ Page({
 
       const projectInfo = wx.getStorageSync("selected_project_info");
       const state = {
+        projectReady: true,
         isXinLiangLianGong:
           projectInfo && projectInfo.app_name === "新两联供",
         filter: body.strainer === undefined ? "" : body.strainer,
@@ -326,7 +338,8 @@ Page({
     } catch (error) {
       console.error("首页控制屏数据获取失败", error);
     } finally {
-      this._screenRequestPending = false;
+      if (this._screenContext === context) this._screenContext = null;
+      if (!isProjectContextCurrent(context) && this._pageVisible && !this._destroyed) this.getDataFromScreen();
     }
   },
 
@@ -361,8 +374,11 @@ Page({
       return;
     }
     this._projectRequestPending = true;
+    const context = captureProjectContext();
     try {
       const projects = await fetchHomeProjects();
+      const current = captureProjectContext();
+      if (this._destroyed || current.accessToken !== context.accessToken || current.revision !== context.revision) return;
       const selectedProject = applyHomeProjects(this, projects, index);
       if (selectedProject) {
         this.selectCurrentProject(selectedProject);
@@ -395,6 +411,18 @@ Page({
     return false;
   },
 
+  ensureProjectReady() {
+    if (wx.getStorageSync("haveProject") === false || !this.data.selectedProjectId) {
+      wx.showToast({ title: "请先选择项目", icon: "none" });
+      return false;
+    }
+    if (!this.data.projectReady) {
+      wx.showToast({ title: "请等待项目数据加载完成", icon: "none" });
+      return false;
+    }
+    return true;
+  },
+
   onLoad() {
     this.setData({ isvisitor: app.globalData.isvisitor });
     if (
@@ -406,6 +434,7 @@ Page({
   },
 
   clock() {
+    if (!this.ensureProjectReady()) return;
     let that = this;
     let clockInfo = that.data.clock_info;
 
@@ -426,6 +455,7 @@ Page({
   },
 
   openHomeModeSheet() {
+    if (!this.ensureProjectReady()) return;
     this.setData({ showHomeModeSheet: true });
   },
 
@@ -449,6 +479,9 @@ Page({
   },
 
   async changeHomeMode(atHome) {
+    if (!this.ensureProjectReady()) return;
+    const context = captureProjectContext();
+    this._stateVersion = (this._stateVersion || 0) + 1;
     if (this._homeModePending) {
       return;
     }
@@ -477,10 +510,10 @@ Page({
         method: "POST",
         header: {
           "content-type": "application/json",
-          Authorization: wx.getStorageSync("access_token"),
+          Authorization: context.accessToken,
         },
         data: {
-          project_id: wx.getStorageSync("selected_home"),
+          project_id: context.projectId,
           at_home: atHome,
         },
       });
@@ -493,7 +526,7 @@ Page({
       if (remainingLoadingTime > 0) {
         await waitForAnimation(remainingLoadingTime);
       }
-      if (!isCurrentPage(this)) {
+      if ((!isCurrentPage(this) || !isProjectContextCurrent(context))) {
         return;
       }
       this.setData({
@@ -502,7 +535,7 @@ Page({
       });
 
       await waitForAnimation(HOME_MODE_SETTLED_MS);
-      if (!isCurrentPage(this)) {
+      if ((!isCurrentPage(this) || !isProjectContextCurrent(context))) {
         return;
       }
       this.setData({ showHomeModeSheet: false });
@@ -512,12 +545,12 @@ Page({
       });
       this.getDataFromScreen();
     } catch (error) {
-      if (isCurrentPage(this)) {
+      if (isCurrentPage(this) && isProjectContextCurrent(context)) {
         wx.showToast({ title: getErrorMessage(error), icon: "none" });
       }
     } finally {
       this._homeModePending = false;
-      if (isCurrentPage(this)) {
+      if (isCurrentPage(this) && isProjectContextCurrent(context)) {
         this.setData({ homeModePending: "" });
       }
       if (this._pageVisible) {
@@ -628,6 +661,7 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
+    this._destroyed = true;
     this._pageVisible = false;
     this.clearTimeInterval();
     this.clearStatusRefreshTimer();

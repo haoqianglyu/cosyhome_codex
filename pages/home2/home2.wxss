@@ -159,3 +159,5 @@ sup {
   background-color: #55C2BB;
   /* 根据需要调整高度和其他样式 */
 }
+
+.project-load-state { padding: 20rpx 30rpx; color: #60756f; text-align: center; font-size: 26rpx; }

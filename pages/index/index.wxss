@@ -201,3 +201,8 @@ page {
     opacity: 1;
   }
 }
+
+.splash__actions { display: flex; gap: 18rpx; margin-top: 24rpx; }
+.splash__retry, .splash__bind { margin: 0; padding: 0 28rpx; font-size: 27rpx; border-radius: 40rpx; }
+.splash__retry { color: #fff; background: #55c2bb; }
+.splash__bind { color: #36594f; background: #e8f3ef; }

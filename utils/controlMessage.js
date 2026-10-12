@@ -1,5 +1,6 @@
 import api from "../api/api.js";
 import { isControlResponseForRequest } from "./controlResponse.js";
+import { captureProjectContext } from "./projects.js";
 
 const JSON_CONTENT_TYPE = { "content-type": "application/json" };
 
@@ -54,10 +55,23 @@ export function controlDataArray(body) {
   return body && Array.isArray(body.data) ? body.data : [];
 }
 
-function legacyRequest(method, { messageType, body, projectId }) {
+function snapshotOptions(options = {}) {
+  const context = captureProjectContext(options.projectId);
+  return {
+    ...options,
+    projectId: context.projectId,
+    accessToken: options.accessToken === undefined ? context.accessToken : options.accessToken,
+  };
+}
+
+function legacyRequest(method, { messageType, body, projectId, accessToken }) {
   return new Promise((resolve, reject) => {
+    if (!projectId) {
+      reject(new Error("请先选择项目"));
+      return;
+    }
     const data = {
-      project_id: projectId || wx.getStorageSync("selected_home"),
+      project_id: projectId,
       message_type: messageType,
     };
 
@@ -69,7 +83,7 @@ function legacyRequest(method, { messageType, body, projectId }) {
       method: "POST",
       header: {
         ...JSON_CONTENT_TYPE,
-        Authorization: wx.getStorageSync("access_token"),
+        Authorization: accessToken,
       },
       data,
       success: (response) => {
@@ -88,10 +102,11 @@ function legacyRequest(method, { messageType, body, projectId }) {
 }
 
 export function sendControlCommand(options) {
-  return legacyRequest(api.trans_ctrl_message, options);
+  return legacyRequest(api.trans_ctrl_message, snapshotOptions(options));
 }
 
 export async function legacyControlMessageBody(options, delay = 1000) {
+  options = snapshotOptions(options);
   await sendControlCommand(options);
   await new Promise((resolve) => setTimeout(resolve, delay));
   const response = await legacyRequest(api.trans_ctrl_message_callback, {
@@ -109,6 +124,7 @@ export async function legacyCorrelatedControlMessageBody(
   options,
   { initialDelay = 2000, retryDelay = 1500, maxAttempts = 6 } = {},
 ) {
+  options = snapshotOptions(options);
   const requestId = options && options.body && options.body.requestId;
   await sendControlCommand(options);
 

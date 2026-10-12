@@ -26,6 +26,9 @@ const wx = {
   setStorageSync(key, value) {
     storage.set(key, value);
   },
+  removeStorageSync(key) {
+    storage.delete(key);
+  },
   base64ToArrayBuffer(value) {
     const buffer = Buffer.from(value, "base64");
     return buffer.buffer.slice(
@@ -94,6 +97,31 @@ const { calculateDewPoint } = loadFunctions(
 assert.strictEqual(calculateDewPoint(20, 50), 9.3);
 assert.strictEqual(calculateDewPoint("无效", 50), "");
 assert.strictEqual(calculateDewPoint(20, 0), "");
+
+const { getMiniLoginState } = loadFunctions(
+  "utils/login.js",
+  ["getMiniLoginState"],
+);
+assert.strictEqual(
+  getMiniLoginState({ unbinded: true }),
+  "unbound",
+  "从未绑定的用户即使没有 access_token 也应进入绑定流程",
+);
+assert.strictEqual(
+  getMiniLoginState({ unbinded: "1" }),
+  "unbound",
+  "字符串形式的未绑定标记应被识别",
+);
+assert.strictEqual(
+  getMiniLoginState({ unbinded: false, access_token: "token" }),
+  "authenticated",
+  "已绑定且带 token 的响应应进入登录流程",
+);
+assert.strictEqual(
+  getMiniLoginState({ unbinded: false }),
+  "invalid",
+  "既未标记为未绑定又缺少 token 的响应应视为登录失败",
+);
 
 const { isControlResponseForRequest } = loadFunctions(
   "utils/controlResponse.js",

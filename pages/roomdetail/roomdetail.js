@@ -1,3 +1,5 @@
+import { createControlQueue } from "../../utils/controlQueue.js";
+import { captureProjectContext, isProjectContextCurrent } from "../../utils/projects.js";
 // pages/roomdetail/roomdetail.js
 import * as echarts from "../../ec-canvas/echarts";
 import api from "../../api/api.js";
@@ -80,6 +82,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+    this._roomContext = captureProjectContext();
     var that = this;
     const windowInfo =
       typeof wx.getWindowInfo === "function"
@@ -120,13 +123,16 @@ Page({
   },
 
   async loadHistory() {
-    if (!this.data.roomId) return;
+    if (!this.data.roomId || !isProjectContextCurrent(this._roomContext)) return;
     wx.showLoading({ title: "正在加载数据" });
     try {
       const body = await legacyControlMessageBody({
+        projectId: this._roomContext.projectId,
+        accessToken: this._roomContext.accessToken,
         messageType: 4,
         body: this.data.roomId,
       });
+      if (this._destroyed || !isProjectContextCurrent(this._roomContext)) return;
       const records = Array.isArray(body) ? body.slice(-200) : [];
       const temperatures = records.map((item) => item.temperature);
       const humidities = records.map((item) => item.humidity);
@@ -158,15 +164,19 @@ Page({
   },
 
   async loadRoomStatus() {
-    if (this._statusRequestPending || !this.data.roomId) {
+    if (this._statusRequestPending || !this.data.roomId || !this.isRoomActive() || this.hasPendingControls()) {
       return;
     }
     this._statusRequestPending = true;
+    const statusVersion = this._statusVersion || 0;
     try {
       const body = await legacyControlMessageBody({
+        projectId: this._roomContext.projectId,
+        accessToken: this._roomContext.accessToken,
         messageType: 3,
         body: this.data.roomId,
       });
+      if (!this.isRoomActive() || this.hasPendingControls() || statusVersion !== (this._statusVersion || 0)) return;
       if (!body || typeof body !== "object") {
         return;
       }
@@ -221,7 +231,7 @@ Page({
   },
 
   toggleSelection: async function (e) {
-    this.clearTimeInterval();
+    if (!this.isRoomActive()) return;
     if (app.globalData.isvisitor) {
       wx.showToast({
         title: "访客模式不可操作",
@@ -246,6 +256,8 @@ Page({
     const workModes = previousModes.map((mode, modeIndex) =>
       modeIndex === index ? { ...mode, isSelect: !mode.isSelect } : mode,
     );
+    this.clearTimeInterval();
+    this._statusVersion = (this._statusVersion || 0) + 1;
     this._workModePending = true;
     this.setData({ workModes });
     try {
@@ -253,22 +265,23 @@ Page({
         method: "POST",
         header: {
           "content-type": "application/json",
-          Authorization: wx.getStorageSync("access_token"),
+          Authorization: this._roomContext.accessToken,
         },
         data: {
-          project_id: wx.getStorageSync("selected_home"),
+          project_id: this._roomContext.projectId,
           body: JSON.stringify({ id: this.data.roomId, workModes }),
           message_type: 14,
         },
       });
-      if (isCurrentPage(this)) this.refreshRoomStatus();
+      if (isCurrentPage(this) && this.isRoomActive()) this.refreshRoomStatus();
     } catch (error) {
-      if (isCurrentPage(this)) {
+      if (isCurrentPage(this) && this.isRoomActive()) {
         this.setData({ workModes: previousModes });
         wx.showToast({ title: getErrorMessage(error), icon: "none" });
       }
     } finally {
       this._workModePending = false;
+      this.refreshRoomStatus();
     }
   },
 
@@ -454,7 +467,7 @@ Page({
   },
 
   refreshRoomStatus: function () {
-    if (!this._pageVisible) {
+    if (!this.isRoomActive() || this.hasPendingControls()) {
       return;
     }
     this.loadRoomStatus();
@@ -462,6 +475,7 @@ Page({
   },
 
   startRoomPolling: function () {
+    if (!this.isRoomActive() || this.hasPendingControls()) return;
     if (!this.data.refreshInterval) {
       this.data.refreshInterval = setInterval(
         () => this.loadRoomStatus(),
@@ -492,6 +506,7 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
+    this._destroyed = true;
     this._pageVisible = false;
     this.clearTimeInterval();
     this.clearDelayedControls();
@@ -502,12 +517,21 @@ Page({
   },
 
   clearDelayedControls: function () {
-    clearTimeout(this._windControlTimer);
-    clearTimeout(this._temperatureControlTimer);
-    this._windControlTimer = null;
-    this._temperatureControlTimer = null;
-    this._windOriginalValue = undefined;
-    this._temperatureOriginalValue = undefined;
+    if (this._windQueue) this._windQueue.cancel();
+    if (this._temperatureQueue) this._temperatureQueue.cancel();
+  },
+
+  isRoomActive() {
+    return this._pageVisible && !this._destroyed && isProjectContextCurrent(this._roomContext);
+  },
+
+  hasPendingControls() {
+    return Boolean(
+      (this._windQueue && this._windQueue.isBusy()) ||
+      (this._temperatureQueue && this._temperatureQueue.isBusy()) ||
+      this._workModePending || this._renamePending ||
+      Object.values(this._switchControlPending || {}).some(Boolean)
+    );
   },
 
   /**
@@ -576,6 +600,7 @@ Page({
   },
 
   renameRoom: async function (roomName) {
+    if (!this.isRoomActive()) return;
     if (!roomName) {
       wx.showToast({ title: "请输入房间名称", icon: "none" });
       this.startRoomPolling();
@@ -589,182 +614,139 @@ Page({
     if (this._renamePending) {
       return;
     }
+    this._statusVersion = (this._statusVersion || 0) + 1;
     this._renamePending = true;
     try {
       await apiRequest(api.ctrl_modify_room_name, {
         method: "POST",
         header: {
           "content-type": "application/json",
-          Authorization: wx.getStorageSync("access_token"),
+          Authorization: this._roomContext.accessToken,
         },
         data: {
-          project_id: wx.getStorageSync("selected_home"),
+          project_id: this._roomContext.projectId,
           room_id: this.data.roomId,
           room_name: roomName,
         },
       });
-      if (!isCurrentPage(this)) {
+      if (!isCurrentPage(this) || !this.isRoomActive()) {
         return;
       }
       this.setData({ roomName });
       this.refreshRoomStatus();
     } catch (error) {
-      if (isCurrentPage(this)) {
+      if (isCurrentPage(this) && this.isRoomActive()) {
         wx.showToast({ title: getErrorMessage(error), icon: "none" });
         this.startRoomPolling();
       }
     } finally {
       this._renamePending = false;
+      this.refreshRoomStatus();
     }
+  },
+
+  getWindQueue() {
+    if (!this._windQueue) {
+      this._windQueue = createControlQueue({
+        isActive: () => this.isRoomActive(),
+        send: ({ value }) => apiRequest(api.trans_ctrl_message, {
+          method: "POST",
+          header: { "content-type": "application/json", Authorization: this._roomContext.accessToken },
+          data: {
+            project_id: this._roomContext.projectId,
+            message_type: 18,
+            body: JSON.stringify({ id: this.data.roomId, level: value === 100 ? 100 : value + 1 }),
+          },
+        }),
+        onSuccess: ({ value }) => { this._windConfirmedValue = value; },
+        onError: (error) => {
+          this.setData({ currentButton: this._windConfirmedValue });
+          wx.showToast({ title: getErrorMessage(error), icon: "none" });
+        },
+        onIdle: () => this.refreshRoomStatus(),
+      });
+    }
+    return this._windQueue;
   },
 
   switchButton: function(e) {
-    var index = Number(e.currentTarget.dataset.index); 
-    if (
-      !this.data.hasWindControl ||
-      (index === 100 && !this.data.isAutoWindLevel) ||
-      (index !== 100 &&
-        (!Number.isInteger(index) ||
-          index < 0 ||
-          index >= Number(this.data.windLevelNumber)))
-    ) {
+    if (!this.isRoomActive()) return;
+    const index = Number(e.currentTarget.dataset.index);
+    if (!this.data.hasWindControl || (index === 100 && !this.data.isAutoWindLevel) ||
+      (index !== 100 && (!Number.isInteger(index) || index < 0 || index >= Number(this.data.windLevelNumber)))) {
       wx.showToast({ title: "风速档位无效", icon: "none" });
       return;
     }
-    const actualWindLevel = index === 100 ? 100 : index + 1;
-    this.clearTimeInterval();
     if (app.globalData.isvisitor) {
-      wx.showToast({
-        title: "访客模式不可操作",
-        icon: "none",
-      });
-      this.startRoomPolling();
+      wx.showToast({ title: "访客模式不可操作", icon: "none" });
       return;
     }
-    if (this._windOriginalValue === undefined) {
-      this._windOriginalValue = this.data.currentButton;
-    }
+    const queue = this.getWindQueue();
+    if (!queue.isBusy()) this._windConfirmedValue = this.data.currentButton;
+    this.clearTimeInterval();
+    this._statusVersion = (this._statusVersion || 0) + 1;
     this.setData({ currentButton: index });
-    clearTimeout(this._windControlTimer);
-    this._windControlTimer = setTimeout(async () => {
-      this._windControlTimer = null;
-      if (!this._pageVisible || this._windControlPending) {
-        return;
-      }
-      this._windControlPending = true;
-      try {
-        await apiRequest(api.trans_ctrl_message, {
+    queue.enqueue({ value: index });
+  },
+
+  setTemperatureView(value) {
+    this.setData({
+      showtemp: value,
+      minusStatus: value <= Number(this.data.minTemperatureSet) ? "disabled" : "normal",
+      plusStatus: value >= Number(this.data.maxTemperatureSet) ? "disabled" : "normal",
+    });
+  },
+
+  getTemperatureQueue() {
+    if (!this._temperatureQueue) {
+      this._temperatureQueue = createControlQueue({
+        isActive: () => this.isRoomActive(),
+        send: ({ value, roomMode }) => apiRequest(api.ctrl_room_temp, {
           method: "POST",
-          header: {
-            "content-type": "application/json",
-            Authorization: wx.getStorageSync("access_token"),
-          },
+          header: { "content-type": "application/json", Authorization: this._roomContext.accessToken },
           data: {
-            project_id: wx.getStorageSync("selected_home"),
-            body: JSON.stringify({
-              id: this.data.roomId,
-              level: actualWindLevel,
-            }),
-            message_type: 18,
+            project_id: this._roomContext.projectId,
+            room_id: this.data.roomId,
+            room_temp_mode: roomMode,
+            target_temp: value,
           },
-        });
-        this._windOriginalValue = undefined;
-        if (isCurrentPage(this)) {
-          this.refreshRoomStatus();
-        }
-      } catch (error) {
-        if (isCurrentPage(this)) {
-          this.setData({ currentButton: this._windOriginalValue });
+        }),
+        onSuccess: ({ value }) => { this._temperatureConfirmedValue = value; },
+        onError: (error) => {
+          this.setTemperatureView(this._temperatureConfirmedValue);
           wx.showToast({ title: getErrorMessage(error), icon: "none" });
-        }
-        this._windOriginalValue = undefined;
-      } finally {
-        this._windControlPending = false;
-      }
-    }, 500);
+        },
+        onIdle: () => this.refreshRoomStatus(),
+      });
+    }
+    return this._temperatureQueue;
   },
 
   changeTemperature: function (step) {
-    let num = Number(this.data.showtemp);
-    const minTemperatureSet = Number(this.data.minTemperatureSet);
-    const maxTemperatureSet = Number(this.data.maxTemperatureSet);
-    if (![num, minTemperatureSet, maxTemperatureSet].every(Number.isFinite)) {
+    if (!this.isRoomActive()) return;
+    const values = [this.data.showtemp, this.data.minTemperatureSet, this.data.maxTemperatureSet];
+    if (values.some((value) => value === "" || value == null) || !values.map(Number).every(Number.isFinite)) {
       wx.showToast({ title: "温度范围暂不可用", icon: "none" });
       return;
     }
-    this.clearTimeInterval();
+    const [current, min, max] = values.map(Number);
+    if (min > max || !this.data.sliderable) return;
     if (app.globalData.isvisitor) {
-      wx.showToast({
-        title: "访客模式不可操作",
-        icon: "none",
-      });
-      this.startRoomPolling();
+      wx.showToast({ title: "访客模式不可操作", icon: "none" });
       return;
     }
     if (this.data.energyMode === 1) {
       wx.showToast({ title: "节能模式不可调节", icon: "none" });
-      this.startRoomPolling();
       return;
     }
-    const nextValue = Math.min(
-      maxTemperatureSet,
-      Math.max(minTemperatureSet, num + step),
-    );
-    if (nextValue === num) {
-      this.startRoomPolling();
-      return;
-    }
-    if (this._temperatureOriginalValue === undefined) {
-      this._temperatureOriginalValue = num;
-    }
-    num = nextValue;
-    this.setData({
-      showtemp: num,
-      minusStatus: num <= minTemperatureSet ? "disabled" : "normal",
-      plusStatus: num >= maxTemperatureSet ? "disabled" : "normal",
-    });
-    clearTimeout(this._temperatureControlTimer);
-    this._temperatureControlTimer = setTimeout(async () => {
-      this._temperatureControlTimer = null;
-      if (!this._pageVisible || this._temperatureControlPending) {
-        return;
-      }
-      this._temperatureControlPending = true;
-      try {
-        await apiRequest(api.ctrl_room_temp, {
-            method: "POST",
-            header: {
-              "content-type": "application/json",
-              Authorization: wx.getStorageSync("access_token"),
-            },
-            data: {
-              project_id: wx.getStorageSync("selected_home"),
-              room_id: this.data.roomId,
-              room_temp_mode: this.data.roomMode,
-              target_temp: num,
-            },
-        });
-        this._temperatureOriginalValue = undefined;
-        if (isCurrentPage(this)) {
-          this.refreshRoomStatus();
-        }
-      } catch (error) {
-        const original = this._temperatureOriginalValue;
-        this._temperatureOriginalValue = undefined;
-        if (isCurrentPage(this)) {
-          this.setData({
-            showtemp: original,
-            minusStatus:
-              original <= minTemperatureSet ? "disabled" : "normal",
-            plusStatus:
-              original >= maxTemperatureSet ? "disabled" : "normal",
-          });
-          wx.showToast({ title: getErrorMessage(error), icon: "none" });
-        }
-      } finally {
-        this._temperatureControlPending = false;
-      }
-    }, 500);
+    const value = Math.min(max, Math.max(min, current + step));
+    if (value === current) return;
+    const queue = this.getTemperatureQueue();
+    if (!queue.isBusy()) this._temperatureConfirmedValue = current;
+    this.clearTimeInterval();
+    this._statusVersion = (this._statusVersion || 0) + 1;
+    this.setTemperatureView(value);
+    queue.enqueue({ value, roomMode: this.data.roomMode });
   },
 
   /* 点击减号 */
@@ -778,6 +760,8 @@ Page({
   },
 
   runSwitchControl: async function (key, stateKey, value, messageType, body) {
+    if (!this.isRoomActive()) return;
+    this._statusVersion = (this._statusVersion || 0) + 1;
     const previousValue = this.data[stateKey];
     if (this._switchControlPending && this._switchControlPending[key]) {
       this.setData({ [stateKey]: previousValue });
@@ -791,24 +775,25 @@ Page({
         method: "POST",
         header: {
           "content-type": "application/json",
-          Authorization: wx.getStorageSync("access_token"),
+          Authorization: this._roomContext.accessToken,
         },
         data: {
-          project_id: wx.getStorageSync("selected_home"),
+          project_id: this._roomContext.projectId,
           body: JSON.stringify(body),
           message_type: messageType,
         },
       });
-      if (isCurrentPage(this)) {
+      if (isCurrentPage(this) && this.isRoomActive()) {
         this.refreshRoomStatus();
       }
     } catch (error) {
-      if (isCurrentPage(this)) {
+      if (isCurrentPage(this) && this.isRoomActive()) {
         this.setData({ [stateKey]: previousValue });
         wx.showToast({ title: getErrorMessage(error), icon: "none" });
       }
     } finally {
       this._switchControlPending[key] = false;
+      this.refreshRoomStatus();
     }
   },
 

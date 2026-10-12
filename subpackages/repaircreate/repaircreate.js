@@ -60,10 +60,14 @@ Page({
         // 可以在这里预填用户信息
     },
 
-    onNameChange(event) { this.setData({ contactName: event.detail }); },
-    onPhoneChange(event) { this.setData({ contactPhone: event.detail }); },
-    onAddressChange(event) { this.setData({ address: event.detail }); },
-    onDescriptionChange(event) { this.setData({ description: event.detail }); },
+    updateContactField(key, value) {
+        if (this.data.submitting || this.data.currentReportId) return;
+        this.setData({ [key]: value });
+    },
+    onNameChange(event) { this.updateContactField('contactName', event.detail); },
+    onPhoneChange(event) { this.updateContactField('contactPhone', event.detail); },
+    onAddressChange(event) { this.updateContactField('address', event.detail); },
+    onDescriptionChange(event) { this.updateContactField('description', event.detail); },
 
     afterRead(event) {
         const { file } = event.detail;
@@ -207,6 +211,7 @@ Page({
         }
 
         this.setData({ submitting: true });
+        this.setData({ contactName, contactPhone, address, description });
         wx.showLoading({ title: '提交中...', mask: true });
 
         const projectId = wx.getStorageSync("selected_home");

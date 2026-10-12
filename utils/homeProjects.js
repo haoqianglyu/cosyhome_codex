@@ -3,18 +3,40 @@ import {
   apiRequest,
   normalizeProjects,
   saveSelectedProject,
+  clearSelectedProject,
 } from "./projects.js";
 
-const EMPTY_HOME_STATE = {
+const EMPTY_PROJECT_STATE = {
   show_mode: "",
   mode_icon: 1000,
-  deviceData: "",
-  home_mode: 1,
+  deviceData: [],
+  home_mode: null,
+  selectedProjectId: "",
+  projectReady: false,
+  offline: null,
+  filter: "",
+  mode: [],
+  hasclock: false,
+  clock_info: null,
+  clock_on: false,
+  showHomeModeSheet: false,
+  homeModePending: "",
+  isXinLiangLianGong: false,
+  weatherDetail: {},
+  weatherIconName: "",
+  showWeatherBox: false,
+  dewPoint: null,
+  locationText: "",
+};
+const EMPTY_HOME_STATE = {
+  ...EMPTY_PROJECT_STATE,
   homes: [],
   homes_id: [],
   showList: [],
   searchedList: [],
   showname: "",
+  index: 0,
+  show: false,
 };
 
 export function filterProjects(value, projects) {
@@ -60,7 +82,7 @@ export async function fetchHomeProjects() {
 }
 
 export function clearHomeProjects(page, showToast = true) {
-  wx.setStorageSync("haveProject", false);
+  clearSelectedProject();
   page.setData({ ...EMPTY_HOME_STATE });
   if (showToast) {
     wx.showToast({ title: "无项目可查看", icon: "none" });
@@ -78,10 +100,14 @@ export function applyHomeProjects(page, projects, requestedIndex = 0) {
     projects.length - 1,
   );
   const selectedProject = projects[index];
+  const changed = String(page.data.selectedProjectId) !== String(selectedProject.id);
 
   wx.setStorageSync("haveProject", true);
   saveSelectedProject(selectedProject);
   page.setData({
+    ...(changed ? EMPTY_PROJECT_STATE : {}),
+    selectedProjectId: selectedProject.id,
+    isXinLiangLianGong: selectedProject.app_name === "新两联供",
     homes: projects,
     showList: projects,
     searchedList: projects,

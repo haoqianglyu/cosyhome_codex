@@ -1,4 +1,5 @@
 import { configureConsole } from "./utils/logger.js";
+import { clearSelectedProject } from "./utils/projects.js";
 
 const TAB_CONFIG = {
   1: {
@@ -231,11 +232,21 @@ App({
   },
 
   clearSession() {
+    clearSelectedProject();
     SESSION_KEYS.forEach((key) => wx.removeStorageSync(key));
     this.globalData.isvisitor = false;
     this.globalData.isdistributor_visitor = false;
     this.globalData.list = [];
     this.globalData.userInfo = null;
+  },
+
+  replaceSession({ accessToken, isMember = false, isDistributor = false, isAdmin = false, visitor = false, distributorVisitor = false }) {
+    this.clearSession();
+    wx.setStorageSync("access_token", accessToken);
+    wx.setStorageSync("is_member_login", Boolean(isMember));
+    wx.setStorageSync("isdistributor", Boolean(isDistributor));
+    wx.setStorageSync("isAdmin", Boolean(isAdmin));
+    this.setVisitorMode(visitor, distributorVisitor);
   },
 
   ensureTabBarList() {

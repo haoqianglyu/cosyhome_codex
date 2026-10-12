@@ -114,41 +114,67 @@ page {
   text-align: center;
 }
 
-.input-area {
-  display: flex;
-  justify-content: center;
-  gap: 18rpx;
-  margin-top: 23rpx;
+.code-entry {
+  position: relative;
+  width: 502rpx;
+  max-width: 100%;
+  height: 116rpx;
+  margin: 23rpx auto 0;
 }
 
-.input-wrapper {
+.code-boxes {
+  display: flex;
+  height: 100%;
+  gap: 18rpx;
+  pointer-events: none;
+}
+
+.code-box {
   position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
   box-sizing: border-box;
-  width: 112rpx;
-  height: 116rpx;
-  overflow: visible;
+  min-width: 0;
+  height: 100%;
   border: 2rpx solid #dce8e2;
   border-radius: 22rpx;
   background: #f6faf8;
+  color: #183329;
+  font-size: 50rpx;
+  font-weight: 700;
   transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
 }
 
-.input-filled {
+.code-box-filled, .code-box-active {
   border-color: #55c2bb;
   background: #edfaf4;
   box-shadow: 0 9rpx 20rpx rgba(32, 174, 113, 0.11);
 }
 
-.input-box {
+.code-box-error { border-color: #df5d5d; color: #df5d5d; }
+
+.code-caret {
+  width: 3rpx;
+  height: 42rpx;
+  border-radius: 2rpx;
+  background: #55c2bb;
+}
+
+.code-native-input {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
   border: 0;
   background: transparent;
-  color: #183329;
+  color: transparent;
+  caret-color: transparent;
   font-size: 50rpx;
-  font-weight: 700;
-  line-height: 116rpx;
-  text-align: center;
 }
 
 .error-message {
@@ -172,66 +198,26 @@ page {
   font-size: 22rpx;
 }
 
-.code-tip-icon {
-  margin-right: 8rpx;
-  color: #6fa58d;
-  font-size: 24rpx;
-}
-
-.keypad-card {
-  position: relative;
-  z-index: 1;
-  box-sizing: border-box;
+.resend-section {
   margin-top: 28rpx;
-  padding: 18rpx 24rpx 22rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.88);
-  border-radius: 32rpx;
-  background: rgba(255, 255, 255, 0.72);
+  padding-top: 24rpx;
+  border-top: 1rpx solid #e5ede9;
+  text-align: center;
 }
 
-.keypad {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12rpx 18rpx;
-}
-
-.key {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  height: 86rpx;
-  border: 1rpx solid #e5ede9;
-  border-radius: 20rpx;
-  background: #ffffff;
-  box-shadow: 0 7rpx 15rpx rgba(32, 66, 51, 0.05);
-  color: #263a31;
-  font-size: 38rpx;
-  font-weight: 500;
-  transition: background 0.12s, transform 0.12s;
-}
-
-.key-pressed {
+.resend-button, .verify-retry {
+  border-radius: 18rpx;
   background: #e9f8f1;
-  transform: scale(0.95);
+  color: #278c79;
+  font-size: 28rpx;
+  line-height: 84rpx;
 }
 
-.key-placeholder {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-}
-
-.delete-key {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-  color: #527064;
-}
-
-.delete-icon {
-  font-size: 46rpx;
-}
+.resend-button::after, .verify-retry::after { border: none; }
+.resend-button[disabled], .verify-retry[disabled] { background: #f2f5f3; color: #96a29b; }
+.verify-retry { margin-top: 20rpx; }
+.send-error { margin-bottom: 16rpx; color: #df5d5d; font-size: 24rpx; }
+.resend-tip { margin-top: 16rpx; color: #8b9892; font-size: 22rpx; line-height: 1.6; }
 
 .verification-footer {
   position: relative;
@@ -240,47 +226,4 @@ page {
   color: #95a19b;
   font-size: 21rpx;
   text-align: center;
-}
-
-.shake-animation {
-  color: #df5d5d;
-  animation: shake 0.5s;
-}
-
-.particles {
-  position: absolute;
-  z-index: 10;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  pointer-events: none;
-}
-
-.particle {
-  position: absolute;
-  width: 9rpx;
-  height: 9rpx;
-  border-radius: 50%;
-  background: #df5d5d;
-  opacity: 0;
-  animation: fall 1s forwards;
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-10rpx); }
-  40%, 80% { transform: translateX(10rpx); }
-}
-
-@keyframes fall {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(160rpx) scale(0.4);
-  }
 }

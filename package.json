@@ -5,7 +5,7 @@
   "scripts": {
     "check": "node scripts/check-project.js",
     "styles:sync": "node scripts/sync-styles.js",
-    "test": "node scripts/test-utils.js && npm run check"
+    "test": "node scripts/test-utils.js && node scripts/test-flows.js && npm run check"
   },
   "repository": {
     "type": "git",

@@ -12,6 +12,30 @@ const PROJECT_FIELDS = [
   "online",
 ];
 
+let projectRevision = 0;
+const PROJECT_STATE_KEYS = [
+  "selected_home", "selected_project_info", "selected_homename",
+  "selected_region", "mode_list", "current_mode", "clock_info",
+  "backData", "mode_icon", "show_mode", "airConditionerModeName",
+];
+
+export function clearSelectedProject() {
+  projectRevision += 1;
+  PROJECT_STATE_KEYS.forEach((key) => wx.removeStorageSync(key));
+  wx.setStorageSync("haveProject", false);
+}
+
+export function captureProjectContext(projectId = wx.getStorageSync("selected_home")) {
+  return { projectId, accessToken: wx.getStorageSync("access_token"), revision: projectRevision };
+}
+
+export function isProjectContextCurrent(context) {
+  return Boolean(context && context.projectId) &&
+    context.revision === projectRevision &&
+    String(context.projectId) === String(wx.getStorageSync("selected_home")) &&
+    context.accessToken === wx.getStorageSync("access_token");
+}
+
 export function authHeader() {
   return {
     "content-type": "application/json",
@@ -71,6 +95,11 @@ export function saveSelectedProject(project) {
     return;
   }
 
+  if (String(project.id) !== String(wx.getStorageSync("selected_home"))) {
+    clearSelectedProject();
+  }
+
+  wx.setStorageSync("haveProject", true);
   wx.setStorageSync("selected_project_info", normalizeProject(project));
   wx.setStorageSync("selected_home", project.id);
   wx.setStorageSync("selected_homename", project.name);
@@ -85,6 +114,7 @@ export function enterProjectRole(projects) {
   const isSingle = projects[0].app_name === "单机版";
   const role = isSingle ? 2 : 1;
   const app = getApp();
+  saveSelectedProject(projects[0]);
   app.globalData.userInfo = { userName: `role${role}`, role };
   wx.setStorageSync("isSingle", isSingle);
 

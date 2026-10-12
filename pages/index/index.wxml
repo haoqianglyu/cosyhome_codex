@@ -16,12 +16,16 @@
   </view>
 
   <view class="splash__status">
-    <view class="splash__dots">
+    <view class="splash__dots" wx:if="{{loginStatus === 'loading'}}">
       <view class="splash__dot"></view>
       <view class="splash__dot"></view>
       <view class="splash__dot"></view>
     </view>
-    <view class="splash__hint">正在登录，请稍候</view>
+    <view class="splash__hint">{{loginStatus === 'loading' ? '正在登录，请稍候' : loginError}}</view>
+    <view class="splash__actions" wx:if="{{loginStatus !== 'loading'}}">
+      <button class="splash__retry" bindtap="retryLogin">重新登录</button>
+      <button class="splash__bind" bindtap="openBindPage">前往绑定</button>
+    </view>
   </view>
 
   <view class="splash__footer">HC健康舒适家</view>

@@ -31,7 +31,7 @@
     </view>
 
     <view class="mode-weather-row">
-      <navigator class="mode-pill" open-type="navigate" url="/pages/modeselect/modeselect" hover-class="none">
+      <navigator wx:if="{{projectReady}}" class="mode-pill" open-type="navigate" url="/pages/modeselect/modeselect" hover-class="none">
         <text class="iconfont icon-mode{{mode_icon}} mode-pill-icon"></text>
         <text>{{show_mode}}</text>
       </navigator>
@@ -42,6 +42,7 @@
     </view>
   </view>
 
+  <view class="project-load-state" wx:if="{{!projectReady}}">{{selectedProjectId ? (offline ? "设备离线，暂无法读取状态" : "正在读取项目状态，请稍候") : "暂无项目可查看"}}</view>
   <!-- 顶部区域 -->
   <view class="top">
     <!-- LOGO -->
@@ -113,7 +114,7 @@
         </swiper-item>
       </block>
     </swiper>
-    <view class="home-actions">
+    <view class="home-actions" wx:if="{{projectReady}}">
       <!-- 当前在家状态入口 + 独立定时入口 -->
       <view class="home_mode">
         <view class="home-status-entry" aria-role="button" aria-label="切换在家状态" bindtap="openHomeModeSheet">

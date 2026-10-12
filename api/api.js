@@ -87,7 +87,8 @@ function wxRequest(params = {}, url) {
           "http",
           response,
         );
-        if (response.statusCode === 401 && !skipAuthRedirect) {
+        if (response.statusCode === 401 && !skipAuthRedirect &&
+          (!header.Authorization || header.Authorization === wx.getStorageSync("access_token"))) {
           handleAuthExpired();
         }
         if (fail) {

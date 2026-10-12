@@ -1,23 +1,24 @@
 <view class="page-container">
     <view class="page-wrapper">
+        <view wx:if="{{currentReportId}}" class="submitted-notice">报修信息已提交，基本信息已锁定。请重试未上传成功的附件。</view>
         <view class="card info-card">
             <view class="card-title-row">
                 <text class="card-title">基本信息</text>
             </view>
             <van-cell-group border="{{ false }}">
-                <van-field value="{{ contactName }}" use-label-slot placeholder="请输入联系人姓名" maxlength="50" bind:change="onNameChange" border="{{ false }}" custom-style="padding: 12px 0;">
+                <van-field readonly="{{submitting || currentReportId}}" value="{{ contactName }}" use-label-slot placeholder="请输入联系人姓名" maxlength="50" bind:change="onNameChange" border="{{ false }}" custom-style="padding: 12px 0;">
                     <view slot="label" class="custom-label">
                         <text class="required-star">*</text>
                         <text>联系人</text>
                     </view>
                 </van-field>
-                <van-field value="{{ contactPhone }}" use-label-slot placeholder="请输入联系电话" type="number" maxlength="20" bind:change="onPhoneChange" border="{{ false }}" custom-style="padding: 12px 0;">
+                <van-field readonly="{{submitting || currentReportId}}" value="{{ contactPhone }}" use-label-slot placeholder="请输入联系电话" type="number" maxlength="20" bind:change="onPhoneChange" border="{{ false }}" custom-style="padding: 12px 0;">
                     <view slot="label" class="custom-label">
                         <text class="required-star">*</text>
                         <text>联系电话</text>
                     </view>
                 </van-field>
-                <van-field value="{{ address }}" use-label-slot placeholder="请输入详细地址" maxlength="200" bind:change="onAddressChange" border="{{ false }}" custom-style="padding: 12px 0;">
+                <van-field readonly="{{submitting || currentReportId}}" value="{{ address }}" use-label-slot placeholder="请输入详细地址" maxlength="200" bind:change="onAddressChange" border="{{ false }}" custom-style="padding: 12px 0;">
                     <view slot="label" class="custom-label">
                         <text class="required-star">*</text>
                         <text>地址</text>
@@ -29,7 +30,7 @@
             <view class="card-title-row">
                 <text class="card-title">问题描述</text>
             </view>
-            <van-field value="{{ description }}" type="textarea" placeholder="请详细描述您遇到的问题" maxlength="2000" show-word-limit autosize="{{ { minHeight: 100 } }}" border="{{ false }}" bind:change="onDescriptionChange" required custom-style="background: #f8f8f8; border-radius: 8px; padding: 12px;" />
+            <van-field readonly="{{submitting || currentReportId}}" value="{{ description }}" type="textarea" placeholder="请详细描述您遇到的问题" maxlength="2000" show-word-limit autosize="{{ { minHeight: 100 } }}" border="{{ false }}" bind:change="onDescriptionChange" required custom-style="background: #f8f8f8; border-radius: 8px; padding: 12px;" />
         </view>
         <view class="card upload-card">
             <view class="card-title-row">
@@ -40,8 +41,8 @@
             </view>
         </view>
         <view class="submit-section">
-            <van-button type="primary" bind:click="submitFeedback" custom-class="submit-btn">
-                提交反馈
+            <van-button type="primary" loading="{{submitting}}" disabled="{{submitting}}" bind:click="submitFeedback" custom-class="submit-btn">
+                {{currentReportId ? "继续上传附件" : "提交反馈"}}
             </van-button>
         </view>
     </view>

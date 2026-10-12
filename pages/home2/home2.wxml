@@ -1,3 +1,4 @@
+<view class="project-load-state" wx:if="{{!projectReady}}">{{selectedProjectId ? (offline ? "设备离线，暂无法读取状态" : "正在读取项目状态，请稍候") : "暂无项目可查看"}}</view>
 <view class="panel" style='background-image: url("https://cosyminiprogram.oss-cn-hangzhou.aliyuncs.com/cloud_pic/bg7.png");'>
     <view class='select_box'>
         <view class='select' aria-role="button" aria-label="选择项目" catchtap='selectTap'>
@@ -20,7 +21,7 @@
     
     <view class="top">
     
-        <navigator class="mode" open-type="navigate" url="/pages/modeselect/modeselect" hover-class="none">
+        <navigator wx:if="{{projectReady}}" class="mode" open-type="navigate" url="/pages/modeselect/modeselect" hover-class="none">
             <view class="flex justify-start">
                 <text class="iconfont icon-mode{{mode_icon}}" style="font-size:55rpx;margin-right: 10rpx"></text>
                 <text class="mode" space="ensp">{{show_mode}} </text>
@@ -74,13 +75,13 @@
       
         
         <view class="home_mode" >
-            <view class="athome" aria-role="button" aria-label="开机" bindtap="backhome" style="background-color:{{home_mode?'#F6BE48':'white'}}">
+            <view wx:if="{{projectReady}}" class="athome" aria-role="button" aria-label="开机" bindtap="backhome" style="background-color:{{home_mode?'#F6BE48':'white'}}">
               <text class="iconfont icon-on" style="color:{{home_mode?'#fff':'grey'}}"></text>
               <!-- <view class="margin-top-sm" style="color:{{home_mode?'#fff':'grey'}}">开启</view> -->
             </view>
             
               
-            <view class="leavehome" aria-role="button" aria-label="关机" bindtap="leavehome" style="background-color:{{home_mode?'white':'#F6BE48'}} ;">
+            <view wx:if="{{projectReady}}" class="leavehome" aria-role="button" aria-label="关机" bindtap="leavehome" style="background-color:{{home_mode?'white':'#F6BE48'}} ;">
               <text class="iconfont icon-off" style="color:{{home_mode?'grey':'#fff'}}"></text>
               <!-- <view class="margin-top-sm" style="color:{{home_mode?'#grey':'#fff'}}">关闭</view> -->
             </view>

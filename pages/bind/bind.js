@@ -222,13 +222,13 @@ Page({
         },
       });
       const projects = normalizeProjects(projectResponse.data, true);
+      if (!this._pageVisible) return;
       if (!projects.length) {
         wx.showToast({ title: "暂无访客项目", icon: "none" });
         return;
       }
       this.setData({ homes: projects });
-      wx.setStorageSync("access_token", accessToken);
-      app.setVisitorMode(true, true);
+      app.replaceSession({ accessToken, visitor: true, distributorVisitor: true });
       wx.setStorageSync("login", "distributor");
       enterProjectRole(projects);
     } catch (error) {

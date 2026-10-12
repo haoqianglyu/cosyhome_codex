@@ -1,6 +1,7 @@
 import api from "../../api/api.js";
 import { prepareReport } from "../../utils/report.js";
 import { apiRequest, getErrorMessage, isCurrentPage } from "../../utils/request.js";
+import { captureProjectContext, isProjectContextCurrent } from "../../utils/projects.js";
 
 Page({
   data: {
@@ -24,6 +25,7 @@ Page({
   },
 
   onUnload() {
+    this._destroyed = true;
     this._pageVisible = false;
     this._reportRequestVersion = (this._reportRequestVersion || 0) + 1;
   },
@@ -33,6 +35,7 @@ Page({
     const requestVersion = (this._reportRequestVersion || 0) + 1;
     this._reportRequestVersion = requestVersion;
     this._reportLoading = true;
+    const context = captureProjectContext();
     this.setData({ loading: true, loadError: "" });
     try {
       const response = await apiRequest(api.project_report, {
@@ -41,9 +44,9 @@ Page({
           "content-type": "application/json",
           Authorization: wx.getStorageSync("access_token"),
         },
-        data: { project_id: wx.getStorageSync("selected_home") },
+        data: { project_id: context.projectId },
       });
-      if (requestVersion !== this._reportRequestVersion || !isCurrentPage(this)) return;
+      if (this._destroyed || requestVersion !== this._reportRequestVersion || !isProjectContextCurrent(context)) return;
       const entities = response.data.project_report_entities || [];
       const reports = [];
       let invalidCount = 0;
@@ -56,11 +59,11 @@ Page({
         }
       });
       this.setData({ reports, loading: false });
-      if (invalidCount) {
+      if (invalidCount && isCurrentPage(this)) {
         wx.showToast({ title: `${invalidCount}份报告数据异常，已跳过`, icon: "none" });
       }
     } catch (error) {
-      if (requestVersion === this._reportRequestVersion && isCurrentPage(this)) {
+      if (!this._destroyed && requestVersion === this._reportRequestVersion && isProjectContextCurrent(context)) {
         this.setData({ loading: false, loadError: getErrorMessage(error, "报告加载失败，请重试") });
       }
     } finally {
